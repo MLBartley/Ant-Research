@@ -54,7 +54,7 @@ for(t in 2:T){
 ## Step 4 - Visualize it!
 ##
 
-plot(x = 1:T, y = d, col=X)
+plot(x = 1:T, y = d, col=X, type = "l")
 
 ##
 ## Step 5 - likelihood and forward equations
@@ -111,6 +111,9 @@ likelihood = function(x, theta){
   lambda.2 = theta[2]
   r.1 = theta[3]
   r.2 = theta[4]
+  
+  ones = rep(1, 2)
+  
   L.mat = matrix(
     c(dgamma(x, lambda.1, r.1), dgamma(x, lambda.2, r.2)),
     nrow = length(x),
@@ -140,8 +143,55 @@ neg.l.like = function(x, theta){
 neg.l.like(x, theta)
 
 #use optim() L-BFGS-B
-optim(theta <- c(1, 100, 5, 5), fn = neg.l.like, x=d, 
+optim(theta <- c(2, 200, 10, 10), fn = neg.l.like, x=d, 
           method = "BFGS")
 
 #check out scaling
-neg.l.like(x,theta)
+#Main idea: before the product of probabilities
+#were quickly going to 0 and then trouble happens 
+#when we try and do log(0)
+
+#Instead: Algarithm with computational trick of multiplying
+#the values by another value (then later canceling it out)
+#There is an example in HMM Appendex A.1.3
+
+#We need to redo our likelihood functions in this mannor
+
+scale.neg.log.likelihood = function(x, theta){
+  lambda.1 = theta[1]
+  lambda.2 = theta[2]
+  r.1 = theta[3]
+  r.2 = theta[4] 
+  
+  phi = matrix(rep(NA, T*2),
+               nrow = T,
+               ncol =2)
+  
+  phi[1,] = delta
+  
+  lscaled = 0
+  
+  L.mat = matrix(
+    c(dgamma(x, lambda.1, r.1), dgamma(x, lambda.2, r.2)),
+    nrow = length(x),
+    ncol = 2
+  ) 
+
+  ones = rep(1, 2)
+  
+  for(t in 1:T){
+    P_t = diag(L.mat[t,]) 
+    v.vec = phi[t,] %*% P %*% P_t
+    u = v.vec %*% ones
+    lscaled = lscaled + log(u)
+    phi[t+1,] = v.vec/as.numeric(u)
+    return(-lscaled)
+  }
+}
+
+scale.neg.log.likelihood(x = d, theta = theta)
+
+optim(theta <- c(2, 200, 10, 10), fn = scale.neg.log.likelihood, x=d, 
+      method = "BFGS")
+
+
