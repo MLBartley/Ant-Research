@@ -157,7 +157,7 @@ optim(theta <- c(2, 200, 10, 10), fn = neg.l.like, x=d,
 
 #We need to redo our likelihood functions in this mannor
 
-scale.neg.log.likelihood = function(x, theta){
+scale.neg.log.likelihood = function(theta, x){
   lambda.1 = theta[1]
   lambda.2 = theta[2]
   r.1 = theta[3]
@@ -189,9 +189,11 @@ scale.neg.log.likelihood = function(x, theta){
   }
 }
 
-scale.neg.log.likelihood(x = d, theta = theta)
+scale.neg.log.likelihood(theta = theta, x = d)
+
+#should this give the same value as neg.log.likelihood
 
 optim(theta <- c(2, 200, 10, 10), fn = scale.neg.log.likelihood, x=d, 
-      method = "BFGS")
+      method = "L-BFGS-B", lower = 1, upper = 400)
 
 
