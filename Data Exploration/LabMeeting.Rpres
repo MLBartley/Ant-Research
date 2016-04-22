@@ -1,0 +1,340 @@
+Lab Meeting
+========================================================
+author: Meridith L. Bartley 
+date: 26 February  2016
+
+
+Data Summary
+========================================================
+- two hours of observations
+- high density (1 chamber) & low density (4 chambers)
+- 60 ants interacting 
+- 232 interactions in high density
+  - 10 with queen
+- 288 interactions in low density
+  - 17 with queen
+
+Interactions Per Ant
+========================================================
+$\\$
+
+```{r, echo=FALSE}
+high <- read.csv("~/Google Drive/PSU/Projects/Ant-Research/Data/Colony_1_trophallaxis_high_density.csv")
+low <- read.csv("~/Google Drive/PSU/Projects/Ant-Research/Data/Colony_1_trophallaxis_low_density.csv")
+
+hist(table(high$Ant_ID), xlab = "Total Number of Interactios",
+     main = "High Density", cex.main= 3,
+     breaks = 15, xlim = c(0, 50), ylim = c(0, 15))
+abline(v= mean(table(high$Ant_ID)), lty = 3, lwd = 4, col="red")
+
+```
+- 60 individuals in each
+
+***
+
+$\\$
+
+```{r, echo=FALSE}
+hist(table(low$Ant_ID), xlab = "Total Number of Interactions",
+     main = "Low Density", cex.main=3, ylim = c(0, 15), xlim = c(0, 50),
+     breaks = 20)
+abline(v = mean(table(high$Ant_ID)), lty = 3,lwd=4, col="red")
+
+```
+
+Interactions per Ant by Location
+========================================================
+$\\$
+
+```{r, echo=FALSE}
+par(mfrow=c(1,1))
+
+hist(table(low$Ant_ID[which(low$Location == 1)]), xlab = "Total Number of Interactions",
+     main = "Location 1", cex.main = 3,
+     #main = "Interactions per Ant:Low Density, Loc 1", 
+     breaks = 15, col = "black",
+     xlim = c(0, 35))
+abline(v = mean(table(low$Ant_ID[which(low$Location == 1)])), col = "red", lty = 3, lwd = 3)
+```
+- 37 and 32 individuals
+
+***
+$\\$
+
+```{r, echo = F}
+hist(table(low$Ant_ID[which(low$Location == 4)]), xlab = "Total Number of Interactions",
+     #main = "Interactions per Ant:Low Density, Loc 4", 
+     main = "Location 4", cex.main = 3, 
+     breaks = 15, col = "blue", 
+     xlim = c(0, 35))
+abline(v = mean(table(low$Ant_ID[which(low$Location == 4)])), col = "red", lty = 3, lwd = 3)
+
+mtext("Interaction per Ant, by Location", outer = TRUE, cex=1.5)
+
+```
+
+
+
+Total Interactions over Time
+========================================================
+$\\$
+
+```{r, echo=FALSE}
+high = high[seq(1, nrow(high), by = 2), ]
+low = low[seq(1, nrow(low), by = 2), ]
+
+high = high[order(high$start_time), ]
+low = low[order(low$start_time), ]
+
+par(mfrow = c(1, 1))
+plot(high$start_time,1:nrow(high),main="High Density Trophallaxis",
+     xlab = "Start Time", 
+     ylab = "Number of Interactions")
+```
+
+***
+
+$\\$
+
+```{r, echo=F}
+plot(low$start_time, 1:nrow(low), main="Low Density Trophallaxis",
+     xlab = "Start Time", 
+     ylab = "Number of Interactions", 
+     col=low$Location)
+     legend(5000, 100, c("Loc1", "Loc4"), lty = c(1,1), col = c("black", "blue"))
+
+
+```
+
+Low Density Interactions by Location
+========================================================
+$\\$
+
+
+```{r, echo = F, fig.align = "center"}
+## Separate Low Density by Location
+
+low.1 = low[which(low$Location == 1), ]
+  
+low.4 = low[which(low$Location == 4), ]
+  low.4 = low.4[order(low.4$start_time), ]
+
+      plot(low.1$start_time, 1:nrow(low.1), main="Location 1",
+         xlim = c(0, 7200),
+         xlab = "Start Time", 
+         ylab = "Number of Interactions")
+```
+
+***
+$\\$
+
+```{r, echo= F, fig.align='center'}  
+    plot(low.4$start_time, 1:nrow(low.4), main="Location 4",
+         xlim = c(0, 7200),
+         xlab = "Start Time", 
+         ylab = "Number of Interactions",
+         col = "blue")
+```
+
+
+Model for Interactions
+========================================================
+
+Observed Interactions: $\text{ N}_t \sim \text{Pois}(\lambda_{X_t})$
+
+  Unobserved States: $\text{ X}_t | \text{ X}_{t-1} \sim \text{Multinom} (1, \underline{p}_{X_{t-1}})$
+
+  where, 
+  
+  $$\mathbf{P} = \begin{bmatrix} p_{ 11 } & \dots  & p_{ 1n } \\ \vdots  & \ddots  & \vdots  \\ p_{ n1 } & \dots  & p_{ nn } \end{bmatrix}$$
+    
+$\lambda_{X_t} \sim \text{Gamma}(\alpha, \beta)$
+
+$\underline{p}_{X_t} \sim \text{Dirichlet}(\underline{\theta})$
+
+    
+    
+MCMC - High Density
+========================================================
+
+```{r, echo = F, fig.width= 25, fig.height=15}
+delta.t = 60
+  
+#High Density Data
+for(i in 1:nrow(high)){
+  tmp = high$start_time 
+  y = rep(0, max(high$end_time) / delta.t)
+  mint = 0
+  for(t in 1:length(y)){
+    y[t] = length(which(tmp > mint & tmp <= mint + delta.t))
+    mint = mint + delta.t
+  }
+}
+high.y = y
+
+source("functions.R")
+
+theta = matrix(data = c(90, 10, 10, 90), nrow = 2, ncol = 2, byrow = T) 
+
+out.high = mcmc.troph(data = high.y, title = " ", a = 5, b = 2, 
+                      theta = theta, states = 2, n.mcmc = 1000)
+
+```
+
+2 State Model - High Density
+=========================================================
+
+```{r, echo=F, fig.align= 'center', fig.width= 10}
+par(mfrow = c(1, 1))
+
+plot(high$start_time, 1:nrow(high), main="", xlab="Seconds", ylab = "Count", xlim=c(0,7200), cex.lab = 2)
+##    plot(one.day,1:length(one.day),main=day,xlab="Minutes")
+states = out.high$X.est
+rr=rle(states[,1])
+rr$values = round(rr$values, digits = 0)
+embedded.chain=rr$values
+cs=c(0,cumsum(rr$lengths))*delta.t - delta.t
+cols=c('#FF000022','#0000FF22')
+for(j in 1:length(embedded.chain)){
+  rect(cs[j],0,cs[j+1],nrow(high), col=cols[embedded.chain[j]] , density=NA)
+}
+```
+
+
+MCMC - Low Density
+========================================================
+
+```{r, echo = F, fig.width= 25, fig.height=15}
+delta.t = 60
+  
+#Low Density Data: Both Locations
+for(i in 1:nrow(low)){
+  tmp = low$start_time
+  y = rep(0, max(high$end_time) / delta.t) #max time same ~7200
+  mint = 0
+  for(t in 1:length(y)){
+    y[t] = length(which(tmp > mint & tmp <= mint + delta.t))
+    mint = mint + delta.t
+  }
+}
+low.y = y
+
+
+
+out.low = mcmc.troph(data = low.y, title = "", a = 5, b = 2, 
+                     theta = theta, states = 2, n.mcmc = 1000)
+
+
+```
+
+2 State Model - Low Density
+=========================================================
+
+```{r, echo=F, fig.align= 'center', fig.width= 10}
+par(mfrow = c(1, 1))
+
+plot(low$start_time, 1:nrow(low), main="", xlab="Seconds", ylab = "Count", xlim=c(0,7200), cex.lab = 2, col= low$Location)
+##    plot(one.day,1:length(one.day),main=day,xlab="Minutes")
+states = out.low$X.est
+rr=rle(states[,1])
+rr$values = round(rr$values, digits = 0)
+embedded.chain=rr$values
+cs=c(0,cumsum(rr$lengths))*delta.t - delta.t
+cols=c('#FF000022','#0000FF22')
+for(j in 1:length(embedded.chain)){
+  rect(cs[j],0,cs[j+1],nrow(low), col=cols[embedded.chain[j]] , density=NA)
+}
+```
+
+MCMC - Low Density Location 1
+========================================================
+
+```{r, echo = F, fig.width= 25, fig.height=15}
+delta.t = 30
+  
+#Low Density Data: Location 1
+for(i in 1:nrow(low)){
+  tmp = low.1$start_time
+  y = rep(0, max(high$end_time) / delta.t)
+  mint = 0
+  for(t in 1:length(y)){
+    y[t] = length(which(tmp > mint & tmp <= mint + delta.t))
+    mint = mint + delta.t
+  }
+}
+low1.y = y
+
+
+
+out.low1 = mcmc.troph(data = low1.y, title = "Low Density, Location 1", a = 5, b = 2, 
+                      theta = theta, states = 2, n.mcmc = 1000)
+
+
+
+
+
+
+```
+
+2 State Model - Low Density Location 1
+=========================================================
+
+```{r, echo=F, fig.align= 'center', fig.width= 10}
+par(mfrow = c(1, 1))
+
+plot(low.1$start_time, 1:nrow(low.1), main="", xlab="Seconds", ylab = "Count", xlim=c(0,7200), cex.lab = 2)
+##    plot(one.day,1:length(one.day),main=day,xlab="Minutes")
+states = out.low1$X.est
+rr=rle(states[,1])
+rr$values = round(rr$values, digits = 0)
+embedded.chain=rr$values
+cs=c(0,cumsum(rr$lengths))*delta.t - delta.t
+cols=c('#FF000022','#0000FF22')
+for(j in 1:length(embedded.chain)){
+  rect(cs[j],0,cs[j+1],nrow(low.1), col=cols[embedded.chain[j]] , density=NA)
+}
+```
+
+MCMC - Low Density Location 4
+========================================================
+
+```{r, echo = F, fig.width= 25, fig.height=15}
+delta.t = 30
+  
+for(i in 1:nrow(low)){
+  tmp = low.4$start_time
+  y = rep(0, max(high$end_time) / delta.t)
+  mint = 0
+  for(t in 1:length(y)){
+    y[t] = length(which(tmp > mint & tmp <= mint + delta.t))
+    mint = mint + delta.t
+  }
+}
+low4.y = y
+
+
+
+out.low4 = mcmc.troph(data = low4.y, title = "Low Density, Location 4",  a = 5, b = 2, 
+                      theta = theta, states = 2, n.mcmc = 1000)
+
+
+```
+
+2 State Model - Low Density Location 4
+=========================================================
+
+```{r, echo=F, fig.align= 'center', fig.width= 10}
+par(mfrow = c(1, 1))
+
+plot(low.4$start_time, 1:nrow(low.4), main="", xlab="Seconds", ylab = "Count", xlim=c(0,7200), cex.lab = 2)
+##    plot(one.day,1:length(one.day),main=day,xlab="Minutes")
+states = out.low4$X.est
+rr=rle(states[,1])
+rr$values = round(rr$values, digits = 0)
+embedded.chain=rr$values
+cs=c(0,cumsum(rr$lengths))*delta.t - delta.t
+cols=c('#FF000022','#0000FF22')
+for(j in 1:length(embedded.chain)){
+  rect(cs[j],0,cs[j+1],nrow(low.4), col=cols[embedded.chain[j]] , density=NA)
+}
+```
