@@ -34,7 +34,7 @@ str(low4)
   #Action (enter/exit Chamber 1)
 
 in.out.high = read.csv("Data/Colony_1_in&out_high_density_4hrs.csv")
-
+in.out.low = read.csv("Data/Colony_1_in&out_low_density_4hrs.csv")
 #########################################################
 ##
 ## 
@@ -43,15 +43,22 @@ in.out.high = read.csv("Data/Colony_1_in&out_high_density_4hrs.csv")
 ##
 #########################################################
 
-#### A look at in/out data for high density
+#### A look at in/out data 
 
-num = unique(in.out.high$Ant_ID)
-length(num) 
+num.inout.high = unique(in.out.high$Ant_ID)
+length(num.inout.high) 
 
 table(in.out.high$Ant_ID)
 
-  # only entrance times
-in.out.high = in.out.high[which(in.out.high$Action == "enter"),]
+num.inout.low = unique(in.out.low$Ant_ID)
+length(num.inout.low)
+
+table(in.out.low$Ant_ID)
+  
+
+# only entrance times
+cov.high = in.out.high[which(in.out.high$Action == "enter"), ]
+cov.low = in.out.low[which(in.out.low$Action == "Enter"), ]
 
 
 
@@ -73,6 +80,7 @@ num.low = unique(low4$Ant_ID)
 length(num.low) 
 
 table(low4$Ant_ID)
+
 hist(table(low4$Ant_ID), xlab = "Count",
      main = "Interactions per Ant:Low Density", 
      breaks = 20)
@@ -142,7 +150,7 @@ par(mfrow = c(1, 1))
 plot(high4$start_time,1:nrow(high4),main="High Density Trophallaxis, 4 Hours",
      xlab = "Start Time", 
      ylab = "Number of Interactions")
-points(in.out.high$time, rep(0, nrow(in.out.high)), pch=8, col="red")
+points(cov.high$time, rep(0, nrow(cov.high)), pch=8, col="red")
 
     
 plot(low4$start_time, 1:nrow(low4), main="Low Density Trophallaxis",
@@ -150,18 +158,23 @@ plot(low4$start_time, 1:nrow(low4), main="Low Density Trophallaxis",
      ylab = "Number of Interactions", 
      col=low4$Location)
      legend(5000, 100, c("Loc1", "Loc4"), lty = c(1,1), col = c("black", "blue"))
-
+points(cov.low$time, rep(0, nrow(cov.low)), pch=8, col="red")
+  
+  
 par(mfrow = c(1, 2), oma = c(0, 0, 2, 0))
     plot(low4.1$start_time, 1:nrow(low4.1), main="Location 1",
          xlim = c(0, max(low4$end_time)),
          xlab = "Start Time", 
          ylab = "Number of Interactions")
-    
+points(cov.low$time, rep(0, nrow(cov.low)), pch=8, col="red")
+  
     plot(low4.4$start_time, 1:nrow(low4.4), main="Location 4",
          xlim = c(0, max(low4$end_time)),
          xlab = "Start Time", 
          ylab = "Number of Interactions",
          col = "blue")
+  points(cov.low$time, rep(0, nrow(cov.low)), pch=8, col="red")
+  
       mtext("Low Density Trophallaxis", outer = TRUE, cex = 1.5 )
 
 #########################################################
@@ -239,7 +252,10 @@ nrow(low4)
 
 theta = matrix(data = c(90, 10, 10, 90), nrow = 2, ncol = 2, byrow = T) 
 
-
+mu.all = c(2, -1, -0.000004)
+sig.all = matrix(data = c(0.2, 0, 0, 
+                          0, 0.2, 0, 
+                          0, 0, 0.0002), nrow = 3, ncol = 3, byrow = T)
 ###
 ### Two States
 ###
@@ -247,8 +263,12 @@ theta = matrix(data = c(90, 10, 10, 90), nrow = 2, ncol = 2, byrow = T)
 out.high = mcmc.troph(data = high.y, title = "High Density, 4 Hrs", a = 5, b = 2, 
                       theta = theta, states = 2, n.mcmc = 3000)
 
+out.high.cov = mcmc.troph.cov(data = high.y, title = "High Density w/ Cov, 4 Hrs", 
+                              a = 5, b = 2, theta = theta, states = 2, n.mcmc = 1000,
+                              cov = cov, mu.cov = mu.all, sig.cov = sig.all )
+
 out.low = mcmc.troph(data = low.y, title = "Low Density", a = 5, b = 2, 
-                     theta = theta, states = 2, n.mcmc = 1000)
+                     theta = theta, states = 2, n.mcmc = 3000)
 
 
 out.low1 = mcmc.troph(data = low1.y, title = "Low Density, Location 1", a = 5, b = 2, 
@@ -279,7 +299,7 @@ for(j in 1:length(embedded.chain)){
   rect(cs[j],0,cs[j + 1],nrow(high4), 
        col=cols[embedded.chain[j]], density=NA)
 }
-points(in.out.high$time, rep(0, nrow(in.out.high)), 
+points(cov.high$time, rep(0, nrow(cov.high)), 
        pch=8, col="forestgreen")
 
 ##    axis(4,pretty(c(0,100)),col="green")
@@ -297,7 +317,8 @@ cols=c('#FF000022','#0000FF22')
 for(j in 1:length(embedded.chain)){
   rect(cs[j],0,cs[j+1],nrow(low4), col=cols[embedded.chain[j]] , density=NA)
 }
-
+points(cov.low$time, rep(0, nrow(cov.low)), 
+       pch=8, col="forestgreen")
 #Low Density - Location 1 
 
 plot(low4.1$start_time, 1:nrow(low4.1), main="Low, Loc 1", xlab="Seconds", xlim=c(0,max(high4$end_time)))
@@ -311,6 +332,8 @@ cols=c('#FF000022','#0000FF22')
 for(j in 1:length(embedded.chain)){
   rect(cs[j],0,cs[j+1],nrow(low4.1), col=cols[embedded.chain[j]] , density=NA)
 }
+points(cov.low$time, rep(0, nrow(cov.low)), 
+       pch=8, col="forestgreen")
 
 #Low Density - Location 4
 plot(low4.4$start_time, 1:nrow(low4.4), main="Low, Loc 4", xlab="Seconds", xlim=c(0,max(high4$end_time)))
@@ -324,7 +347,8 @@ cols=c('#FF000022','#0000FF22')
 for(j in 1:length(embedded.chain)){
   rect(cs[j],0,cs[j+1],nrow(low4.4), col=cols[embedded.chain[j]] , density=NA)
 }
-
+points(cov.low$time, rep(0, nrow(cov.low)), 
+       pch=8, col="forestgreen")
 
 #########################################################
 ##

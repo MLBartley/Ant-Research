@@ -80,14 +80,22 @@ cov = c(rep(1000, leave[1] - 1),
 
 in.out =  read.csv("Data/Colony_1_in&out_high_density_4hrs.csv")
 in.out = in.out[which(in.out$Action == "enter"),]
+in.out = in.out[order(in.out$time), ]
 
-cov = 
 
+#Create vector of covariates - time since last ant entered
+cov = rep(300, in.out$time[1])
+  
+  for(i in 2:nrow(in.out)){
+    cov = c(cov, 0:(in.out$time[i] - in.out$time[i - 1] ))
+  }
+
+cov = c(cov, 0:(14400 - in.out$time[nrow(in.out)]))
 
 # inputs
 data = sim$y
 states = 2
-n.mcmc = 5000
+n.mcmc = 1000
 theta = matrix(data = c(90, 10, 10, 90), nrow = 2, ncol = 2, byrow = T) 
 a = 5
 b = 2
@@ -96,7 +104,7 @@ b = 2
 mu.all = c(2, -1, -0.000004)
 sig.all = matrix(data = c(0.2, 0, 0, 
                           0, 0.2, 0, 
-                          0, 0, 0.002), nrow = 3, ncol = 3, byrow = T)
+                          0, 0, 0.0002), nrow = 3, ncol = 3, byrow = T)
 #mu.a = 2
 #mu.b = c(-1, -0.004)
 #tau.a = 0.2
@@ -204,7 +212,7 @@ for(l in 2:n.mcmc) {
           
           #proposal
           
-            proposal = rnorm(3, mean = alph.beta.params[, l-1], sd =  c(.2, .2, .002))
+            proposal = rnorm(3, mean = alph.beta.params[, l - 1], sd =  c(.2, .2, .002))
             
 #           proposal.alpha = rnorm(1, mean = alpha.param[l - 1], sd = tau.a)
 #           
@@ -213,7 +221,7 @@ for(l in 2:n.mcmc) {
 
             #accept/reject all params - Block update
 
-            prob.all = exp(log.fullcond(proposal) - log.fullcond(alph.beta.params[, l-1]))
+            prob.all = exp(log.fullcond(proposal) - log.fullcond(alph.beta.params[, l - 1]))
 
             if(runif(1) < prob.all){
               alph.beta.params[, l] = proposal
@@ -255,14 +263,20 @@ for(l in 2:n.mcmc) {
           P.matrix[2, 2] = (exp(alpha)) / (1 + exp(alpha))
           P.matrix[2, 1] = 1 - P.matrix[2, 2]  
           
-          P.12.param[i, l] = P.matrix[1,2]
-          P.11.param[i, l] = P.matrix[1,1]
-          P.22.param[i, l] = P.matrix[2,2]
-          P.21.param[i, l] = P.matrix[2,1]
+          P.12.param[i, l] = P.matrix[1, 2]
+          P.11.param[i, l] = P.matrix[1, 1]
+          P.22.param[i, l] = P.matrix[2, 2]
+          P.21.param[i, l] = P.matrix[2, 1]
           
           }
         
   ##X Parameters
+     
+    ## For X at t = 1
+          
+P.matrix = matrix(data = c(P.11.param[1, l - 1], P.12.param[1, l - 1], 
+                          P.21.param[1, l - 1], P.22.param[1, l - 1]), 
+                          nrow = n, ncol = n, byrow = T)        
   for(k in 1:n){
     gam[1, k] = lambda.param[k, l - 1] ^ data[1] * exp(-lambda.param[k, l - 1]) * 
       delta[k] * P.matrix[k, X.param[2, l - 1]]
@@ -271,6 +285,9 @@ for(l in 2:n.mcmc) {
   X.param[1, l] = sample(x = (1:n), size = 1, prob = gam[1,])
   
   m[X.param[1, l], X.param[1, l]] = m[X.param[1, l], X.param[1, l]] + 1
+  
+  
+     ##For X from t = 2 to t = Time - 1
   
   for(t in 2:(Time - 1)){
     
@@ -290,6 +307,12 @@ for(l in 2:n.mcmc) {
                                             X.param[t,l]] + 1
   }
   
+  ## For X at t = Time
+  
+  P.matrix = matrix(data = c(P.11.param[Time, l - 1], P.12.param[Time, l - 1], 
+                             P.21.param[Time, l - 1], P.22.param[Time, l - 1]), 
+                    nrow = n, ncol = n, byrow = T)
+  
   for(k in 1:n){
     gam[Time, k] = lambda.param[k, l - 1] ^ data[Time] * 
       exp(-lambda.param[k, l - 1]) * P.matrix[X.param[(Time - 1), l - 1], k]
@@ -299,6 +322,7 @@ for(l in 2:n.mcmc) {
   
   m[X.param[Time - 1, l], X.param[Time, l]] = m[X.param[Time - 1, l], 
                                                 X.param[Time, l]] + 1
+  
   
   #Lambda 
   for(h in 1:n) {
@@ -319,10 +343,14 @@ for(l in 2:n.mcmc) {
 ## X1:XT, Lambda, Pmatrix
 
 #homes
-X.est = matrix(data = rep(NA, Time), nrow = Time, ncol = 1)
+X.est = matrix(NA, nrow = Time, ncol = 1)
 lambda.est = matrix(data = rep(NA, n), nrow = n, ncol = 1)
-P.est = matrix(data = rep(NA, n * n), nrow = n * n, ncol = 1)
+#P.est = matrix(data = rep(NA, n * n), nrow = n * n, ncol = 1)
 
+P.11.est = matrix(NA, nrow = Time, ncol = 1)
+P.12.est = matrix(NA, nrow = Time, ncol = 1)
+P.21.est = matrix(NA, nrow = Time, ncol = 1)
+P.22.est = matrix(NA, nrow = Time, ncol = 1)
 
 for(t in 1:Time ){
   X.est[t, 1] = mean(X.param[t, ])  
@@ -332,11 +360,21 @@ for(i in 1:n ){
   lambda.est[i, 1] = mean(lambda.param[i, ])
 }  
 
-for(l in 1:(n * n) ){
-  P.est[l, 1] = mean(P.param[l, ])
+for(t in 1:Time ){
+  #P.est[l, 1] = mean(P.param[l, ])
+  P.11.est[t, 1] = mean(P.11.param[t, ]) 
+  P.12.est[t, 1] = mean(P.12.param[t, ]) 
+  P.21.est[t, 1] = mean(P.21.param[t, ]) 
+  P.22.est[t, 1] = mean(P.22.param[t, ])
+  
 }
 
-P.est.matrix = matrix(data = c(P.est[, 1]), nrow = n, ncol = n, byrow = T)
+
+#P.est.matrix = matrix(data = c(P.est[, 1]), nrow = n, ncol = n, byrow = T)
+P.est.matrix =  matrix(data = c(mean(P.11.est), mean(P.12.est), 
+                                mean(P.21.est), mean(P.22.est), 
+                       nrow = n, ncol = n, byrow = T)
+
 
 #plot the estimation runs.
 
@@ -353,11 +391,15 @@ for(i in 1:n){
 
 
 #P
-plot(0,0,xlab="MCMC Runs", ylab="P", ylim=c(0, max(P.param)), xlim=c(0,n.mcmc), 
+t = sample(1:Time, 1)
+plot(0, 0, xlab="MCMC Runs", ylab="Single P", ylim=c(0, 1), xlim=c(0,n.mcmc), 
      type="n", cex.lab = 1)
-for(i in 1:(n*n)){
-  lines(1:n.mcmc, P.param[i, ], col = i)
-}
+#for(i in 1:(n * n)){
+  lines(1:n.mcmc, P.11.param[t, ], col = "red")
+  lines(1:n.mcmc, P.12.param[t, ], col = "blue")
+  lines(1:n.mcmc, P.21.param[t, ], col = "black")
+  lines(1:n.mcmc, P.22.param[t, ], col = "green")
+#}
 
 #Single X
 X = X.param[sample(1:Time, 1), ]
@@ -370,7 +412,7 @@ plot(X.est,type="l",lwd=3, cex.lab = 1)
 
 title(main=title, outer=T)
 
-## Second Step - need to estimate X, lambda, P
+  ## Second Step - need to estimate X, lambda, P
 ## OPTION 2 - New P equations with alpha/beta priors
 
 

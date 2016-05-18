@@ -1,7 +1,7 @@
 Lab Meeting
 ========================================================
 author: Meridith L. Bartley 
-date: 26 February  2016
+
 
 
 Data Summary

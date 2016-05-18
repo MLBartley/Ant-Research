@@ -1,5 +1,5 @@
 #Sourced Upon Startup of Ant-Research project
-
+install.packages("Ants")
 library("Ants")
 library("devtools")
 library("ggplot2")
