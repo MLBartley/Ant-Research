@@ -115,3 +115,10 @@ for(i in 2:Time){
 ## Use new P matrix to simulate data
 ##
 #############
+
+lambda = k = c(1, 10)
+
+sim.mcmc.dynamP(tmax = 1000 , delta.t = 1, start.state = 1, 
+                P11 = P.11.param, P12 = P.12.param, P21 = P.21.param, 
+                P22 = P.22.param, lambda = lambda)
+
