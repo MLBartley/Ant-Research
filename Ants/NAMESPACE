@@ -2,4 +2,5 @@
 
 export(mcmc.troph)
 export(mcmc.troph.cov)
+export(sim.mcmc.dynamP)
 export(sim.mmpp)
