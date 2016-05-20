@@ -24,8 +24,8 @@
 ########
 
 cov.data = read.csv("./Data/Colony1_high_foraging_2hr.csv")
-lambda = nrow(cov.data)/max(cov.data$start)
-lambda
+lambda.f = nrow(cov.data)/max(cov.data$start)
+lambda.f
 
 ########
 ##
@@ -33,17 +33,18 @@ lambda
 ##
 ########
 time = 4 * 60 * 60
-forager.number = rpois(n = 1, lambda = lambda*time)
+forager.number = rpois(n = 1, lambda = lambda.f*time)
 forager.arrivals = rep(NA, forager.number)
   for (i in 1:forager.number){
     forager.arrivals[i] = rgamma(n = 1, shape = i,
-                                 rate = lambda)
+                                 rate = lambda.f)
   }
   
 forager.arrivals = round(forager.arrivals)
 forager.arrivals = sort(forager.arrivals)
 forager.arrivals = forager.arrivals[which(duplicated(forager.arrivals) == FALSE)]
-forager.arrivals = c(forager.arrivals, time+1)
+forager.arrivals = c(forager.arrivals, time + 1)
+
 ########
 ##
 ## Time since Arrivals
@@ -118,7 +119,44 @@ for(i in 2:Time){
 
 lambda = k = c(1, 10)
 
-sim.mcmc.dynamP(tmax = 1000 , delta.t = 1, start.state = 1, 
+sim = sim.mcmc.dynamP(tmax = 1000 , delta.t = 1, start.state = 1, 
                 P11 = P.11.param, P12 = P.12.param, P21 = P.21.param, 
                 P22 = P.22.param, lambda = lambda)
 
+
+####
+##
+## Thoughts - 
+##
+####
+
+# could combine two simulation functions to be more general
+# could add code to dynamic simulation function to add arrival times to plot
+# 
+
+################################
+##
+## 20 May 2016 
+## 
+## Want to fit simulated data to model and retrieve "true" values before
+## using model on full data
+##
+## Issue #2 on GitHub
+########################################################################
+
+#we've got simulated data and we know the truth:
+    # lambda = c(1, 10) for low/high rates
+    # theta = matrix(data = c(90, 10, 10, 90), nrow = 2, ncol = 2, byrow = T) 
+    # n = 2
+    # alpha = -2.2
+    # beta.0 = -2.2
+    # beta.1 = 0.0004
+
+mu.all = c(2, -1, -0.000004)
+sig.all = matrix(data = c(0.2, 0, 0, 
+                          0, 0.2, 0, 
+                          0, 0, 0.0002), nrow = 3, ncol = 3, byrow = T)
+
+recov = mcmc.troph.cov(data = sim$y, title = "Test", a = 5, b = 2, 
+                       theta = theta, states = 2, n.mcmc = 100, cov = covariate,
+                       mu.cov = mu.all , sig.cov = sig.all)
