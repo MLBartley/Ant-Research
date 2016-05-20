@@ -135,8 +135,8 @@ mcmc.troph.cov = function(data, title, a, b, theta, states, n.mcmc,
     #Now use priors to calculate P matrix values 
     alpha = alph.beta.params[1, l]
     beta.0 = alph.beta.params[2, l]
-    beta.1 = 0 
-    #beta.1 = alph.beta.params[2, l]
+    #beta.1 = 0 
+    beta.1 = alph.beta.params[3, l]
     
     
     for(i in 1:Time){
