@@ -160,3 +160,4 @@ sig.all = matrix(data = c(0.2, 0, 0,
 recov = mcmc.troph.cov(data = sim$y, title = "Test", a = 5, b = 2, 
                        theta = theta, states = 2, n.mcmc = 100, cov = covariate,
                        mu.cov = mu.all , sig.cov = sig.all)
+
