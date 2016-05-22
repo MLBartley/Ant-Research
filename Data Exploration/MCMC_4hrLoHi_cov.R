@@ -36,5 +36,3 @@ inout.low.4 = inout.low.4[which(inout.low.4$Action == "Enter"),]
 
 #visualize high data
 
-
-

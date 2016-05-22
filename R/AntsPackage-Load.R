@@ -3,6 +3,7 @@ library("devtools")
 install.packages("roxygen2")
 library(roxygen2)
 
+getwd()
 
 setwd("~/Google Drive/PSU/Projects/Ant-Research")
 #create("Ants")
@@ -10,4 +11,4 @@ setwd("~/Google Drive/PSU/Projects/Ant-Research")
 setwd("./Ants")
 document()
 
-install_github("MLBartley/Ant-Research", subdir = "Ants")
+  install_github("MLBartley/Ant-Research", subdir = "Ants")
