@@ -20,8 +20,8 @@
   #end_time
   #Note: q or Queen is queen ant. Long live the Queen.
 
-high4 <- read.csv("~/Google Drive/PSU/Projects/Ant-Research/Data/Colony_1_trophallaxis_high_density_4hr.csv")
-low4 <- read.csv("~/Google Drive/PSU/Projects/Ant-Research/Data/Colony_1_trophallaxis_low_density_4hr.csv")
+high4 <- read.csv("./Data/Colony1_trophallaxis_high_density_4hr.csv")
+low4 <- read.csv("./Data/Colony1_trophallaxis_low_density_4hr.csv")
 
 head(high4)
 head(low4)
@@ -33,8 +33,8 @@ str(low4)
   #Time
   #Action (enter/exit Chamber 1)
 
-in.out.high = read.csv("Data/Colony_1_in&out_high_density_4hrs.csv")
-in.out.low = read.csv("Data/Colony_1_in&out_low_density_4hrs.csv")
+in.out.high = read.csv("Data/Colony1_in&out_high_density_4hr.csv")
+in.out.low = read.csv("Data/Colony1_in&out_low_density_4hr.csv")
 #########################################################
 ##
 ## 
@@ -73,7 +73,7 @@ par(mfrow = c(1, 1))
 hist(table(high4$Ant_ID), xlab = "Count",
      main = "Interactions per Ant: High Density, 4 Hours", 
      breaks = 20)
-abline(v=mean(table(high4$Ant_ID)), lty = 3, col="red", lwd = 3)
+abline(v = mean(table(high4$Ant_ID)), lty = 3, col="red", lwd = 3)
 
 
 num.low = unique(low4$Ant_ID)
