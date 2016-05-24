@@ -5,7 +5,7 @@
 #' (2) - the specific rates of interaction (lambda) of each state 
 #' (3) - the probability of moving from one state to another (P matrix)
 #'
-#' @param data, title, a, b, theta, states, n.mcmc
+#' @param y.data, ant.file, title, a, b, theta, states, n.mcmc, delta.t
 #' @return  (1) - estimates of X, lambda, P
 #'          (2) - 2x2 visual of estimates over time (runs)
 #' @export
@@ -15,11 +15,18 @@
 #' theta = theta, states = 2, n.mcmc = 3000)
 
 
-mcmc.troph = function(data, title, a, b, theta, states, n.mcmc){
-  
+mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2, 
+                      theta, states = 2, n.mcmc, delta.t){
+  data = y.data
   Time = length(data)
   n = states
   delta = rep(1/n, n)
+  
+  #needed for final graphic 
+  location = ant.file$Location 
+  start = ant.file$start_time
+  start = sort(start)
+  
   
   library(gtools)
   
@@ -162,6 +169,79 @@ mcmc.troph = function(data, title, a, b, theta, states, n.mcmc){
   plot(X.est,type="l",lwd=3, cex.lab = 1)
   
   title(main=title, outer=T)
+  #########################################################
+  ##
+  ## Fancy Plots with Background Colors
+  ##
+  #########################################################
+  
+  if(unique(location) == 1){
+    par(mfrow = c(1, 1))
+  
+  ##High Density - 4 Hours
+  plot(start, 1:nrow(ant.file), main="High", 
+       xlab="Seconds", xlim = c(0,max(ant.file$end_time)))
+  ##    plot(one.day,1:length(one.day),main=day,xlab="Minutes")
+  states = X.est #from code above
+  rr = rle(states[,1])
+  rr$values = round(rr$values, digits = 0)
+  embedded.chain = rr$values
+  cs = c(0,cumsum(rr$lengths))*delta.t - delta.t
+  cols=c('#FF000022','#0000FF22')
+  for(j in 1:length(embedded.chain)){
+    rect(cs[j],0,cs[j + 1],nrow(ant.file), 
+         col=cols[embedded.chain[j]], density=NA)
+  }
+  }
+  else{
+    #Low Density - 4 Hours
+  
+  plot(start, 1:nrow(ant.file), main="Low", xlab="Seconds", xlim=c(0,max(ant.file$end_time)))
+  ##    plot(one.day,1:length(one.day),main=day,xlab="Minutes")
+  states = X.est
+  rr=rle(states[,1])
+  rr$values = round(rr$values, digits = 0)
+  embedded.chain=rr$values
+  cs=c(0,cumsum(rr$lengths))*delta.t - delta.t
+  cols=c('#FF000022','#0000FF22')
+  for(j in 1:length(embedded.chain)){
+    rect(cs[j],0,cs[j+1],nrow(ant.file), col=cols[embedded.chain[j]] , density=NA)
+  }
+
+  # #Low Density - Location 1 
+  # 
+  # plot(low4.1$start_time, 1:nrow(low4.1), main="Low, Loc 1", xlab="Seconds", xlim=c(0,max(high4$end_time)))
+  # ##    plot(one.day,1:length(one.day),main=day,xlab="Minutes")
+  # states = out.low1$X.est
+  # rr=rle(states[,1])
+  # rr$values = round(rr$values, digits = 0)
+  # embedded.chain=rr$values
+  # cs=c(0,cumsum(rr$lengths))*delta.t - delta.t
+  # cols=c('#FF000022','#0000FF22')
+  # for(j in 1:length(embedded.chain)){
+  #   rect(cs[j],0,cs[j+1],nrow(low4.1), col=cols[embedded.chain[j]] , density=NA)
+  # }
+  # points(cov.low$time, rep(0, nrow(cov.low)), 
+  #        pch=8, col="forestgreen")
+  # 
+  # #Low Density - Location 4
+  # plot(low4.4$start_time, 1:nrow(low4.4), main="Low, Loc 4", xlab="Seconds", xlim=c(0,max(high4$end_time)))
+  # ##    plot(one.day,1:length(one.day),main=day,xlab="Minutes")
+  # states = out.low4$X.est
+  # rr=rle(states[,1])
+  # rr$values = round(rr$values, digits = 0)
+  # embedded.chain=rr$values
+  # cs=c(0,cumsum(rr$lengths))*delta.t - delta.t
+  # cols=c('#FF000022','#0000FF22')
+  # for(j in 1:length(embedded.chain)){
+  #   rect(cs[j],0,cs[j+1],nrow(low4.4), col=cols[embedded.chain[j]] , density=NA)
+  # }
+  # points(cov.low$time, rep(0, nrow(cov.low)), 
+  #        pch=8, col="forestgreen")
+  # 
+}
+  
+
   
   
   list(X.est = X.est, lambda.est = lambda.est, P.est = P.est.matrix, P.run = P.param)
