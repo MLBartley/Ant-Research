@@ -180,7 +180,8 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
     
   ##High Density - 4 Hours
   plot(start, 1:nrow(ant.file), main="High", 
-       xlab="Seconds", xlim = c(0,max(ant.file$end_time)))
+       xlab="Seconds", ylab = "Cumulative Interaction Count", 
+       xlim = c(0,max(ant.file$end_time)))
   ##    plot(one.day,1:length(one.day),main=day,xlab="Minutes")
   states = X.est #from code above
   rr = rle(states[,1])
@@ -196,14 +197,16 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
   else{
     #Low Density - 4 Hours
   
-  plot(start, 1:nrow(ant.file), main="Low", xlab="Seconds", xlim=c(0,max(ant.file$end_time)))
+  plot(start, 1:nrow(ant.file), main="Low", xlab="Seconds",
+       ylab = "Cumulative Interaction Count", 
+       xlim=c(0,max(ant.file$end_time)))
   ##    plot(one.day,1:length(one.day),main=day,xlab="Minutes")
   states = X.est
   rr=rle(states[,1])
   rr$values = round(rr$values, digits = 0)
   embedded.chain=rr$values
   cs=c(0,cumsum(rr$lengths))*delta.t - delta.t
-  cols=c('#bc535622','#538bbc22')
+  cols=c('#bc535644','#538bbc44')
   for(j in 1:length(embedded.chain)){
     rect(cs[j],0,cs[j+1],nrow(ant.file), col=cols[embedded.chain[j]] , density=NA)
   }

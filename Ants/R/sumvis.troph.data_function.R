@@ -96,14 +96,15 @@ sumvis.troph.data = function(data, entrance, hours, density = "high"){
     #order data frame by start time so plot works better
     data.change = data.change[order(data.change$start_time), ]
     
-    par(mfrow = c(1, 1))
+     par(mfrow = c(1, 1))
+    
+  if(density == "high"){
     plot(data.change$start_time,1:nrow(data.change),main="High Density Trophallaxis",
          xlab = "Start Time", 
          ylab = "Number of Interactions")
     points(cov$time, rep(0, nrow(cov)), pch=8, col="red")
-    
-    
-    if(density != "high"){
+    }
+  else{
       
         ## Separate Low Density by Location
         
