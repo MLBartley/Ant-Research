@@ -113,7 +113,13 @@ mcmc.troph.cov = function(data, title, a, b, theta, states, n.mcmc,
         dnorm(param[2], mean = mu.cov[2], sd = sqrt(diag(sig.cov)[2]), log = T) +
         dnorm(param[3], mean = mu.cov[3], sd = sqrt(diag(sig.cov)[3]), log = T)
       
-      return(out)
+        ##need code to avoid output of -Inf!!
+      if(out == -Inf){
+        return(0.000000001)
+      }else(return(out))
+  
+      
+
     }
     
     
