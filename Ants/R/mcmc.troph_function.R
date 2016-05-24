@@ -174,10 +174,10 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
   ## Fancy Plots with Background Colors
   ##
   #########################################################
+  par(mfrow = c(1, 1))
   
-  if(unique(location) == 1){
-    par(mfrow = c(1, 1))
-  
+  if(length(unique(location)) == 1){
+    
   ##High Density - 4 Hours
   plot(start, 1:nrow(ant.file), main="High", 
        xlab="Seconds", xlim = c(0,max(ant.file$end_time)))
@@ -187,7 +187,7 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
   rr$values = round(rr$values, digits = 0)
   embedded.chain = rr$values
   cs = c(0,cumsum(rr$lengths))*delta.t - delta.t
-  cols=c('#FF000022','#0000FF22')
+  cols=c('#bc535644','#538bbc44')
   for(j in 1:length(embedded.chain)){
     rect(cs[j],0,cs[j + 1],nrow(ant.file), 
          col=cols[embedded.chain[j]], density=NA)
@@ -203,7 +203,7 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
   rr$values = round(rr$values, digits = 0)
   embedded.chain=rr$values
   cs=c(0,cumsum(rr$lengths))*delta.t - delta.t
-  cols=c('#FF000022','#0000FF22')
+  cols=c('#bc535622','#538bbc22')
   for(j in 1:length(embedded.chain)){
     rect(cs[j],0,cs[j+1],nrow(ant.file), col=cols[embedded.chain[j]] , density=NA)
   }
