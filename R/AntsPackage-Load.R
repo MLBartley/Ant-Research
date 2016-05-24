@@ -11,5 +11,6 @@ setwd("~/Google Drive/PSU/Projects/Ant-Research")
 setwd("./Ants")
 document()
 
-install_github("MLBartley/Ant-Research", subdir = "Ants")
+#go updata github first
+install_github("MLBartley/Ant-Research", subdir = "Ants", force=TRUE)
 library(Ants)

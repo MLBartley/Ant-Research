@@ -33,13 +33,29 @@
 #' theta = theta, states = 2, n.mcmc = 3000, cov = cov, mu.cov = mu.all, sig.cov = sig.all)
 
 
-mcmc.troph.cov = function(data, title, a, b, theta, states, n.mcmc, 
-                          cov, mu.cov, sig.cov){
-  
+mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, theta, states = 2, n.mcmc, 
+                          cov, mu.cov, sig.cov, delta.t){
+  data = y.data
   Time = length(data)
   n = states
   delta = rep(1 / n, n)
   
+  #needed for final graphic 
+  location = ant.file$Location 
+  start = ant.file$start_time
+  start = sort(start)
+  cov.time = inout.file$time
+  
+  if(length(unique(location)) != 1){
+    # Separate Low Density by Location
+    
+    low.1 = ant.file[which(ant.file$Location == 1), ]
+    start2 = low.1$start_time
+    
+    low.4 = ant.file[which(ant.file$Location == 4), ]
+    low.4 = low.4[order(low.4$start_time), ]
+    start3 = low.4$start_time
+  }
   
   #homes
   ## Build Homes for X(1:T), lambda(1:n), and P(nXn) and gam vectors
@@ -296,7 +312,87 @@ mcmc.troph.cov = function(data, title, a, b, theta, states, n.mcmc,
          
          title(main=title, outer=T)
                          
-  
+#########################################################
+##
+## Fancy Plots with Background Colors
+##
+#########################################################
+   par(mfrow = c(1, 1))
+   
+   if(length(unique(location)) == 1){
+     
+     ##High Density - 4 Hours
+     plot(start, 1:nrow(ant.file), main="High", 
+          xlab="Seconds", ylab = "Cumulative Interaction Count", 
+          xlim = c(0,max(ant.file$end_time)))
+     ##    plot(one.day,1:length(one.day),main=day,xlab="Minutes")
+     states = X.est #from code above
+     rr = rle(states[,1])
+     rr$values = round(rr$values, digits = 0)
+     embedded.chain = rr$values
+     cs = c(0,cumsum(rr$lengths))*delta.t - delta.t
+     cols=c('#bc535644','#538bbc44')
+     for(j in 1:length(embedded.chain)){
+       rect(cs[j],0,cs[j + 1],nrow(ant.file), 
+            col=cols[embedded.chain[j]], density=NA)
+       
+     }
+     points(cov.time, rep(0, length(cov.time)), 
+            pch=8, col="#53bc84")
+   }
+   else{
+     #Low Density - 4 Hours
+     
+     plot(start, 1:nrow(ant.file), main="Low", xlab="Seconds", 
+          ylab = "Cumulative Interaction Count", 
+          xlim=c(0,max(ant.file$end_time)))
+     states = X.est
+     rr=rle(states[,1])
+     rr$values = round(rr$values, digits = 0)
+     embedded.chain=rr$values
+     cs=c(0,cumsum(rr$lengths))*delta.t - delta.t
+     cols=c('#bc535644','#538bbc44')
+     for(j in 1:length(embedded.chain)){
+       rect(cs[j],0,cs[j+1],nrow(ant.file), col=cols[embedded.chain[j]] , density=NA)
+     }
+     points(cov.time, rep(0, length(cov.time)), 
+            pch=8, col="#53bc84")
+     
+     #Low Density - Location 1
+
+     plot(start2, 1:length(start2), main="Low, Loc 1", xlab="Seconds",
+          ylab = "Cumulative Interaction Count", 
+          xlim=c(0,max(ant.file$end_time)))
+     states = X.est
+     rr=rle(states[,1])
+     rr$values = round(rr$values, digits = 0)
+     embedded.chain=rr$values
+     cs=c(0,cumsum(rr$lengths))*delta.t - delta.t
+     cols=c('#bc535644','#538bbc44')
+     for(j in 1:length(embedded.chain)){
+       rect(cs[j],0,cs[j+1],length(start2), 
+            col=cols[embedded.chain[j]] , density=NA)
+     }
+     points(cov.time, rep(0, length(cov.time)), 
+            pch=8, col="#53bc84")
+
+     #Low Density - Location 4
+     plot(start3, 1:length(start3), main="Low, Loc 4", xlab="Seconds",
+          ylab = "Cumulative Interaction Count", 
+          xlim=c(0,max(ant.file$end_time)))
+     states = X.est
+     rr=rle(states[,1])
+     rr$values = round(rr$values, digits = 0)
+     embedded.chain=rr$values
+     cs=c(0,cumsum(rr$lengths))*delta.t - delta.t
+     cols=c('#bc535644','#538bbc44')
+     for(j in 1:length(embedded.chain)){
+       rect(cs[j],0,cs[j+1],length(start3), col=cols[embedded.chain[j]] , density=NA)
+     }
+     points(cov.time, rep(0, length(cov.time)), 
+            pch=8, col="#53bc84")
+
+   }  
   
   list(X.est = X.est, lambda.est = lambda.est, P.est = P.est.matrix)
   
