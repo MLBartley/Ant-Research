@@ -23,7 +23,7 @@
 ##
 ########
 
-cov.data = read.csv("./Data/Colony1_high_foraging_2hr.csv")
+cov.data = read.csv("./Data/Colony1_foraging_high_density_2hr.csv")
 lambda.f = nrow(cov.data)/max(cov.data$start)
 lambda.f
 
@@ -32,7 +32,8 @@ lambda.f
 ## Forager arrival times
 ##
 ########
-time = 4 * 60 * 60
+hours = 4
+time = hours * 60 * 60
 forager.number = rpois(n = 1, lambda = lambda.f*time)
 forager.arrivals = rep(NA, forager.number)
   for (i in 1:forager.number){
@@ -79,7 +80,7 @@ n = 2
 
 alpha = -2.2
 beta.0 = -2.2
-beta.1 = 0.0004
+beta.1 = -0.0004
 
 ## P matrix now varies over time, needs homes
 
@@ -152,12 +153,12 @@ sim = sim.mcmc.dynamP(tmax = 1000 , delta.t = 1, start.state = 1,
     # beta.0 = -2.2
     # beta.1 = 0.0004
 
-mu.all = c(2, -1, -0.000004)
+mu.all = c(-2, -1, -0.00004)
 sig.all = matrix(data = c(0.2, 0, 0, 
                           0, 0.2, 0, 
                           0, 0, 0.0002), nrow = 3, ncol = 3, byrow = T)
 
-recov = mcmc.troph.cov(data = sim$y, title = "Test", a = 5, b = 2, 
+recov = mcmc.troph.cov(y.data = sim$y, title = "Test", a = 5, b = 2, 
                        theta = theta, states = 2, n.mcmc = 100, cov = covariate,
-                       mu.cov = mu.all , sig.cov = sig.all)
+                       mu.cov = mu.all , sig.cov = sig.all, delta.t = 60)
 

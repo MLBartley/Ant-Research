@@ -320,7 +320,7 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
           
          #alpha beta1 beta0 plot
          
-         plot(0, 0, xlab="MCMC Runs", ylab="Alpha", ylim=c(0,max(alph.beta.params[1, ])), 
+         plot(0, 0, xlab="MCMC Runs", ylab="Alpha", ylim = c(min(alph.beta.params[1, ]),max(alph.beta.params[1, ])), 
               xlim = c(0,n.mcmc), type="n", cex.lab = 1)
          lines(1:n.mcmc, alph.beta.params[1,], col = "red")
          
