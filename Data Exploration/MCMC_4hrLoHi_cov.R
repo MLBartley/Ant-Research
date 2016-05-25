@@ -67,26 +67,27 @@ low.in.prep = prep.inout.data(data = inout.low.4, delta.t = 60, hours = 4)
 theta = matrix(data = c(90, 10, 10, 90), nrow = 2, ncol = 2, byrow = T) 
 mu.all = c(2, -1, -0.000004)
 sig.all = matrix(data = c(0.2, 0, 0, 
-                          0, 0.2, 0, 
+                          0, 0.1, 0, 
                           0, 0, 0.0002), nrow = 3, ncol = 3, byrow = T)
+tau = c(0.2, 0.1, 0.0002)
 
 run.high = mcmc.troph(y.data = high.prep$high.y, ant.file = troph.high.4, title = "Test", a = 5, b = 2, 
-                  theta = theta, states = 2, n.mcmc = 3000, delta.t = 60)
+                  theta = theta, states = 2, n.mcmc = 5000, delta.t = 60)
 
 run.high.cov = mcmc.troph.cov(y.data = high.prep$high.y, ant.file = troph.high.4,
                     inout.file = inout.high.4, title = "Test", a = 5, b = 2,
-                    theta = theta, states = 2, n.mcmc = 3000, 
+                    theta = theta, states = 2, n.mcmc = 5000, 
                     cov = high.in.prep$cov, mu.cov = mu.all, 
-                    sig.cov = sig.all, delta.t = 60)
+                    sig.cov = sig.all, tau, delta.t = 60)
 
 
 run.low = mcmc.troph(y.data = low.prep$low.y, ant.file = troph.low.4,
                       title = "test", a = 5, b = 2, theta = theta, 
-                      states = 2, n.mcmc = 3000, delta.t = 60)
+                      states = 2, n.mcmc = 5000, delta.t = 60)
 
 run.low.cov = mcmc.troph.cov(y.data = low.prep$low.y, ant.file = troph.low.4, 
                           inout.file = inout.low.4, title = "test", a = 5, 
-                          b = 2, theta = theta, states = 2, n.mcmc = 3000, 
+                          b = 2, theta = theta, states = 2, n.mcmc = 5000, 
                           cov = low.in.prep$cov, mu.cov = mu.all, 
-                          sig.cov = sig.all, delta.t = 60)
+                          sig.cov = sig.all, tau, delta.t = 60)
 
