@@ -57,6 +57,17 @@ low.prep = prep.troph.data(data = troph.low.4, delta.t = 60)
 high.in.prep = prep.inout.data(data = inout.high.4, delta.t = 60, hours = 4)
 low.in.prep = prep.inout.data(data = inout.low.4, delta.t = 60, hours = 4)
 
+##################
+##
+## bring in simulated data
+##
+##################
+
+
+
+
+
+
 
 ###################
 ##
@@ -65,11 +76,11 @@ low.in.prep = prep.inout.data(data = inout.low.4, delta.t = 60, hours = 4)
 ###################
 
 theta = matrix(data = c(90, 10, 10, 90), nrow = 2, ncol = 2, byrow = T) 
-mu.all = c(2, -1, -0.000004)
+mu.all = c(-2.2, -1,  -0.003)
 sig.all = matrix(data = c(0.2, 0, 0, 
-                          0, 0.1, 0, 
-                          0, 0, 0.0002), nrow = 3, ncol = 3, byrow = T)
-tau = c(0.2, 0.1, 0.0002)
+                          0, 0.2, 0, 
+                          0, 0, 0.002), nrow = 3, ncol = 3, byrow = T)
+tau = c(0.2, 0.2, 0.002)
 
 run.high = mcmc.troph(y.data = high.prep$high.y, ant.file = troph.high.4, title = "Test", a = 5, b = 2, 
                   theta = theta, states = 2, n.mcmc = 5000, delta.t = 60)
