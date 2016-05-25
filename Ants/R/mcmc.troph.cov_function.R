@@ -7,7 +7,7 @@
 #' This model will take in observed interaction data and covariates. Currently
 #' time since last forager ant entered the chamber is our covariate.
 #'
-#' @param data, title, a, b, theta, states, n.mcmc, cov, mu.cov, sig.cov
+#' @param y.data, ant.file, inout.file, title, a, b, theta, states, n.mcmc, cov, mu.cov, sig.cov, tau, delta.t
 #' @return  (1) - estimates of X, lambda, P
 #'          (2) - 2x2 visual of estimates over time (runs)
 #' @export
@@ -34,7 +34,7 @@
 
 
 mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, theta, states = 2, n.mcmc, 
-                          cov, mu.cov, sig.cov, delta.t){
+                          cov, mu.cov, sig.cov, tau, delta.t){
   data = y.data
   Time = length(data)
   n = states
@@ -141,7 +141,7 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
     
     #proposal
     
-    proposal = rnorm(3, mean = alph.beta.params[, l - 1], sd =  c(.2, .2, .002))
+    proposal = rnorm(3, mean = alph.beta.params[, l - 1], sd =  tau)
     
     #accept/reject all params - Block update
     
@@ -242,7 +242,7 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
   
   ## Compile the Estimates
   
-  ## X1:XT, Lambda, Pmatrix
+  ## X1:XT, Lambda, Pmatrix, alpha/beta0/beta1
   
   #homes
   X.est = matrix(NA, nrow = Time, ncol = 1)
@@ -252,6 +252,8 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
   P.12.est = matrix(NA, nrow = Time, ncol = 1)
   P.21.est = matrix(NA, nrow = Time, ncol = 1)
   P.22.est = matrix(NA, nrow = Time, ncol = 1)
+  
+  alph.beta.est = matrix(NA, nrow = Time, ncol = 3)
   
   for(t in 1:Time ){
     X.est[t, 1] = mean(X.param[t, ])  
@@ -276,7 +278,11 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
                                   mean(P.21.est), mean(P.22.est), 
                                   nrow = n, ncol = n, byrow = T))
                          
-                         
+ 
+ for(t in 1:Time){
+   alph.beta.est[t, ] = mean(alph.beta.params[, t])
+ }  
+                          
  #plot the estimation runs.
                          
          #lambda
@@ -311,7 +317,21 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
          plot(X.est,type="l",lwd=3, cex.lab = 1)
          
          title(main=title, outer=T)
-                         
+          
+         #alpha beta1 beta0 plot
+         
+         plot(0, 0, xlab="MCMC Runs", ylab="Alpha", ylim=c(0,max(alph.beta.params[1, ])), 
+              xlim = c(0,n.mcmc), type="n", cex.lab = 1)
+         lines(1:n.mcmc, alph.beta.params[1,], col = "red")
+         
+         plot(0, 0, xlab="MCMC Runs", ylab="Beta_0", ylim=c(min(alph.beta.params[2, ]), max(alph.beta.params[2, ])), 
+              xlim = c(0,n.mcmc), type="n", cex.lab = 1)
+         lines(1:n.mcmc, alph.beta.params[2, ], col = "green")
+         
+         plot(0, 0, xlab="MCMC Runs", ylab="Beta_1", ylim=c(min(alph.beta.params[3, ]), max(alph.beta.params[3, ])), 
+              xlim = c(0,n.mcmc), type="n", cex.lab = 1)
+         lines(1:n.mcmc, alph.beta.params[3, ], col = "blue")
+                        
 #########################################################
 ##
 ## Fancy Plots with Background Colors
