@@ -45,6 +45,7 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
   start = ant.file$start_time
   start = sort(start)
   cov.time = inout.file$time
+  int.num = length(start)
   
   if(length(unique(location)) != 1){
     # Separate Low Density by Location
@@ -342,9 +343,9 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
    if(length(unique(location)) == 1){
      
      ##High Density - 4 Hours
-     plot(start, 1:nrow(ant.file), main="High", 
+     plot(start, 1:int.num, main="High", 
           xlab="Seconds", ylab = "Cumulative Interaction Count", 
-          xlim = c(0,max(ant.file$end_time)))
+          xlim = c(0, Time))
      ##    plot(one.day,1:length(one.day),main=day,xlab="Minutes")
      states = X.est #from code above
      rr = rle(states[,1])
@@ -353,7 +354,7 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
      cs = c(0,cumsum(rr$lengths))*delta.t - delta.t
      cols=c('#bc535644','#538bbc44')
      for(j in 1:length(embedded.chain)){
-       rect(cs[j],0,cs[j + 1],nrow(ant.file), 
+       rect(cs[j],0,cs[j + 1], int.num, 
             col=cols[embedded.chain[j]], density=NA)
        
      }
@@ -363,9 +364,9 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
    else{
      #Low Density - 4 Hours
      
-     plot(start, 1:nrow(ant.file), main="Low", xlab="Seconds", 
+     plot(start, 1:int.num, main="Low", xlab="Seconds", 
           ylab = "Cumulative Interaction Count", 
-          xlim=c(0,max(ant.file$end_time)))
+          xlim=c(0, Time))
      states = X.est
      rr=rle(states[,1])
      rr$values = round(rr$values, digits = 0)
@@ -373,7 +374,7 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
      cs=c(0,cumsum(rr$lengths))*delta.t - delta.t
      cols=c('#bc535644','#538bbc44')
      for(j in 1:length(embedded.chain)){
-       rect(cs[j],0,cs[j+1],nrow(ant.file), col=cols[embedded.chain[j]] , density=NA)
+       rect(cs[j],0,cs[j+1], int.num, col=cols[embedded.chain[j]] , density=NA)
      }
      points(cov.time, rep(0, length(cov.time)), 
             pch=8, col="#53bc84")
@@ -382,7 +383,7 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
 
      plot(start2, 1:length(start2), main="Low, Loc 1", xlab="Seconds",
           ylab = "Cumulative Interaction Count", 
-          xlim=c(0,max(ant.file$end_time)))
+          xlim=c(0, Time))
      states = X.est
      rr=rle(states[,1])
      rr$values = round(rr$values, digits = 0)
@@ -399,7 +400,7 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
      #Low Density - Location 4
      plot(start3, 1:length(start3), main="Low, Loc 4", xlab="Seconds",
           ylab = "Cumulative Interaction Count", 
-          xlim=c(0,max(ant.file$end_time)))
+          xlim=c(0,Time))
      states = X.est
      rr=rle(states[,1])
      rr$values = round(rr$values, digits = 0)
