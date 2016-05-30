@@ -6,10 +6,10 @@
 X_t ~ Markov Chain ( X_t-1 , P_t ) [two states]
 Y_t ~ Pois (lambda_{X_t})}
 \usage{
-sim.mcmc.dynamP(tmax, delta.t, start.state = 1, P11, P12, P21, P22, lambda)
+sim.mcmc.dynamP(tmax, start.state = 1, P11, P12, P21, P22, lambda)
 }
 \arguments{
-\item{tmax, }{delta.t, start.state, P11, P12, P21, P22, lambda}
+\item{tmax, }{start.state, P11, P12, P21, P22, lambda}
 }
 \value{
 #Output: (1) - x: (1, 2) unobserved two state process 
@@ -30,8 +30,7 @@ P_2,2_t = 1 - P_2,1_t
 
 
 lambda = k = c(1, 4)
-delta.t = 1 #needs to be 1, else observations dependent on time
-sim = sim.mcmc.dynamP(7200, delta.t, start.state = 1, P11, P12, P21, P22, lambda)
+sim = sim.mcmc.dynamP(7200, start.state = 1, P11, P12, P21, P22, lambda)
 
 }
 \keyword{HMM,}

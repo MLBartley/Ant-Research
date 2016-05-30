@@ -167,12 +167,11 @@ sim.2 = sim.mmpp(tmax = length(P.21.param), delta.t = 1, start.state = 1, P = P,
 ########################################################################
 
 #we've got simulated data and we know the truth:
-    # lambda = c(1, 10) for low/high rates
-    # theta = matrix(data = c(90, 10, 10, 90), nrow = 2, ncol = 2, byrow = T) 
+    # lambda = c(1, 15) for low/high rates
     # n = 2
-    # alpha = -2.2
-    # beta.0 = -2.2
-    # beta.1 = 0.0004
+    # alpha = -4.6
+    # beta.0 = -4
+    # beta.1 = 0.0001
 
 mu.all = c(-4, -4, -0.001)
 sig.all = matrix(data = c(0.2, 0, 0, 
@@ -183,7 +182,7 @@ tau = c(0.2, 0.2, 0.002)
 recov = mcmc.troph.cov(y.data = sim$y, ant.file = troph.high.4, 
                        inout.file = cov.data, title = "Test", 
                        a = 5, b = 2, theta = theta, states = 2, 
-                       n.mcmc = 100, cov = covariate,
+                       n.mcmc = 2000, cov = covariate,
                        mu.cov = mu.all , sig.cov = sig.all, tau = tau,
                        delta.t = 1)
 
