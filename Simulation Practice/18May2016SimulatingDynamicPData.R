@@ -136,7 +136,7 @@ lines(1:Time, P.22.param, col = "green")
 ##
 #############
 
-lambda = k = c(1, 15)
+lambda = k = c(.006, .1)
 
 sim = sim.mcmc.dynamP(tmax = length(P.22.param), start.state = 1, 
                 P11 = P.11.param, P12 = P.12.param, P21 = P.21.param, 
@@ -166,6 +166,17 @@ sim.2 = sim.mmpp(tmax = length(P.21.param), delta.t = 1, start.state = 1, P = P,
 ## Issue #2 on GitHub
 ########################################################################
 
+### should we simulate 'arrival' times for simulated interactions 
+    # useful for mcmc.troph.cov where ant.file is needed to
+    # plot the interactions and recovered states
+
+sum(sim$y)
+
+sim$start_time = sim$t[which(sim$y >= 1)]
+
+sim$Location = rep(1, length(sim$start_time))
+
+
 #we've got simulated data and we know the truth:
     # lambda = c(1, 15) for low/high rates
     # n = 2
@@ -179,7 +190,7 @@ sig.all = matrix(data = c(0.2, 0, 0,
                           0, 0, 0.0002), nrow = 3, ncol = 3, byrow = T)
 tau = c(0.2, 0.2, 0.002)
 
-recov = mcmc.troph.cov(y.data = sim$y, ant.file = troph.high.4, 
+recov = mcmc.troph.cov(y.data = sim$y, ant.file = sim, 
                        inout.file = cov.data, title = "Test", 
                        a = 5, b = 2, theta = theta, states = 2, 
                        n.mcmc = 2000, cov = covariate,
