@@ -275,8 +275,8 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
   
   #P.est.matrix = matrix(data = c(P.est[, 1]), nrow = n, ncol = n, byrow = T)
   P.est.matrix =  matrix(data = c(mean(P.11.est), mean(P.12.est), 
-                                  mean(P.21.est), mean(P.22.est), 
-                                  nrow = n, ncol = n, byrow = T))
+                                  mean(P.21.est), mean(P.22.est)), 
+                                  nrow = n, ncol = n, byrow = T)
                          
  
  for(i in 1:3){
