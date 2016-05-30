@@ -11,7 +11,7 @@
 #' P_2,1_t = (exp(alpha)) / (1 + exp(alpha))
 #' P_2,2_t = 1 - P_2,1_t
 #' 
-#' @param tmax, delta.t, start.state, P11, P12, P21, P22, lambda
+#' @param tmax, start.state, P11, P12, P21, P22, lambda
 #' @return #Output: (1) - x: (1, 2) unobserved two state process 
 #'        (2) - y: (0, ...) "observed" number of interactions at time t
 #'        (3) - N: (0, ...) cumulative count of interactions
@@ -24,17 +24,16 @@
 #' 
 #'
 #' lambda = k = c(1, 4)
-#' delta.t = 1 #needs to be 1, else observations dependent on time
-#' sim = sim.mcmc.dynamP(7200, delta.t, start.state = 1, P11, P12, P21, P22, lambda)
+#' sim = sim.mcmc.dynamP(7200, start.state = 1, P11, P12, P21, P22, lambda)
 #' 
 
 
-sim.mcmc.dynamP <- function(tmax, delta.t, start.state=1, P11, P12, P21, P22, lambda){
-  T=floor(tmax/delta.t)+1
-  x=rep(NA,T)
-  y=rep(NA,T)
-  x[1]=start.state
-  y[1]=0
+sim.mcmc.dynamP <- function(tmax, start.state=1, P11, P12, P21, P22, lambda){
+  T = tmax
+  x = rep(NA,T)
+  y = rep(NA,T)
+  x[1] = start.state
+  y[1] = 0
   for(t in 2:T){
     P = matrix(NA, 2, 2)
     
@@ -46,12 +45,12 @@ sim.mcmc.dynamP <- function(tmax, delta.t, start.state=1, P11, P12, P21, P22, la
     ## sample latent state
     x[t]=sample(1:2,1,prob=P[x[t-1],])
     ## sample observed events
-    y[t]=rpois(1,lambda=lambda[x[t]]*delta.t)
+    y[t]=rpois(1,lambda=lambda[x[t]])
   }
   par(mfrow = c(1, 1))
-  plot((0:(T-1))*delta.t, cumsum(y), 
+  plot((0:(T - 1)), cumsum(y), 
        type = "p", pch = ".", cex = 2, col = x,
        xlab = "Time", ylab = "Interactions")
   
-  list(y=y,x=x,N=cumsum(y),delta.t=delta.t,t=(0:(T-1))*delta.t)
+  list(y = y, x = x, N = cumsum(y), t = (0:(T - 1)))
 }

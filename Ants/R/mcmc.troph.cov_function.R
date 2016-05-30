@@ -253,7 +253,7 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
   P.21.est = matrix(NA, nrow = Time, ncol = 1)
   P.22.est = matrix(NA, nrow = Time, ncol = 1)
   
-  alph.beta.est = matrix(NA, nrow = Time, ncol = 3)
+  alph.beta.est = matrix(NA, nrow = 3, ncol = 1)
   
   for(t in 1:Time ){
     X.est[t, 1] = mean(X.param[t, ])  
@@ -279,8 +279,8 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
                                   nrow = n, ncol = n, byrow = T))
                          
  
- for(t in 1:Time){
-   alph.beta.est[t, ] = mean(alph.beta.params[, t])
+ for(i in 1:3){
+   alph.beta.est[i, ] = mean(alph.beta.params[i, ])
  }  
                           
  #plot the estimation runs.
@@ -414,6 +414,9 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
 
    }  
   
-  list(X.est = X.est, lambda.est = lambda.est, P.est = P.est.matrix)
+  list(X.est = X.est, lambda.est = lambda.est, P.est = P.est.matrix, 
+       P11.est = P.11.est, P12.est = P.12.est, 
+       P21.est = P.21.est, P22.est = P.22.est, 
+       alph.beta.est = alph.beta.est)
   
 }
