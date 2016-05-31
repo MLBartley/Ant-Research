@@ -36,17 +36,19 @@ prep.inout.data = function(data, delta.t, hours){
   }
   
   #bin covariates into similar chunks as the data
-  
   max.time = time
-
   
-  for(i in 1:length(covariate)){
+  if(delta.t != 1){
+    for(i in 1:length(covariate)){
     c = rep(0, max.time / delta.t)
     mint = 1
     for(t in 1:length(c)){
       c[t] = min(covariate[mint:(mint + delta.t - 1)])
       mint = mint + delta.t
     }
+    }
   }
+  
+  
   list(cov = c)
 }
