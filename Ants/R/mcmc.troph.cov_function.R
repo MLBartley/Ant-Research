@@ -34,7 +34,7 @@
 
 
 mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, theta, states = 2, n.mcmc, 
-                          cov, mu.cov, sig.cov, tau, delta.t){
+                          cov, mu.cov, sig.cov, tau, delta.t, hours){
   data = y.data
   Time = length(data)
   n = states
@@ -46,6 +46,8 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
   start = sort(start)
   cov.time = inout.file$time
   int.num = length(start)
+  maxtime = hours * 60 * 60
+  
   
   if(length(unique(location)) != 1){
     # Separate Low Density by Location
@@ -91,7 +93,7 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
   
   lambda.param[, 1] = rgamma(n = n, shape = a, rate = b)
   
-  P.matrix = matrix(data = theta / 100, nrow=n, ncol =n, byrow = T) 
+  P.matrix = matrix(data = theta / 100, nrow = n, ncol = n, byrow = T) 
   
   #P.param[, 1] = as.vector(t(P.matrix)) #holds all P.parameter values over runs
   
@@ -151,7 +153,7 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
     if(runif(1) < prob.all){
       alph.beta.params[, l] = proposal
     }else{
-      alph.beta.params[, l] = alph.beta.params[, l-1]
+      alph.beta.params[, l] = alph.beta.params[, l - 1]
     }
     
  
@@ -345,7 +347,7 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
      ##High Density - 4 Hours
      plot(start, 1:int.num, main="High", 
           xlab="Seconds", ylab = "Cumulative Interaction Count", 
-          xlim = c(0, Time))
+          xlim = c(0, maxtime))
      ##    plot(one.day,1:length(one.day),main=day,xlab="Minutes")
      states = X.est #from code above
      rr = rle(states[,1])
@@ -366,7 +368,7 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
      
      plot(start, 1:int.num, main="Low", xlab="Seconds", 
           ylab = "Cumulative Interaction Count", 
-          xlim=c(0, Time))
+          xlim=c(0, maxtime))
      states = X.est
      rr=rle(states[,1])
      rr$values = round(rr$values, digits = 0)
@@ -383,7 +385,7 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
 
      plot(start2, 1:length(start2), main="Low, Loc 1", xlab="Seconds",
           ylab = "Cumulative Interaction Count", 
-          xlim=c(0, Time))
+          xlim=c(0, maxtime))
      states = X.est
      rr=rle(states[,1])
      rr$values = round(rr$values, digits = 0)
@@ -400,7 +402,7 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
      #Low Density - Location 4
      plot(start3, 1:length(start3), main="Low, Loc 4", xlab="Seconds",
           ylab = "Cumulative Interaction Count", 
-          xlim=c(0,Time))
+          xlim=c(0, maxtime))
      states = X.est
      rr=rle(states[,1])
      rr$values = round(rr$values, digits = 0)

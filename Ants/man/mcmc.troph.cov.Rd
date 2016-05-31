@@ -5,7 +5,7 @@
 \title{MCMC Estimation function for Trophallaxis data with Covariate(s)}
 \usage{
 mcmc.troph.cov(y.data, ant.file, inout.file, title, a = 5, b = 2, theta,
-  states = 2, n.mcmc, cov, mu.cov, sig.cov, tau, delta.t)
+  states = 2, n.mcmc, cov, mu.cov, sig.cov, tau, delta.t, hours)
 }
 \arguments{
 \item{y.data, }{ant.file, inout.file, title, a, b, theta, states, n.mcmc, cov, mu.cov, sig.cov, tau, delta.t}

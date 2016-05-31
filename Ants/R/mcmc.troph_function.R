@@ -16,7 +16,7 @@
 
 
 mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2, 
-                      theta, states = 2, n.mcmc, delta.t){
+                      theta, states = 2, n.mcmc, delta.t, hours){
   data = y.data
   Time = length(data)
   n = states
@@ -27,6 +27,7 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
   start = ant.file$start_time
   start = sort(start)
   int.num = length(start)
+  maxtime = hours * 60 * 60
   
   library(gtools)
   
@@ -181,14 +182,14 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
   ##High Density - 4 Hours
   plot(start, 1:int.num, main="High", 
        xlab="Seconds", ylab = "Cumulative Interaction Count", 
-       xlim = c(0,Time))
+       xlim = c(0, maxtime))
   ##    plot(one.day,1:length(one.day),main=day,xlab="Minutes")
   states = X.est #from code above
   rr = rle(states[,1])
   rr$values = round(rr$values, digits = 0)
   embedded.chain = rr$values
   cs = c(0,cumsum(rr$lengths))*delta.t - delta.t
-  cols=c('#bc535644','#538bbc44')
+  cols=c('#bc535634','#538bbc34')
   for(j in 1:length(embedded.chain)){
     rect(cs[j],0,cs[j + 1],int.num, 
          col=cols[embedded.chain[j]], density=NA)
@@ -199,7 +200,7 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
   
   plot(start, 1:int.num, main="Low", xlab="Seconds",
        ylab = "Cumulative Interaction Count", 
-       xlim=c(0,Time))
+       xlim=c(0,maxtime))
   ##    plot(one.day,1:length(one.day),main=day,xlab="Minutes")
   states = X.est
   rr=rle(states[,1])
