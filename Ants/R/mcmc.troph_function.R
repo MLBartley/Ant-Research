@@ -26,7 +26,7 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
   location = ant.file$Location 
   start = ant.file$start_time
   start = sort(start)
-  
+  int.num = length(start)
   
   library(gtools)
   
@@ -179,9 +179,9 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
   if(length(unique(location)) == 1){
     
   ##High Density - 4 Hours
-  plot(start, 1:nrow(ant.file), main="High", 
+  plot(start, 1:int.num, main="High", 
        xlab="Seconds", ylab = "Cumulative Interaction Count", 
-       xlim = c(0,max(ant.file$end_time)))
+       xlim = c(0,Time))
   ##    plot(one.day,1:length(one.day),main=day,xlab="Minutes")
   states = X.est #from code above
   rr = rle(states[,1])
@@ -190,16 +190,16 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
   cs = c(0,cumsum(rr$lengths))*delta.t - delta.t
   cols=c('#bc535644','#538bbc44')
   for(j in 1:length(embedded.chain)){
-    rect(cs[j],0,cs[j + 1],nrow(ant.file), 
+    rect(cs[j],0,cs[j + 1],int.num, 
          col=cols[embedded.chain[j]], density=NA)
   }
   }
   else{
     #Low Density - 4 Hours
   
-  plot(start, 1:nrow(ant.file), main="Low", xlab="Seconds",
+  plot(start, 1:int.num, main="Low", xlab="Seconds",
        ylab = "Cumulative Interaction Count", 
-       xlim=c(0,max(ant.file$end_time)))
+       xlim=c(0,Time))
   ##    plot(one.day,1:length(one.day),main=day,xlab="Minutes")
   states = X.est
   rr=rle(states[,1])
@@ -208,7 +208,7 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
   cs=c(0,cumsum(rr$lengths))*delta.t - delta.t
   cols=c('#bc535644','#538bbc44')
   for(j in 1:length(embedded.chain)){
-    rect(cs[j],0,cs[j+1],nrow(ant.file), col=cols[embedded.chain[j]] , density=NA)
+    rect(cs[j],0,cs[j+1],int.num, col=cols[embedded.chain[j]] , density=NA)
   }
 
   # #Low Density - Location 1 

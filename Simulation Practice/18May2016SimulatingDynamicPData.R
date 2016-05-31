@@ -143,7 +143,7 @@ sim = sim.mcmc.dynamP(tmax = length(P.22.param), start.state = 1,
                 P22 = P.22.param, lambda = lambda)
 points(cov.data$time, rep(0, length(cov.data$time)), col="#53bc84")
 
-P = matrix(c(.999, .001, .001, .999), nrow = 2, byrow = T)
+P = matrix(c(.99, .01, .01, .99), nrow = 2, byrow = T)
 sim.2 = sim.mmpp(tmax = length(P.21.param), delta.t = 1, start.state = 1, P = P, lambda = lambda)
 
 ####
@@ -176,8 +176,28 @@ sim$start_time = sim$t[which(sim$y >= 1)]
 
 sim$Location = rep(1, length(sim$start_time))
 
+sim$intbin = rep(NA, length(sim$y)/60)
 
-#we've got simulated data and we know the truth:
+  tint = 1
+  delta.t = 60
+  for(i in 1:length(sim$intbin)){
+   
+     sim$intbin[i] = sum(sim$y[tint:(tint + delta.t - 1)])
+     tint = tint + delta.t
+     }
+
+
+  
+    c = rep(0, length(covariate) / delta.t)
+    mint = 1
+    for(t in 1:length(c)){
+      c[t] = min(covariate[mint:(mint + delta.t - 1)])
+      mint = mint + delta.t
+    }
+  
+  
+  
+  #we've got simulated data and we know the truth:
     # lambda = c(1, 15) for low/high rates
     # n = 2
     # alpha = -4.6
@@ -197,3 +217,17 @@ recov = mcmc.troph.cov(y.data = sim$y, ant.file = sim,
                        mu.cov = mu.all , sig.cov = sig.all, tau = tau,
                        delta.t = 1)
 
+recov2 = mcmc.troph(y.data = sim$y, ant.file = sim, title = "Test", 
+                    a = 5, b = 2, theta = theta, states = 2,
+                    n.mcmc = 3000, delta.t = 1)
+
+recov.bin = mcmc.troph.cov(y.data = sim$intbin, ant.file = sim, 
+                           inout.file = cov.data, title = "Test", 
+                           a = 5, b = 2, theta = theta, states = 2, 
+                           n.mcmc = 2000, cov = c,
+                           mu.cov = mu.all , sig.cov = sig.all, tau = tau,
+                           delta.t = 60)
+
+recov.bin = mcmc.troph(y.data = sim$intbin, ant.file = sim, title = "Test", 
+                       a = 5, b = 2, theta = theta, states = 2,
+                       n.mcmc = 3000, delta.t = 60)
