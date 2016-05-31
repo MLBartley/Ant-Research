@@ -47,7 +47,7 @@ prep.inout.data = function(data, delta.t, hours){
       mint = mint + delta.t
     }
     }
-  }
+  }else{c = covariate}
   
   
   list(cov = c)
