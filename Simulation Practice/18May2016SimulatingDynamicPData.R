@@ -83,8 +83,8 @@ Time = length(covariate)
 theta = matrix(data = c(90, 10, 10, 90), nrow = 2, ncol = 2, byrow = T) 
 n = 2
 
-alpha = -4.6
-beta.0 = -4
+alpha = -5.6
+beta.0 = -5
 beta.1 = -0.001
 
 ## P matrix now varies over time, needs homes
@@ -136,7 +136,7 @@ lines(1:Time, P.22.param, col = "green")
 ##
 #############
 
-lambda = k = c(.006, .1)
+lambda = k = c(0, .1)
 
 sim = sim.mcmc.dynamP(tmax = length(P.22.param), start.state = 1, 
                 P11 = P.11.param, P12 = P.12.param, P21 = P.21.param, 
@@ -169,17 +169,17 @@ sim.2 = sim.mmpp(tmax = length(P.21.param), delta.t = 1, start.state = 1, P = P,
 ### should we simulate 'arrival' times for simulated interactions 
     # useful for mcmc.troph.cov where ant.file is needed to
     # plot the interactions and recovered states
-
+delta.t = 30
 sum(sim$y)
 
 sim$start_time = sim$t[which(sim$y >= 1)]
 
 sim$Location = rep(1, length(sim$start_time))
 
-sim$intbin = rep(NA, length(sim$y)/60)
+sim$intbin = rep(NA, length(sim$y)/delta.t)
 
   tint = 1
-  delta.t = 60
+  
   for(i in 1:length(sim$intbin)){
    
      sim$intbin[i] = sum(sim$y[tint:(tint + delta.t - 1)])
@@ -204,30 +204,33 @@ sim$intbin = rep(NA, length(sim$y)/60)
     # beta.0 = -4
     # beta.1 = 0.0001
 
-mu.all = c(-4, -4, -0.001)
+mu.all = c(-5, -5, -0.001)
 sig.all = matrix(data = c(0.2, 0, 0, 
                           0, 0.2, 0, 
                           0, 0, 0.0002), nrow = 3, ncol = 3, byrow = T)
 tau = c(0.2, 0.2, 0.002)
 
-recov = mcmc.troph.cov(y.data = sim$y, ant.file = sim, 
+recov.cov = mcmc.troph.cov(y.data = sim$y, ant.file = sim, 
                        inout.file = cov.data, title = "Test", 
                        a = 5, b = 2, theta = theta, states = 2, 
                        n.mcmc = 2000, cov = covariate,
                        mu.cov = mu.all , sig.cov = sig.all, tau = tau,
-                       delta.t = 1)
+                       delta.t = 1, hours = 4)
 
-recov2 = mcmc.troph(y.data = sim$y, ant.file = sim, title = "Test", 
+recov = mcmc.troph(y.data = sim$y, ant.file = sim, title = "Test", 
                     a = 5, b = 2, theta = theta, states = 2,
-                    n.mcmc = 3000, delta.t = 1)
+                    n.mcmc = 3000, delta.t = 1, hours = 4)
 
-recov.bin = mcmc.troph.cov(y.data = sim$intbin, ant.file = sim, 
+recov.bin.cov = mcmc.troph.cov(y.data = sim$intbin, ant.file = sim, 
                            inout.file = cov.data, title = "Test", 
                            a = 5, b = 2, theta = theta, states = 2, 
-                           n.mcmc = 2000, cov = c,
+                           n.mcmc = 3000, cov = c,
                            mu.cov = mu.all , sig.cov = sig.all, tau = tau,
-                           delta.t = 60)
+                           delta.t = 30, hours = 4)
 
 recov.bin = mcmc.troph(y.data = sim$intbin, ant.file = sim, title = "Test", 
                        a = 5, b = 2, theta = theta, states = 2,
-                       n.mcmc = 3000, delta.t = 60)
+                       n.mcmc = 3000, delta.t = 30, hours = 4)
+
+
+

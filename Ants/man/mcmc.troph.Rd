@@ -5,7 +5,7 @@
 \title{MCMC Estimation function for Trophallaxis data}
 \usage{
 mcmc.troph(y.data, ant.file, title, a = 5, b = 2, theta, states = 2,
-  n.mcmc, delta.t)
+  n.mcmc, delta.t, hours)
 }
 \arguments{
 \item{y.data, }{ant.file, title, a, b, theta, states, n.mcmc, delta.t}
