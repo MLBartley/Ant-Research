@@ -148,11 +148,15 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
     #
     
     if(l %% 100 == 0 ){
-      sigma = ((2.38 ^ 2) / 3) * var(alph.beta.params[, 1:(l - 1)])
+      sigma = c(0, 0, 0)
+      for(a in 1:3){
+        sigma[a] = ((2.38 ^ 2) / 3) * var(alph.beta.params[a, 1:(l - 1)])
+      }
       
-      if(sigma != 0){
+      if((sigma[1] != 0) & (sigma[2] != 0) & (sigma[3] != 0)){
         tau = sigma
       }
+      
     }
     
     proposal = rnorm(3, mean = alph.beta.params[, l - 1], sd =  tau)
@@ -256,6 +260,14 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
     
   }
   
+  
+  ## Rescale Lambda parameters into per minute 
+  ## segments (instead of delta.t time segments)
+  
+  lambda.scale = lambda.param / delta.t * 60
+  
+  
+  
   ## Compile the Estimates
   
   ## X1:XT, Lambda, Pmatrix, alpha/beta0/beta1
@@ -276,7 +288,7 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
   }
   
   for(i in 1:n ){
-    lambda.est[i, 1] = mean(lambda.param[i, ])
+    lambda.est[i, 1] = mean(lambda.scale[i, ])
   }  
   
   for(t in 1:Time ){
@@ -305,10 +317,12 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
          par(mfrow = c(2,2),
              oma = c(0,0,2,0) + 1,
              mar = c(1,1,1,1) + 3)
-         plot(0,0,xlab="MCMC Runs", ylab="Lambda", ylim=c(0,max(lambda.param)), 
-              xlim=c(0,n.mcmc), type="n", cex.lab = 1)
+         plot(0,0,xlab="MCMC Runs", 
+              ylab ="Lambda (scaled to per 60 seconds)", 
+              ylim = c(0,max(lambda.scale)), 
+              xlim = c(0,n.mcmc), type = "n", cex.lab = 1)
          for(i in 1:n){
-           lines(1:n.mcmc, lambda.param[i, ], col = i)
+           lines(1:n.mcmc, lambda.scale[i, ], col = i)
          }
          
          
