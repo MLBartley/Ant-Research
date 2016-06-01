@@ -148,7 +148,11 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
     #
     
     if(l %% 100 == 0 ){
-      tau = ((2.38 ^ 2) / 3) * var(alph.beta.params[, 1:(l - 1)])
+      sigma = ((2.38 ^ 2) / 3) * var(alph.beta.params[, 1:(l - 1)])
+      
+      if(sigma != 0){
+        tau = sigma
+      }
     }
     
     proposal = rnorm(3, mean = alph.beta.params[, l - 1], sd =  tau)
