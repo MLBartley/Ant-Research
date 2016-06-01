@@ -29,7 +29,7 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
   int.num = length(start)
   maxtime = hours * 60 * 60
   
-  library(gtools)
+  library(gtools) #this needs to be fixed and called at the package level
   
   #homes
   ## Build Homes for X(1:T), lambda(1:n), and P(nXn) and gam vectors
@@ -53,7 +53,7 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
   
   lambda.param[, 1] = rgamma(n = n, shape = a, rate = b)
   
-  P.matrix = matrix(data = theta/100, nrow=n, ncol =n, byrow = T) 
+  P.matrix = matrix(data = theta/100, nrow = n, ncol = n, byrow = T) 
   
   P.param[,1] = as.vector(t(P.matrix))
   #holds all P.parameter values over runs
@@ -115,6 +115,14 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
     P.param[, l] = as.vector(t(P.matrix))
   }
   
+  
+  ## Rescale Lambda parameters into per minute 
+  ## segments (instead of delta.t time segments)
+  
+  lambda.scale = lambda.param / delta.t * 60
+  
+  
+  
   ## Compile the Estimates
   
   ## X1:XT, Lambda, Pmatrix
@@ -130,7 +138,7 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
   }
   
   for(i in 1:n ){
-    lambda.est[i, 1] = mean(lambda.param[i, ])
+    lambda.est[i, 1] = mean(lambda.scale[i, ])
   }  
   
   for(l in 1:(n * n) ){
@@ -146,10 +154,10 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
   par(mfrow = c(2,2),
       oma = c(0,0,2,0) + 1,
       mar = c(1,1,1,1) + 3)
-  plot(0,0,xlab="MCMC Runs", ylab="Lambda", ylim=c(0,max(lambda.param)), 
+  plot(0,0,xlab="MCMC Runs", ylab="Lambda (scaled per 60 seconds)", ylim=c(0,max(lambda.scale)), 
        xlim=c(0,n.mcmc), type="n", cex.lab = 1)
   for(i in 1:n){
-    lines(1:n.mcmc, lambda.param[i, ], col = i)
+    lines(1:n.mcmc, lambda.scale[i, ], col = i)
   }
   
   
@@ -170,11 +178,14 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
   plot(X.est,type="l",lwd=3, cex.lab = 1)
   
   title(main=title, outer=T)
+  
+  
   #########################################################
   ##
   ## Fancy Plots with Background Colors
   ##
   #########################################################
+  
   par(mfrow = c(1, 1))
   
   if(length(unique(location)) == 1){
@@ -183,16 +194,15 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
   plot(start, 1:int.num, main="High", 
        xlab="Seconds", ylab = "Cumulative Interaction Count", 
        xlim = c(0, maxtime))
-  ##    plot(one.day,1:length(one.day),main=day,xlab="Minutes")
   states = X.est #from code above
   rr = rle(states[,1])
   rr$values = round(rr$values, digits = 0)
   embedded.chain = rr$values
   cs = c(0,cumsum(rr$lengths))*delta.t - delta.t
-  cols=c('#bc535634','#538bbc34')
+  cols=c('#bc535644','#538bbc44')
   for(j in 1:length(embedded.chain)){
     rect(cs[j],0,cs[j + 1],int.num, 
-         col=cols[embedded.chain[j]], density=NA)
+         col = cols[embedded.chain[j]], density = NA)
   }
   }
   else{
@@ -201,7 +211,6 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
   plot(start, 1:int.num, main="Low", xlab="Seconds",
        ylab = "Cumulative Interaction Count", 
        xlim=c(0,maxtime))
-  ##    plot(one.day,1:length(one.day),main=day,xlab="Minutes")
   states = X.est
   rr=rle(states[,1])
   rr$values = round(rr$values, digits = 0)

@@ -136,15 +136,16 @@ lines(1:Time, P.22.param, col = "green")
 ##
 #############
 
-lambda = k = c(0, .1)
+lambda = c(0, 1)
 
 sim = sim.mcmc.dynamP(tmax = length(P.22.param), start.state = 1, 
                 P11 = P.11.param, P12 = P.12.param, P21 = P.21.param, 
                 P22 = P.22.param, lambda = lambda)
 points(cov.data$time, rep(0, length(cov.data$time)), col="#53bc84")
 
-P = matrix(c(.99, .01, .01, .99), nrow = 2, byrow = T)
-sim.2 = sim.mmpp(tmax = length(P.21.param), delta.t = 1, start.state = 1, P = P, lambda = lambda)
+P = matrix(c(.995, .005, .005, .995), nrow = 2, byrow = T)
+sim = sim.mmpp(tmax = 2 * 60 * 60, delta.t = 1, 
+                 start.state = 1, P = P, lambda = lambda)
 
 ####
 ##
@@ -153,7 +154,6 @@ sim.2 = sim.mmpp(tmax = length(P.21.param), delta.t = 1, start.state = 1, P = P,
 ####
 
 # could combine two simulation functions to be more general
-# could add code to dynamic simulation function to add arrival times to plot
 # 
 
 ################################
@@ -169,7 +169,8 @@ sim.2 = sim.mmpp(tmax = length(P.21.param), delta.t = 1, start.state = 1, P = P,
 ### should we simulate 'arrival' times for simulated interactions 
     # useful for mcmc.troph.cov where ant.file is needed to
     # plot the interactions and recovered states
-delta.t = 30
+
+delta.t = 1
 sum(sim$y)
 
 sim$start_time = sim$t[which(sim$y >= 1)]
@@ -210,6 +211,9 @@ sig.all = matrix(data = c(0.2, 0, 0,
                           0, 0, 0.0002), nrow = 3, ncol = 3, byrow = T)
 tau = c(0.2, 0.2, 0.02)
 
+theta = matrix(data = c(90, 10, 10, 90), nrow = 2, ncol = 2, byrow = T) 
+
+
 recov.cov = mcmc.troph.cov(y.data = sim$y, ant.file = sim, 
                        inout.file = cov.data, title = "Test", 
                        a = 5, b = 2, theta = theta, states = 2, 
@@ -233,4 +237,7 @@ recov.bin = mcmc.troph(y.data = sim$intbin, ant.file = sim, title = "Test",
                        n.mcmc = 3000, delta.t = 30, hours = 4)
 
 
+recov2 = mcmc.troph(y.data = sim$y, ant.file = sim, 
+                    title = "Test", a = 5, b = 2, theta = theta, 
+                    states = 2, n.mcmc = 1000, delta.t = 1, hours = 2)
 
