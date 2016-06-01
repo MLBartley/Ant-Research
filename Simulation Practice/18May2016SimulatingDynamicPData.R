@@ -208,7 +208,7 @@ mu.all = c(-5, -5, -0.001)
 sig.all = matrix(data = c(0.2, 0, 0, 
                           0, 0.2, 0, 
                           0, 0, 0.0002), nrow = 3, ncol = 3, byrow = T)
-tau = c(0.2, 0.2, 0.002)
+tau = c(0.2, 0.2, 0.02)
 
 recov.cov = mcmc.troph.cov(y.data = sim$y, ant.file = sim, 
                        inout.file = cov.data, title = "Test", 

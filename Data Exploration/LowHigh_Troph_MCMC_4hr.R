@@ -35,6 +35,8 @@ str(low4)
 
 in.out.high = read.csv("Data/Colony1_in&out_high_density_4hr.csv")
 in.out.low = read.csv("Data/Colony1_in&out_low_density_4hr.csv")
+
+c =  prep.inout.data(data = in.out.low, delta.t = 60, hours = 4)
 #########################################################
 ##
 ## 
@@ -256,6 +258,8 @@ mu.all = c(2, -1, -0.000004)
 sig.all = matrix(data = c(0.2, 0, 0, 
                           0, 0.2, 0, 
                           0, 0, 0.0002), nrow = 3, ncol = 3, byrow = T)
+tau = c(0.2, 0.2, 0.002)
+
 ###
 ### Two States
 ###
@@ -267,12 +271,18 @@ out.high.cov = mcmc.troph.cov(data = high.y, title = "High Density w/ Cov, 4 Hrs
                               a = 5, b = 2, theta = theta, states = 2, n.mcmc = 1000,
                               cov = cov, mu.cov = mu.all, sig.cov = sig.all )
 
-out.low = mcmc.troph(data = low.y, title = "Low Density", a = 5, b = 2, 
-                     theta = theta, states = 2, n.mcmc = 3000)
+out.low = mcmc.troph(y.data = low.y, ant.file = low4, title = "Low Density", a = 5, b = 2, 
+                     theta = theta, states = 2, n.mcmc = 3000, delta.t = 60, hours = 4)
 
+out.low.cov = mcmc.troph.cov(y.data = low.y, ant.file = low4,
+                             inout.file = in.out.low, title = "Test",
+                             a = 5, b = 2, theta = theta, states = 2,
+                             n.mcmc = 3000, cov = c$cov, mu.cov = mu.all, 
+                             sig.cov = sig.all, tau = tau, delta.t = 60, 
+                             hours = 4 )
 
 out.low1 = mcmc.troph(data = low1.y, title = "Low Density, Location 1", a = 5, b = 2, 
-                      theta = theta, states = 2, n.mcmc = 5000)
+                      theta = theta, states = 2, n.mcmc = 5000, hours = 4)
 
 out.low4 = mcmc.troph(data = low4.y, title = "Low Density, Location 4",  a = 5, b = 2, 
                       theta = theta, states = 2, n.mcmc = 5000)
