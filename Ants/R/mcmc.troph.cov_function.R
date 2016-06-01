@@ -104,8 +104,9 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
   
   alph.beta.params[, 1] = rnorm(3, mean = mu.cov, sd = sqrt(diag(sig.cov)))
   
-  
-  ## Metropolis Hastings/Gibbs Updates
+###########  
+## Metropolis Hastings/Gibbs Updates
+###########
   
   for(l in 2:n.mcmc) {
     
@@ -118,8 +119,9 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
                                P.21.param[1, l - 1], P.22.param[1, l - 1]), 
                       nrow = n, ncol = n, byrow = T)
     
-    
-    #P matrix w/ alpha, betas - MH Algorithm
+  ##
+  ## P matrix w/ alpha, betas - MH Algorithm
+  ## 
     
     log.fullcond = function(param){
       
@@ -141,10 +143,17 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
 
     }
     
+    #
+    # proposal
+    #
     
-    #proposal
+    if(l %% 100 == 0 ){
+      tau = ((2.38 ^ 2) / 3) * var(alph.beta.params[, 1:(l - 1)])
+    }
     
     proposal = rnorm(3, mean = alph.beta.params[, l - 1], sd =  tau)
+    
+   
     
     #accept/reject all params - Block update
     
