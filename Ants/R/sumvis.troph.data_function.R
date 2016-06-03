@@ -45,7 +45,7 @@ sumvis.troph.data = function(data, entrance, hours, density = "high"){
     hist(table(data$Ant_ID), xlab = "Count",
          main = "Interactions per Ant", 
          breaks = 20)
-    abline(v=mean(table(data$Ant_ID)), lty = 3, col="red", lwd = 3)
+    abline(v=mean(table(data$Ant_ID)), lty = 3, col="#bc5356", lwd = 3)
     
     if(density != "high"){
       par(mfrow=c(1,2), oma = c(0, 0, 2, 0))
@@ -67,13 +67,13 @@ sumvis.troph.data = function(data, entrance, hours, density = "high"){
       hist(table(data$Ant_ID[which(data$Location == 1)]), xlab = "Count",
            main = "",
            #main = "Interactions per Ant:Low Density, Loc 1", 
-           breaks = 20, col = "black",
+           breaks = 20, col = "#120d08",
            xlim = c(0, xlim))
       
       hist(table(data$Ant_ID[which(data$Location == 4)]), xlab = "Count",
            #main = "Interactions per Ant:Low Density, Loc 4", 
            main = "",
-           breaks = 15, col = "blue", 
+           breaks = 15, col = "#538bbc", 
            xlim = c(0, xlim))
       
       mtext("Interaction per Ant, by Location", outer = TRUE, cex=1.5)}
@@ -101,8 +101,9 @@ sumvis.troph.data = function(data, entrance, hours, density = "high"){
   if(density == "high"){
     plot(data.change$start_time,1:nrow(data.change),main="High Density Trophallaxis",
          xlab = "Start Time", 
-         ylab = "Number of Interactions")
-    points(cov$time, rep(0, nrow(cov)), pch=8, col="red")
+         ylab = "Number of Interactions", 
+         col = "#120d08")
+    points(cov$time, rep(0, nrow(cov)), pch=8, col=	"#53bc84")
     }
   else{
       
@@ -114,27 +115,33 @@ sumvis.troph.data = function(data, entrance, hours, density = "high"){
         low.4 = low.4[order(low.4$start_time), ]
         
         
-        plot(data.change$start_time, 1:nrow(data.change), main="Low Density Trophallaxis",
+        plot(data.change$start_time, 1:nrow(data.change), main = "Low Density Trophallaxis",
              xlab = "Start Time", 
              ylab = "Number of Interactions", 
-             col=data.change$Location)
-        legend(5000, 100, c("Loc1", "Loc4"), lty = c(1,1), col = c("black", "blue"))
-        points(cov$time, rep(0, nrow(cov)), pch=8, col="red")
+             col = c("#120d08", "#538bbc"), 
+             pch = c(1, 2))
+        legend(50, 300, c("Loc1", "Loc4"), 
+               pch = c(1,2), 
+               col = c("#120d08", "#538bbc"),
+               text.width = 1200)
+        points(cov$time, rep(0, nrow(cov)), pch = 8, col = "#53bc84")
         
         
         par(mfrow = c(1, 2), oma = c(0, 0, 2, 0))
         plot(low.1$start_time, 1:nrow(low.1), main="Location 1",
              xlim = c(0, max(data.change$end_time)),
              xlab = "Start Time", 
-             ylab = "Number of Interactions")
-        points(cov$time, rep(0, nrow(cov)), pch=8, col="red")
+             ylab = "Number of Interactions",
+             col = "#120d08")
+        points(cov$time, rep(0, nrow(cov)), pch=8, col = "#53bc84")
         
         plot(low.4$start_time, 1:nrow(low.4), main="Location 4",
              xlim = c(0, max(data.change$end_time)),
              xlab = "Start Time", 
              ylab = "Number of Interactions",
-             col = "blue")
-        points(cov$time, rep(0, nrow(cov)), pch=8, col="red")
+             col = "#538bbc", 
+             pch = 2)
+        points(cov$time, rep(0, nrow(cov)), pch=8, col = "#53bc84")
         
         mtext("Low Density Trophallaxis", outer = TRUE, cex = 1.5 )
         
