@@ -35,7 +35,8 @@ lambda.f
 
 #may just use actual covariate data
 
-prep.cov = prep.inout.data(data = cov.data, delta.t = 1, hours = 4)
+prep.cov.1 = prep.inout.data(data = cov.data, delta.t = 1, hours = 4)
+prep.cov.60 = prep.inout.data(data = cov.data, delta.t = 60, hours = 4)
 
 # hours = 4
 # time = hours * 60 * 60
@@ -73,18 +74,21 @@ prep.cov = prep.inout.data(data = cov.data, delta.t = 1, hours = 4)
 #   
 # }
 
+
+
 ########
 ##
 ## Calculate P matrix based on arrival data (covariate)
 ##
 ########
-covariate = prep.cov$cov
+
+covariate = prep.cov.1$cov
 Time = length(covariate)
 theta = matrix(data = c(90, 10, 10, 90), nrow = 2, ncol = 2, byrow = T) 
 n = 2
 
-alpha = -5.6
-beta.0 = -5
+alpha = -1.6
+beta.0 = -1
 beta.1 = -0.001
 
 ## P matrix now varies over time, needs homes
@@ -136,17 +140,23 @@ lines(1:Time, P.22.param, col = "green")
 ##
 #############
 
+lambda = c(0, .05) #per second, want to change so all are per minute
 lambda = c(0, 1)
+
 
 sim = sim.mcmc.dynamP(tmax = length(P.22.param), start.state = 1, 
                 P11 = P.11.param, P12 = P.12.param, P21 = P.21.param, 
                 P22 = P.22.param, lambda = lambda)
 points(cov.data$time, rep(0, length(cov.data$time)), col="#53bc84")
 
-P = matrix(c(.995, .005, .005, .995), nrow = 2, byrow = T)
-sim = sim.mmpp(tmax = 2 * 60 * 60, delta.t = 1, 
+#without covariates
+P = matrix(c(.8, .2, .2, .8), nrow = 2, byrow = T)
+sim = sim.mmpp(tmax = 2 * 60 * 60, delta.t = 30, 
                  start.state = 1, P = P, lambda = lambda)
 
+P = matrix(c(.99, .01, .01, .99), nrow = 2, byrow = T)
+sim = sim.mmpp(tmax = 2 * 60 * 60, delta.t = 1, 
+               start.state = 1, P = P, lambda = lambda)
 ####
 ##
 ## Thoughts - 
@@ -170,10 +180,10 @@ sim = sim.mmpp(tmax = 2 * 60 * 60, delta.t = 1,
     # useful for mcmc.troph.cov where ant.file is needed to
     # plot the interactions and recovered states
 
-delta.t = 1
+delta.t = 30
 sum(sim$y)
 
-sim$start_time = sim$t[which(sim$y >= 1)]
+sim$start_time = sim$t[which(sim$y >= 1)] #only works with per second data
 
 sim$Location = rep(1, length(sim$start_time))
 
@@ -199,13 +209,13 @@ sim$intbin = rep(NA, length(sim$y)/delta.t)
   
   
   #we've got simulated data and we know the truth:
-    # lambda = c(1, 15) for low/high rates
+    # lambda = (0, 3) for low/high rates
     # n = 2
     # alpha = -4.6
     # beta.0 = -4
     # beta.1 = 0.0001
 
-mu.all = c(-5, -5, -0.001)
+mu.all = c(-1, -1, -0.001)
 sig.all = matrix(data = c(0.2, 0, 0, 
                           0, 0.2, 0, 
                           0, 0, 0.0002), nrow = 3, ncol = 3, byrow = T)
@@ -219,7 +229,7 @@ recov.cov = mcmc.troph.cov(y.data = sim$y, ant.file = sim,
                        a = 5, b = 2, theta = theta, states = 2, 
                        n.mcmc = 2000, cov = covariate,
                        mu.cov = mu.all , sig.cov = sig.all, tau = tau,
-                       delta.t = 1, hours = 4)
+                       delta.t = 1, hours = 2)
 
 recov = mcmc.troph(y.data = sim$y, ant.file = sim, title = "Test", 
                     a = 5, b = 2, theta = theta, states = 2,
@@ -234,10 +244,14 @@ recov.bin.cov = mcmc.troph.cov(y.data = sim$intbin, ant.file = sim,
 
 recov.bin = mcmc.troph(y.data = sim$intbin, ant.file = sim, title = "Test", 
                        a = 5, b = 2, theta = theta, states = 2,
-                       n.mcmc = 3000, delta.t = 30, hours = 4)
+                       n.mcmc = 3000, delta.t = 60, hours = 4)
 
 
 recov2 = mcmc.troph(y.data = sim$y, ant.file = sim, 
                     title = "Test", a = 5, b = 2, theta = theta, 
                     states = 2, n.mcmc = 1000, delta.t = 1, hours = 2)
 
+recov.2.bin = mcmc.troph(y.data = sim$intbin, ant.file = sim,
+                         title = "Test", a = 5, b = 2, theta = theta,
+                         states = 2, n.mcmc = 5000, delta.t = 30,
+                         hours = 2)

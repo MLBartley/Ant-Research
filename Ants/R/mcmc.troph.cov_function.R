@@ -393,9 +393,9 @@ mcmc.troph.cov = function(y.data, ant.file, inout.file, title, a = 5, b = 2, the
    else{
      #Low Density - 4 Hours
      
-     plot(start, 1:int.num, main="Low", xlab="Seconds", 
+     plot(start, 1:int.num, main = "Low", xlab = "Seconds", 
           ylab = "Cumulative Interaction Count", 
-          xlim=c(0, maxtime))
+          xlim = c(0, maxtime))
      states = X.est
      rr=rle(states[,1])
      rr$values = round(rr$values, digits = 0)
