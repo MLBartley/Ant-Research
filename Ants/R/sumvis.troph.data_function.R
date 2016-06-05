@@ -44,8 +44,9 @@ sumvis.troph.data = function(data, entrance, hours, density = "high"){
     par(mfrow = c(1, 1))
     hist(table(data$Ant_ID), xlab = "Count",
          main = "Interactions per Ant", 
-         breaks = 20)
-    abline(v=mean(table(data$Ant_ID)), lty = 3, col="#bc5356", lwd = 3)
+         breaks = 20, 
+         xlim = c(0, max(50, max(table(data$Ant_ID)))) )
+    abline(v = mean(table(data$Ant_ID)), lty = 3, col="#bc5356", lwd = 3)
     
     if(density != "high"){
       par(mfrow=c(1,2), oma = c(0, 0, 2, 0))
@@ -99,7 +100,7 @@ sumvis.troph.data = function(data, entrance, hours, density = "high"){
      par(mfrow = c(1, 1))
     
   if(density == "high"){
-    plot(data.change$start_time,1:nrow(data.change),main="High Density Trophallaxis",
+    plot(data.change$start_time,1:nrow(data.change),main = "High Density Trophallaxis",
          xlab = "Start Time", 
          ylab = "Number of Interactions", 
          col = "#120d08")
@@ -128,20 +129,20 @@ sumvis.troph.data = function(data, entrance, hours, density = "high"){
         
         
         par(mfrow = c(1, 2), oma = c(0, 0, 2, 0))
-        plot(low.1$start_time, 1:nrow(low.1), main="Location 1",
+        plot(low.1$start_time, 1:nrow(low.1), main = "Location 1",
              xlim = c(0, max(data.change$end_time)),
              xlab = "Start Time", 
              ylab = "Number of Interactions",
              col = "#120d08")
-        points(cov$time, rep(0, nrow(cov)), pch=8, col = "#53bc84")
+        points(cov$time, rep(0, nrow(cov)), pch = 8, col = "#53bc84")
         
-        plot(low.4$start_time, 1:nrow(low.4), main="Location 4",
+        plot(low.4$start_time, 1:nrow(low.4), main = "Location 4",
              xlim = c(0, max(data.change$end_time)),
              xlab = "Start Time", 
              ylab = "Number of Interactions",
              col = "#538bbc", 
              pch = 2)
-        points(cov$time, rep(0, nrow(cov)), pch=8, col = "#53bc84")
+        points(cov$time, rep(0, nrow(cov)), pch = 8, col = "#53bc84")
         
         mtext("Low Density Trophallaxis", outer = TRUE, cex = 1.5 )
         

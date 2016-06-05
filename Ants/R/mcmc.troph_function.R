@@ -15,7 +15,7 @@
 #' theta = theta, states = 2, n.mcmc = 3000)
 
 
-mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2, 
+mcmc.troph = function(y.data, ant.file, title, a = 2, b = 2, 
                       theta, states = 2, n.mcmc, delta.t, hours){
   data = y.data
   Time = length(data)
@@ -53,6 +53,9 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
   
   lambda.param[, 1] = rgamma(n = n, shape = a, rate = b)
   
+  # lambda.param[1, 1] = rgamma(n = 1, shape = a, rate = b)
+  # lambda.param[2, 1] = lambda.param[1, 1] + rgamma(n = 1, shape = a, rate = b)
+  # 
   P.matrix = matrix(data = theta/100, nrow = n, ncol = n, byrow = T) 
   
   P.param[,1] = as.vector(t(P.matrix))
@@ -105,9 +108,21 @@ mcmc.troph = function(y.data, ant.file, title, a = 5, b = 2,
     
     #Lambda and P parameters
     for(h in 1:n) {
-      lambda.param[h, l] = rgamma(n = 1, shape = 
+      
+      lambda.param[h, l] = rgamma(n = 1, shape =
                                     sum(data[which(X.param[, l] == h)]) + a,
                                   rate = sum(m[h, ]) + b )
+
+      
+    # #want lambda 1 to always be smaller than lambda 2
+    #   
+    # lambda.param[1, l] = rgamma(n = 1, shape = sum(data[which(X.param[, l]  == 1)]) + a + 1, 
+    #                                     rate = sum(m[1, ]) + b)
+    #   
+    # lambda.param[2, l] = lambda.param[1, l] + rgamma(n = 1, shape = sum(data[which(X.param[, l]  == 2)]) + a, 
+    #                                                  rate = sum(m[2, ]) + b)  
+    #   
+      
       
       P.matrix[h, ] = (rdirichlet(n = 1 , alpha = theta[h, ] + m[h, ]))
       
