@@ -91,22 +91,29 @@ low.in.prep = prep.inout.data(data = inout.low.4, delta.t = 60, hours = 4)
 
 theta = matrix(data = c(90, 10, 10, 90), nrow = 2, ncol = 2, byrow = T) 
 
-run.high.2 = mcmc.troph(y.data = high.prep.2$high.y, ant.file = troph.high.2, title = "Test", a = 2, b = 2, 
-                      theta = theta, states = 2, n.mcmc = 5000, delta.t = 60, hours = 2)
+run.high.2 = mcmc.troph(y.data = high.prep.2$high.y, ant.file = troph.high.2,
+                             title = "High Density, 2 Hours", a = 1, b = 2, 
+                             theta = theta, states = 2,
+                             n.mcmc = 5000, delta.t = 60, hours = 2)
 
 
 run.low.2 = mcmc.troph(y.data = low.prep.2$low.y, ant.file = troph.low.2,
-                     title = "test", a = 2, b = 2, theta = theta, 
+                     title = "Low Density, 2 Hours", a = .5, b = 2, theta = theta, 
                      states = 2, n.mcmc = 5000, delta.t = 60, hours = 2)
 
-run.high.4 = mcmc.troph(y.data = high.prep$high.y, ant.file = troph.high.4, title = "Test", a = 5, b = 2, 
-                        theta = theta, states = 2, n.mcmc = 5000, delta.t = 60, hours = 4)
+run.high.4 = mcmc.troph(y.data = high.prep.4$high.y, ant.file = troph.high.4, 
+                             title = "High Density, 4 Hours", a = 1, b = 2, 
+                             theta = theta, states = 2,
+                             n.mcmc = 5000, delta.t = 60,
+                             hours = 4)
 
 
-run.low.4 = mcmc.troph(y.data = low.prep$low.y, ant.file = troph.low.4,
-                       title = "test", a = 5, b = 2, theta = theta, 
+run.low.4 = mcmc.troph(y.data = low.prep.4$low.y, ant.file = troph.low.4,
+                       title = "Low Density, 4 Hours", a = 5, b = 2, theta = theta, 
                        states = 2, n.mcmc = 5000, delta.t = 60, hours = 4)
 
-run.high.12 = mcmc.troph(y.data = high.prep$high.y, ant.file = troph.high.4, title = "Test", a = 5, b = 2, 
-                        theta = theta, states = 2, n.mcmc = 5000, delta.t = 60, hours = 12)
+run.high.12 = mcmc.troph(y.data = high.prep.12$high.y, ant.file = troph.high.12, 
+                              title = "High Density, 12 Hours", a = 1, b = 2, 
+                        theta = theta, states = 2, 
+                        n.mcmc = 5000, delta.t = 60, hours = 12)
 
