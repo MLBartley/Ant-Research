@@ -15,7 +15,7 @@
 #' theta = theta, states = 2, n.mcmc = 3000)
 
 
-mcmc.troph = function(y.data, ant.file, title, a = 2, b = 2, 
+mcmc.troph.beta = function(y.data, ant.file, title, a = 1, b = 3, 
                       theta, states = 2, n.mcmc, delta.t, hours){
   data = y.data
   Time = length(data)
@@ -51,11 +51,9 @@ mcmc.troph = function(y.data, ant.file, title, a = 2, b = 2,
   
   X.param[,1] = rep(1, Time)
   
-  lambda.param[, 1] = rgamma(n = n, shape = a, rate = b)
+  lambda.param[1, 1] = rexp(n = 1, rate = 1/a)
+  lambda.param[2, 1] = lambda.param[1, 1] + rexp(n = 1, rate = 1/b)
   
-  # lambda.param[1, 1] = rgamma(n = 1, shape = a, rate = b)
-  # lambda.param[2, 1] = lambda.param[1, 1] + rgamma(n = 1, shape = a, rate = b)
-  # 
   P.matrix = matrix(data = theta/100, nrow = n, ncol = n, byrow = T) 
   
   P.param[,1] = as.vector(t(P.matrix))
@@ -109,28 +107,16 @@ mcmc.troph = function(y.data, ant.file, title, a = 2, b = 2,
     #Lambda and P parameters
     for(h in 1:n) {
       
-      lambda.param[h, l] = rgamma(n = 1, shape =
-                                    sum(data[which(X.param[, l] == h)]) + a,
-                                  rate = sum(m[h, ]) + b )
+    #want lambda 1 to always be smaller than lambda 2
 
+    lambda.param[1, l] = rgamma(n = 1, shape = sum(data[which(X.param[, l]  == 1)]) + 1,
+                                        rate = sum(m[1, ]) + a)
 
-    # #want lambda 1 to always be smaller than lambda 2
-    # 
-    # lambda.param[1, l] = rgamma(n = 1, shape = sum(data[which(X.param[, l]  == 1)]) + 2,
-    #                                     rate = sum(m[1, ]) + a) + 
-    #                      rgamma(n = 1, shape = sum(data[which(X.param[, l]  == 1)]) + 1,
-    #                             rate = sum(m[1, ]) + a)
-    # 
-    # lambda.param[2, l] = lambda.param[1, l] + 
-    #                     rgamma(n = 1, 
-    #                           shape = sum(data[which(X.param[, l]  == 2)]) + 1,
-    #                           rate = sum(m[2, ]) + b) + 
-    #                     rgamma(n = 1, 
-    #                           shape = sum(data[which(X.param[, l]  == 2)]) + 1,
-    #                           rate = sum(m[2, ]) + 2 * b)
-    # 
+    lambda.param[2, l] = lambda.param[1, l] + rgamma(n = 1, shape = sum(data[which(X.param[, l]  == 2)]) + 1,
+                                                     rate = sum(m[2, ]) + 2*b)
 
-
+      
+      
       P.matrix[h, ] = (rdirichlet(n = 1 , alpha = theta[h, ] + m[h, ]))
       
     }
@@ -171,21 +157,15 @@ mcmc.troph = function(y.data, ant.file, title, a = 2, b = 2,
   
   #plot the estimation runs.
   
-  col = c("#120d08", "#bc5356", "#538bbc", "#53bc84")
   
   #lambda
   par(mfrow = c(2,2),
       oma = c(0,0,2,0) + 1,
       mar = c(1,1,1,1) + 3)
-  plot(0,0,xlab="MCMC Runs",
-       ylab="Lambda (scaled per 60 seconds)",
-       ylim=c(0,max(lambda.scale)), 
-       xlim=c(0,n.mcmc), 
-       type="n",
-       cex.lab = 1)
- 
+  plot(0,0,xlab="MCMC Runs", ylab="Lambda (scaled per 60 seconds)", ylim=c(0,max(lambda.scale)), 
+       xlim=c(0,n.mcmc), type="n", cex.lab = 1)
   for(i in 1:n){
-    lines(1:n.mcmc, lambda.scale[i, ], col = col[i])
+    lines(1:n.mcmc, lambda.scale[i, ], col = i)
   }
   
   
@@ -193,19 +173,19 @@ mcmc.troph = function(y.data, ant.file, title, a = 2, b = 2,
   plot(0,0,xlab="MCMC Runs", ylab="P", ylim=c(0, max(P.param)), xlim=c(0,n.mcmc), 
        type="n", cex.lab = 1)
   for(i in 1:(n*n)){
-    lines(1:n.mcmc, P.param[i, ], col = col[i])
+    lines(1:n.mcmc, P.param[i, ], col = i)
   }
   
   #Single X
   X = X.param[sample(1:Time, 1), ]
   plot(0, 0, xlab="MCMC Runs", ylab="Single X", ylim=c(0,max(X)), 
        xlim=c(0,n.mcmc), type="n", cex.lab = 1)
-  lines(1:n.mcmc, X, col = col[2])
+  lines(1:n.mcmc, X, col = "red")
   
   #States over time
-  plot(X.est,type = "l",lwd=3, cex.lab = 1, col = col[1])
+  plot(X.est,type="l",lwd=3, cex.lab = 1)
   
-  title(main = title, outer=T)
+  title(main=title, outer=T)
   
   
   #########################################################
