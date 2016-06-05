@@ -141,7 +141,7 @@ lines(1:Time, P.22.param, col = "green")
 #############
 
 lambda = c(0, .05) #per second, want to change so all are per minute
-lambda = c(0, 1)
+lambda = c(0, 5)
 
 
 sim = sim.mcmc.dynamP(tmax = length(P.22.param), start.state = 1, 
@@ -243,15 +243,15 @@ recov.bin.cov = mcmc.troph.cov(y.data = sim$intbin, ant.file = sim,
                            delta.t = 30, hours = 4)
 
 recov.bin = mcmc.troph(y.data = sim$intbin, ant.file = sim, title = "Test", 
-                       a = 5, b = 2, theta = theta, states = 2,
-                       n.mcmc = 3000, delta.t = 60, hours = 4)
+                       a = 2, b = 2, theta = theta, states = 2,
+                       n.mcmc = 3000, delta.t = 30, hours = 4)
 
 
 recov2 = mcmc.troph(y.data = sim$y, ant.file = sim, 
-                    title = "Test", a = 5, b = 2, theta = theta, 
+                    title = "Test", a = 2, b = 2, theta = theta, 
                     states = 2, n.mcmc = 1000, delta.t = 1, hours = 2)
 
 recov.2.bin = mcmc.troph(y.data = sim$intbin, ant.file = sim,
-                         title = "Test", a = 5, b = 2, theta = theta,
+                         title = "Test", a = 2, b = 2, theta = theta,
                          states = 2, n.mcmc = 5000, delta.t = 30,
                          hours = 2)

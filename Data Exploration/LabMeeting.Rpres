@@ -19,8 +19,8 @@ Interactions Per Ant
 $\\$
 
 ```{r, echo=FALSE}
-high <- read.csv("~/Google Drive/PSU/Projects/Ant-Research/Data/Colony_1_trophallaxis_high_density_2hr.csv")
-low <- read.csv("~/Google Drive/PSU/Projects/Ant-Research/Data/Colony_1_trophallaxis_low_density_2hr.csv")
+high <- read.csv("~/Google Drive/PSU/Projects/Ant-Research/Data/Colony1_trophallaxis_high_density_2hr.csv")
+low <- read.csv("~/Google Drive/PSU/Projects/Ant-Research/Data/Colony1_trophallaxis_low_density_2hr.csv")
 
 hist(table(high$Ant_ID), xlab = "Total Number of Interactios",
      main = "High Density", cex.main= 3,
