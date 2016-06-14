@@ -27,7 +27,7 @@ prep.troph.pairs = function(data){
   
   for(i in sort(num.high)){
     n = n+1
-    high.i = high[which(data$Ant_ID == i), ]
+    high.i = data[which(data$Ant_ID == i), ]
     
     for(l in 1:nrow(high.i)){
       start.i = high.i$start_time[l]
@@ -41,13 +41,13 @@ prep.troph.pairs = function(data){
   
   cont.time = rle(Master.sum)
   
-  EC = cont.time$values #
-  RT = cont.time$lengths
+  EC = cont.time$values # embedded chain
+  RT = cont.time$lengths #time in embedded chain state
   
    N = c()
   
   for(i in length(EC)){
-    N = c(N, rep(EC[i], RT[i]))
+    N = c(N, rep(EC[i], RT[i])) # pairs in troph at time t for every second
   }
    
   ##plot of interactions
