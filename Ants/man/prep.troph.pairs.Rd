@@ -4,22 +4,17 @@
 \alias{prep.troph.pairs}
 \title{Alternative Data Preparation for Ant Trophallaxis Data File}
 \usage{
-prep.troph.pairs(data, delta.t)
-}
-\arguments{
-\item{data, }{delta.t}
+prep.troph.pairs(data)
 }
 \value{
-(1) One or three (depending on high or low density, 
-            respectively), file lists with amount of interaction
-            within binned time chunk (delta.t).
+(1) .
 }
 \description{
 The purpose of this function is to take in .csv files 
 and apply necissary changes to the data format. Changes include
 }
 \examples{
- prep.troph.data(high4, 60)
+ prep.troph.pairs(high4)
 
 
 }
