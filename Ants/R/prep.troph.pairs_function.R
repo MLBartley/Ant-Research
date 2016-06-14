@@ -46,7 +46,7 @@ prep.troph.pairs = function(data){
   
    N = c()
   
-  for(i in length(EC)){
+  for(i in 1:length(EC)){
     N = c(N, rep(EC[i], RT[i])) # pairs in troph at time t for every second
   }
    
