@@ -1,0 +1,69 @@
+#' Alternative Data Preparation for Ant Trophallaxis Data File
+#'
+#' The purpose of this function is to take in .csv files 
+#' and apply necissary changes to the data format. Changes include 
+#' 
+#' 
+#' @param data, delta.t
+#' @return (1) One or three (depending on high or low density, 
+#'             respectively), file lists with amount of interaction
+#'             within binned time chunk (delta.t).
+#' @export
+#' @examples
+#'  prep.troph.data(high4, 60)
+#' 
+#' 
+
+
+prep.troph.pairs = function(data, delta.t){
+  
+  hours = ceiling(max(data$end_time) / 60 / 60)
+  
+  
+  num.high = unique(data$Ant_ID)
+  ant = length(num.high)  #number of ants
+  
+  #Embedded Chain and Rate Transitions
+  Master = matrix(0, ant, hours * 60 * 60)
+  n = 0
+  
+  for(i in sort(num.high)){
+    n = n+1
+    high.i = high[which(data$Ant_ID == i), ]
+    
+    for(l in 1:nrow(high.i)){
+      start.i = high.i$start_time[l]
+      end.i = high.i$end_time[l]
+      Master[n, start.i:end.i] = 1
+    }
+    
+  }
+  
+  Master.sum = colSums(Master)
+  
+  cont.time = rle(Master.sum)
+  
+  EC = cont.time$values #
+  RT = cont.time$lengths
+  
+   N = c()
+  
+  for(i in length(EC)){
+    N = c(N, rep(EC[i], RT[i]))
+  }
+   
+  ##plot of interactions
+  t = cumsum(RT)  
+  X = EC
+  
+  plot(0,0,xlab="t",ylab="State",ylim=c(1,max(X)),xlim=c(0,hours * 60 * 60),type="n")
+  lines(x = c(0, t[1]), y = c(X[1], X[1]))
+  
+  for(i in 2:length(t)){
+    lines(x = c(t[i-1], t[i]), y = c(X[i], X[i]))
+  }
+  
+  
+ list(EC = EC, RT = RT, sum = cumsum(RT), N = N)
+  
+}

@@ -18,8 +18,8 @@
 #end_time
 #Note: q or Queen is queen ant. Long live the Queen.
 
-high <- read.csv("~/Google Drive/PSU/Projects/Ant-Research/Data/Colony_1_trophallaxis_high_density.csv")
-
+high <- read.csv("./Data/Colony1_trophallaxis_high_density_4hr.csv")
+hours = 4
 
 
 
@@ -37,7 +37,7 @@ inter = 1 + #no interactions
   choose(ant, 2)  #two way interactions
 
 #Embedded Chain and Rate Transitions
-Master = matrix(0, ant, 7200)
+Master = matrix(0, ant, hours * 60 * 60)
 n = 0
 
 for(i in sort(num.high)){
@@ -89,7 +89,7 @@ RT = cont.time$lengths
 t = cumsum(RT)  
 X = EC
 
-plot(0,0,xlab="t",ylab="State",ylim=c(1,max(X)),xlim=c(0,7200),type="n")
+plot(0,0,xlab="t",ylab="State",ylim=c(1,max(X)),xlim=c(0,hours * 60 * 60),type="n")
 lines(x = c(0, t[1]), y = c(X[1], X[1]))
 
 for(i in 2:length(t)){

@@ -24,8 +24,8 @@
 ########
 
 cov.data = read.csv("./Data/Colony1_in&out_high_density_4hr.csv")
-lambda.f = nrow(cov.data)/max(cov.data$time)
-lambda.f
+# lambda.f = nrow(cov.data)/max(cov.data$time)
+# lambda.f
 
 ########
 ##
