@@ -4,18 +4,16 @@
 #' and apply necissary changes to the data format. Changes include 
 #' 
 #' 
-#' @param data, delta.t
-#' @return (1) One or three (depending on high or low density, 
-#'             respectively), file lists with amount of interaction
-#'             within binned time chunk (delta.t).
+#' @param data,
+#' @return (1) .
 #' @export
 #' @examples
-#'  prep.troph.data(high4, 60)
+#'  prep.troph.pairs(high4)
 #' 
 #' 
 
 
-prep.troph.pairs = function(data, delta.t){
+prep.troph.pairs = function(data){
   
   hours = ceiling(max(data$end_time) / 60 / 60)
   
