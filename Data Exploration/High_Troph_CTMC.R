@@ -101,14 +101,19 @@ for(i in 2:length(t)){
 ##lots of vectors are 13 units long bc the states range from 0 to 12
 
 n.states = length(unique(EC))
-Alpha = matrix(0, 13, 13)
+Alpha = matrix(0, 14, 14)
+  rownames(Alpha) <- 0:13
+  colnames(Alpha) <- 0:13
 
-M = matrix(0, 13, 13) #number of state changes from i to j
-for(i in 1:(length(EC)-1)){
-   M[EC[i]+1, EC[i +1]+1] =  M[EC[i]+1, EC[i + 1]+1] + 1
+M = matrix(0, 14, 14) #number of state changes from i to j
+rownames(M) <- 0:13
+colnames(M) <- 0:13
+
+for(i in 1:(length(EC) - 1)){ 
+   M[EC[i] + 1, EC[i + 1] + 1] =  M[EC[i] + 1, EC[i + 1] + 1] + 1
 }
 
-Time = rep(NA, 13)
+Time = rep(NA, 14)
 
 for(i in 1:length(Time)){
   Time[i] = sum(RT[which(EC == i-1)])
@@ -116,7 +121,8 @@ for(i in 1:length(Time)){
 
 for(i in 1:length(Time)){
   for(j in 1:length(Time)){
-    Alpha[i,j] = M[i, j] / Time[i]
+    if(Time[i] != 0){
+    Alpha[i,j] = M[i, j] / Time[i]}
   }
 }
 

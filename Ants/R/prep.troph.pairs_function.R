@@ -50,6 +50,14 @@ prep.troph.pairs = function(data){
     N = c(N, rep(EC[i], RT[i])) # pairs in troph at time t for every second
   }
    
+  N.2 = c()
+  
+  for(i in 1:length(N)){
+    if(N[i] %% 2 != 0){
+      N.2[i] = N[i] - 1
+    }else(N.2[i] = N[i])
+  }
+   
   ##plot of interactions
   t = cumsum(RT)  
   X = EC
@@ -62,6 +70,6 @@ prep.troph.pairs = function(data){
   }
   
   
- list(EC = EC, RT = RT, sum = cumsum(RT), N = N)
+ list(EC = EC, RT = RT, sum = cumsum(RT), pairs3 = N, pairs2 = N.2)
   
 }
