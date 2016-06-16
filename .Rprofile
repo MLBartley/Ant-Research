@@ -2,6 +2,7 @@
 
 
 library("devtools")
+library("ctmcmove")
 library("ggplot2")
 library("gtools")
 library("roxygen2")
