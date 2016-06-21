@@ -70,6 +70,6 @@ prep.troph.pairs = function(data){
   }
   
   
- list(EC = EC, RT = RT, sum = cumsum(RT), pairs3 = N, pairs2 = N.2)
+ list(EC = EC, RT = RT, sum = cumsum(RT), pairs3 = N, pairs2 = N.2, hours = hours)
   
 }
