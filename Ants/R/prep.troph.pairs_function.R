@@ -1,11 +1,18 @@
 #' Alternative Data Preparation for Ant Trophallaxis Data File
 #'
 #' The purpose of this function is to take in .csv files 
-#' and apply necissary changes to the data format. Changes include 
+#' and apply necissary changes to the data format.
+#'  
 #' 
-#' 
-#' @param data,
-#' @return (1) .
+#' @param data
+#' @return (1) EC - embedded chain of number of ants in trophallaxis over time 
+#'         (2) RT - time spent in each associated state in EC
+#'         (3) sum - cumulative time, should add up to number of seconds
+#'         (4) pairs3 - number of ants engaging in trophallaxis for EACH second, 
+#'                      allowing for three ants at a time
+#'         (5) pairs2 - number of ants interacting per second,
+#'                      max 2 ants in interaction
+#'         (6) figure - pairs2 data over time 
 #' @export
 #' @examples
 #'  prep.troph.pairs(high4)
