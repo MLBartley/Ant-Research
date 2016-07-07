@@ -147,8 +147,8 @@ for(l in 2:n.mcmc){
   if(l < n.mcmc/2 & l %% 100 == 0){
     
     sigma = c(0, 0, 0, 0)
-    for(a in 1:4){
-      sigma[a] = ((2.38 ^ 2) / 3) * var(params[a, 1:(l - 1)])
+    for(v in 1:4){
+      sigma[v] = ((2.38 ^ 2) / 3) * var(params[v, 1:(l - 1)])
     }
     
     if((sigma[1] != 0) & (sigma[2] != 0) & (sigma[3] != 0) & sigma[4] != 0){
@@ -386,7 +386,11 @@ plot(0,0,xlab = "MCMC Runs", ylab = "Lambda (per minute)",
   ## - still plots with start times, not N_t
   ##
   #########################################################
-  start = sort(high4$start_time)
+ ##dont think this will run automatically. 
+  #i've just been highlighting the parts I need and running code
+  
+  
+   start = sort(high4$start_time)
   location = high4$Location
   int.num = length(start)
   maxtime = Time
@@ -410,10 +414,7 @@ plot(0,0,xlab = "MCMC Runs", ylab = "Lambda (per minute)",
       rect(cs[j],0,cs[j + 1],int.num, 
            col = cols[embedded.chain[j]], density = NA)
     }
-  }
-  
-  
-  else{
+  }  else{
     start = sort(low4$start_time)
     location = low4$Location
     int.num = length(start)
