@@ -4,9 +4,9 @@
 ## 20 June 2016
 ##
 ##########################################################
-# chooseCRANmirror(ind = 27)
-# install.packages("ctmcmove", dependencies = T)
-# library("ctmcmove")
+chooseCRANmirror(ind = 27)
+install.packages("ctmcmove", dependencies = T)
+library("ctmcmove")
 
 
 Time = 1 * 60 * 60
