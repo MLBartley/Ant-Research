@@ -27,7 +27,6 @@
 high4 <- read.csv("./Data/Colony1_trophallaxis_high_density_4hr.csv")
 low4 <- read.csv("./Data/Colony1_trophallaxis_low_density_4hr.csv")
 
-#prep.troph.pairs is a function found in the Ants package/folder
 prep.high = prep.troph.pairs(high4)
 prep.low = prep.troph.pairs(low4)
 
@@ -64,7 +63,7 @@ q = 0.03
 theta = matrix(c(99, 1, 1, 99), 2, 2) #prior on state transition probabilities
 
 #might need new a and b for gamma_h^tilda 
-tau = c(0.1, 0.1, 0.1, 0.1) #tuning
+tau = c(0.05, 0.05, 0.05, 0.05) #tuning
 
 
 
@@ -80,15 +79,12 @@ colnames(params) <- 1:n.mcmc
 X.param = matrix(NA, nrow = Time, 
                  ncol = n.mcmc, byrow = T)
 
-# probability matrix for 2 state discrete time Markov Chain
 
-  #stores all M matrices for every iteration in mcmc
+# Ne probability matrix for 2 state discrete time Markov Chain
 M.param = matrix(data = NA, nrow = 4, 
                  ncol = n.mcmc, byrow = T)
   rownames(M.param) <- c("HH", "HL", "LH", "LL")
   colnames(M.param) <- 1:n.mcmc
-  
-  #is replaced every loop
 M = matrix(c(0.9999, 0.0001, 0.0001, 0.9999),byrow = T,  2, 2)
   rownames(M) <- c("High", "Low")
   colnames(M) <- c("High", "Low")
@@ -120,35 +116,32 @@ log.fullcond = function(params, P_L, P_H, data, X.param){
   }
 
 
-  loglike = sumP_L + 
-            sumP_H +
-            dgamma(params[1], a, b, log = T) + 
-            dgamma(params[2], a, b, log = T) + 
-            dgamma(params[3], r, q, log = T) +
-            dgamma(params[4], r, q, log = T)
+  loglike = sumP_L + sumP_H +
+                   dgamma(params[1], a, b, log = T) + 
+                   dgamma(params[2], a, b, log = T) + 
+                   dgamma(params[3], r, q, log = T) +
+                   dgamma(params[4], r, q, log = T)
 
   return(loglike)
 }
 
 
-accept = 0 #keeps track of number accepted, must reset!
+accept = 0
 
 #MCMC
 
 for(l in 2:n.mcmc){
-  
-  # print out every 10 iterations completed
+
   if( l %% 10 == 0 ) cat(paste("iteration", l, "complete\n")) 
-  
   #
   #update
   #
-    #adaptive tuning parameter
+  
   if(l < n.mcmc/2 & l %% 100 == 0){
     
     sigma = c(0, 0, 0, 0)
-    for(v in 1:4){
-      sigma[v] = ((2.38 ^ 2) / 3) * var(params[v, 1:(l - 1)])
+    for(a in 1:4){
+      sigma[a] = ((2.38 ^ 2) / 3) * var(params[a, 1:(l - 1)])
     }
     
     if((sigma[1] != 0) & (sigma[2] != 0) & (sigma[3] != 0) & sigma[4] != 0){
@@ -164,52 +157,7 @@ for(l in 2:n.mcmc){
   theta.star[1] = theta.star[1] + theta.star[2] #calculate correct gamma_high
  
   
- #calculate P* matrices - for high/low states
-  
-  R_H.star = matrix(0, nrow = max(data) + 1, ncol = max(data) + 1)
-  rownames(R_H.star) <- 0:max(data)
-  colnames(R_H.star) <- 0:max(data)
-  
-  for(i in 1:nrow(R_H.star)){
-    
-    if( i %% 2 != 0 & i != nrow(R_H.star) & i != (nrow(R_H.star) - 1)){
-      R_H.star[i, i + 2] = theta.star[1]  #gamma_high
-    }
-    
-    if( i %% 2 != 0 & i != 1 & i != 2){
-      R_H.star[i, i - 2] = (i - 1) * theta.star[3] #lambda_high 
-    }
-    
-  }
-  
-  P_H.star = Pctmc(Q = R_H.star, t = 1)
-  rownames(P_H.star) <- 0:max(data)
-  colnames(P_H.star) <- 0:max(data)
-  
-  
-  R_L.star = matrix(0, nrow = max(data) + 1, ncol = max(data) + 1)
-  rownames(R_L.star) <- 0:max(data)
-  colnames(R_L.star) <- 0:max(data)
-  
-  for(i in 1:nrow(R_L.star)){
-    
-    if( i %% 2 != 0 & i != nrow(R_L.star) & i != (nrow(R_L.star) - 1)){
-      R_L.star[i, i + 2] = theta.star[2]  #gamma_low
-    }
-    
-    if( i %% 2 != 0 & i != 1 & i != 2){
-      R_L.star[i, i - 2] = (i - 1) * theta.star[4] #lambda_low 
-    }
-    
-  }
-  
-  P_L.star = Pctmc(Q = R_L.star, t = 1)
-  rownames(P_L.star) <- 0:max(data)
-  colnames(P_L.star) <- 0:max(data)
-  
-  
-  
-  #calculate P matrices for PREVIOUS values - for high/low states
+ #calculate P matrices - for high/low states
   
   R_H = matrix(0, nrow = max(data) + 1, ncol = max(data) + 1)
   rownames(R_H) <- 0:max(data)
@@ -218,11 +166,11 @@ for(l in 2:n.mcmc){
   for(i in 1:nrow(R_H)){
     
     if( i %% 2 != 0 & i != nrow(R_H) & i != (nrow(R_H) - 1)){
-      R_H[i, i + 2] = params[1]  #gamma_high
+      R_H[i, i + 2] = theta.star[1]  #gamma_high
     }
     
     if( i %% 2 != 0 & i != 1 & i != 2){
-      R_H[i, i - 2] = (i - 1) * params[3] #lambda_high 
+      R_H[i, i - 2] = (i - 1) * theta.star[3] #lambda_high 
     }
     
   }
@@ -231,6 +179,8 @@ for(l in 2:n.mcmc){
   rownames(P_H) <- 0:max(data)
   colnames(P_H) <- 0:max(data)
   
+  
+  
   R_L = matrix(0, nrow = max(data) + 1, ncol = max(data) + 1)
   rownames(R_L) <- 0:max(data)
   colnames(R_L) <- 0:max(data)
@@ -238,11 +188,11 @@ for(l in 2:n.mcmc){
   for(i in 1:nrow(R_L)){
     
     if( i %% 2 != 0 & i != nrow(R_L) & i != (nrow(R_L) - 1)){
-      R_L[i, i + 2] = params[2]  #gamma_low
+      R_L[i, i + 2] = theta.star[2]  #gamma_low
     }
     
     if( i %% 2 != 0 & i != 1 & i != 2){
-      R_L[i, i - 2] = (i - 1) * params[4] #lambda_low 
+      R_L[i, i - 2] = (i - 1) * theta.star[4] #lambda_low 
     }
     
   }
@@ -252,13 +202,11 @@ for(l in 2:n.mcmc){
   colnames(P_L) <- 0:max(data)
   
   
-  
   #calculate probability
-  MHprob = exp(log.fullcond(theta.star, P_L.star, P_H.star, data, X.param) -
-                 log.fullcond(params[, l - 1], P_L, P_H, data, X.param))
+  MHprob = exp(log.fullcond(theta.star, P_L, P_H, data, X.param) - log.fullcond(params[, l - 1], P_L, P_H, data, X.param))
  
-  
   #accept/reject
+
   
   if(runif(1) < MHprob){
     accept = accept + 1
@@ -382,19 +330,11 @@ plot(0,0,xlab = "MCMC Runs", ylab = "Lambda (per minute)",
   
   #########################################################
   ##
-  ## Fancy Plots with Background Colors 
-  ## - still plots with start times, not N_t
+  ## Fancy Plots with Background Colors
   ##
   #########################################################
- ##dont think this will run automatically. 
-  #i've just been highlighting the parts I need and running code
-  
-  
-   start = sort(high4$start_time)
-  location = high4$Location
-  int.num = length(start)
-  maxtime = Time
-  delta.t = 1 
+  start = low4$start_time
+  location = low4$Location
   
   par(mfrow = c(1, 1))
   
@@ -414,7 +354,11 @@ plot(0,0,xlab = "MCMC Runs", ylab = "Lambda (per minute)",
       rect(cs[j],0,cs[j + 1],int.num, 
            col = cols[embedded.chain[j]], density = NA)
     }
-  }  else{
+  }
+  
+  
+  #else{
+    
     start = sort(low4$start_time)
     location = low4$Location
     int.num = length(start)
@@ -435,5 +379,4 @@ plot(0,0,xlab = "MCMC Runs", ylab = "Lambda (per minute)",
     for(j in 1:length(embedded.chain)){
       rect(cs[j],0,cs[j+1],int.num, col=cols[embedded.chain[j]] , density=NA)
     }
-  }
     
