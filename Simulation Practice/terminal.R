@@ -4,9 +4,9 @@
 ## 20 June 2016
 ##
 ##########################################################
-install.packages("ctmcmove")
-27
-load("ctmcmove")
+# chooseCRANmirror(ind = 27)
+# install.packages("ctmcmove", dependencies = T)
+# library("ctmcmove")
 
 
 Time = 1 * 60 * 60
@@ -35,7 +35,7 @@ for(t in 2:Time){
 # params = c(gamma.high, gamma.low, lambda.high, lambda.low)
 
 #choose known parameters for gammas and lambdas
-known = c(.06, .01, .03, .002)
+known = c(.06, .01, .02, .005)
 
 #calculate P matrices for KNOWN values - for high/low states
 
@@ -183,19 +183,19 @@ for(l in 2:n.mcmc){
   #update
 
   #adaptive tuning parameter
-  if(l < n.mcmc/2 & l %% 100 == 0){
-
-    sigma = c(0, 0, 0, 0)
-    for(v in 1:4){
-      sigma[v] = ((2.38 ^ 2) / 4) * var(log(params[v, 1:(l - 1)]))
-    }
-
-    if((sigma[1] != 0) & (sigma[2] != 0) & (sigma[3] != 0) & sigma[4] != 0){
-      tau = sigma
-    }
-
-  }
-  
+  # if(l < n.mcmc/2 & l %% 100 == 0){
+  # 
+  #   sigma = c(0, 0, 0, 0)
+  #   for(v in 1:4){
+  #     sigma[v] = ((2.38 ^ 2) / 4) * var(log(params[v, 1:(l - 1)]))
+  #   }
+  # 
+  #   if((sigma[1] != 0) & (sigma[2] != 0) & (sigma[3] != 0) & sigma[4] != 0){
+  #     tau = sigma
+  #   }
+  # 
+  # }
+  # 
   proposal = rnorm(4, mean = log(params[, l - 1]), sd = tau)
   
   theta.star = exp(proposal)
