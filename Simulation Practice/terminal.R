@@ -110,7 +110,7 @@ q = .5
 #tuning parameter
 tau = rep(.1, 4)
 
-n.mcmc = 1000
+n.mcmc = 30000
 
 theta = matrix(c(90, 10, 10, 90), 2, 2)
 
@@ -183,19 +183,28 @@ for(l in 2:n.mcmc){
   #update
 
   #adaptive tuning parameter
-  # if(l < n.mcmc/2 & l %% 100 == 0){
-  # 
-  #   sigma = c(0, 0, 0, 0)
-  #   for(v in 1:4){
-  #     sigma[v] = ((2.38 ^ 2) / 4) * var(log(params[v, 1:(l - 1)]))
-  #   }
-  # 
-  #   if((sigma[1] != 0) & (sigma[2] != 0) & (sigma[3] != 0) & sigma[4] != 0){
-  #     tau = sigma
-  #   }
-  # 
-  # }
-  # 
+  if(l < n.mcmc/2 & l %% 100 == 0){
+
+    sigma = c(0, 0, 0, 0)
+    for(v in 1:4){
+      sigma[v] = ((2.38 ^ 2) / 4) * var(log(params[v, 1:(l - 1)]))
+    }
+
+    if(sigma[1] != 0){
+      tau[1] = sigma[1]
+    } 
+    if(sigma[2] != 0){
+      tau[2] = sigma[2]
+    } 
+    if(sigma[3] != 0){
+      tau[3] = sigma[3]
+    } 
+    if(sigma[4] != 0){
+      tau[4] = sigma[4]
+    }
+
+  }
+   
   proposal = rnorm(4, mean = log(params[, l - 1]), sd = tau)
   
   theta.star = exp(proposal)
@@ -390,7 +399,7 @@ for(t in 1:Time ){
 
 col = c("#120d08", "#bc5356", "#538bbc", "#53bc84")
 
-pdf(file = "./Simulation Practice/estimationplots")
+pdf(file = paste("./Simulation Practice/", Sys.time(), ".pdf", sep = ""))
 
 #gamma
 plot(0,0,xlab="MCMC Runs",
@@ -435,3 +444,4 @@ for(i in 1:(4)){
 }
 
 dev.off()
+
