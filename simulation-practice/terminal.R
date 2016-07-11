@@ -25,15 +25,6 @@ for(t in 2:Time){
 
 }
 
-# gamma.low = rgamma(1, shape = .1, rate = 1)
-# gamma.high.t = rgamma(1, shape = .1, rate = 1)
-# gamma.high = gamma.low + gamma.high.t
-# lambda.low = rgamma(1, shape = .1, rate = 1)
-# lambda.high = rgamma(1, shape = .1, rate = 1)
-# 
-# 
-# params = c(gamma.high, gamma.low, lambda.high, lambda.low)
-
 #choose known parameters for gammas and lambdas
 known = c(.06, .01, .02, .005)
 
@@ -97,7 +88,6 @@ for(i in 2:Time){
 #visualize, looks alright
 plot(N, type = 'l')
 points(x, col = 'red')
-plot(N)
 
 data = N
 
@@ -110,14 +100,14 @@ q = .5
 #tuning parameter
 tau = rep(.1, 4)
 
-n.mcmc = 30000
+n.mcmc = 10000
 
 theta = matrix(c(90, 10, 10, 90), 2, 2)
 
 #homes
 
 params = matrix(NA, nrow = 4, ncol = n.mcmc)
-rownames(params) <- c("gamma_high", "gamma_low", "lambda_high_tilda", "lambda_low")
+rownames(params) <- c("gamma_high^tilde", "gamma_low", "lambda_high", "lambda_low")
 colnames(params) <- 1:n.mcmc
 
 X.param = matrix(NA, nrow = Time, 
@@ -139,7 +129,7 @@ colnames(M) <- c("High", "Low")
 
 #initialize
 
-params[1:2, 1] = known[1:2]/2
+params[1:2, 1] = c(known[1] - known[2], known[2])/2
 params[3:4, 1] = known[3:4]/2
 
 X.param[, 1] = rep(1, Time) #1 - high state, 2 - low state
@@ -206,10 +196,10 @@ for(l in 2:n.mcmc){
   }
    
   proposal = rnorm(4, mean = log(params[, l - 1]), sd = tau)
-  
+
   theta.star = exp(proposal)
   
-  theta.star[1] = theta.star[1] + theta.star[2] #calculate correct gamma_high
+  gamma.high = theta.star[1] + theta.star[2] #calculate correct gamma_high
   
   
   #calculate P* matrices - for high/low states
@@ -221,7 +211,7 @@ for(l in 2:n.mcmc){
   for(i in 1:nrow(R_H.star)){
     
     if( i %% 2 != 0 & i != nrow(R_H.star) & i != (nrow(R_H.star) - 1)){
-      R_H.star[i, i + 2] = theta.star[1]  #gamma_high
+      R_H.star[i, i + 2] = gamma.high  #gamma_high
     }
     
     if( i %% 2 != 0 & i != 1 & i != 2){
@@ -266,7 +256,7 @@ for(l in 2:n.mcmc){
   for(i in 1:nrow(R_H)){
     
     if( i %% 2 != 0 & i != nrow(R_H) & i != (nrow(R_H) - 1)){
-      R_H[i, i + 2] = params[1, l - 1]  #gamma_high
+      R_H[i, i + 2] = params[1, l - 1] + params[2, l - 1]  #gamma_high
     }
     
     if( i %% 2 != 0 & i != 1 & i != 2){
@@ -310,7 +300,7 @@ for(l in 2:n.mcmc){
   
   if(runif(1) < MHprob){
     accept = accept + 1
-    params[, l] = theta.star
+    params[, l] = theta.star[]
   }else{
     params[, l] = params[, l - 1]
   }
@@ -322,7 +312,7 @@ for(l in 2:n.mcmc){
   
   X.param[, l] = x
   
-  # m = matrix(data = 0, nrow = 2, ncol = 2) 
+  m = matrix(data = 0, nrow = 2, ncol = 2)
   # # number states going from i to j, refreshes every run
   # 
   # 
@@ -335,10 +325,10 @@ for(l in 2:n.mcmc){
   # 
   # X.param[1, l] = sample(x = (1:2), size = 1, prob = c(prob_H, prob_L))
   # 
-  # m[X.param[1, l], X.param[1, l]] = m[X.param[1, l], X.param[1, l]] + 1
+  m[X.param[1, l], X.param[1, l]] = m[X.param[1, l], X.param[1, l]] + 1
   # 
   # 
-  # for(t in 2:(Time - 1)){
+  for(t in 2:(Time - 1)){
   #   
   #   prob_H = P_H[data[X.param[t-1]] + 1, data[X.param[t]] + 1]  *
   #     M[X.param[t, l - 1], X.param[t-1, l-1]] * 
@@ -350,9 +340,9 @@ for(l in 2:n.mcmc){
   #   
   #   X.param[t, l] = sample(x = (1:2), 1,  prob = c(prob_H, prob_L)) 
   #   
-  #   m[X.param[t - 1, l], X.param[t, l]] = m[X.param[t - 1, l], 
-  #                                           X.param[t,l]] + 1
-  # }
+    m[X.param[t - 1, l], X.param[t, l]] = m[X.param[t - 1, l],
+                                            X.param[t,l]] + 1
+  }
   # 
   # prob_H = P_H[data[X.param[Time - 1]] + 1, data[X.param[Time]] + 1]  *
   #   M[X.param[Time, l - 1], X.param[Time - 1, l - 1]]
@@ -362,14 +352,14 @@ for(l in 2:n.mcmc){
   # 
   # X.param[Time, l] = sample(x = (1:2), 1,  prob = c(prob_H, prob_L)) 
   # 
-  # m[X.param[Time - 1, l], X.param[Time, l]] = m[X.param[Time - 1, l], 
-  #                                               X.param[Time, l]] + 1
+  m[X.param[Time - 1, l], X.param[Time, l]] = m[X.param[Time - 1, l],
+                                                X.param[Time, l]] + 1
   # 
-  # #M matrix parameter
-  # 
-  # M[1, ] = (rdirichlet(n = 1 , alpha = theta[1, ] + m[1, ]))
-  # M[2, ] = (rdirichlet(n = 1 , alpha = theta[2, ] + m[2, ]))
-  # 
+  #M matrix parameter
+
+  M[1, ] = (rdirichlet(n = 1 , alpha = theta[1, ] + m[1, ]))
+  M[2, ] = (rdirichlet(n = 1 , alpha = theta[2, ] + m[2, ]))
+
   M.param[, l] = as.vector(t(M))
   
 }
@@ -399,7 +389,7 @@ for(t in 1:Time ){
 
 col = c("#120d08", "#bc5356", "#538bbc", "#53bc84")
 
-pdf(file = paste("./Simulation Practice/", Sys.time(), ".pdf", sep = ""))
+#pdf(file = paste("./Simulation Practice/", Sys.time(), ".pdf", sep = ""))
 
 #gamma
 plot(0,0,xlab="MCMC Runs",
