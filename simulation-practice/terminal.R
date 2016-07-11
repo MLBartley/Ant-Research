@@ -7,7 +7,7 @@
 chooseCRANmirror(ind = 27)
 install.packages("ctmcmove", dependencies = T)
 library("ctmcmove")
-
+library("gtools")
 
 Time = 1 * 60 * 60
 
@@ -375,21 +375,30 @@ lambda.low.est = lambda.high.est + mean(params[4, ])
 
 estimate = c(gamma.high.est, gamma.low.est, lambda.high.est, lambda.low.est)
 
-#accept ratio and estimated vs known
-
-accept
-known
-estimate
-
 for(t in 1:Time ){
   X.est[t, 1] = mean(X.param[t, ])  
 }
+
+###
+###
+### Results
+###
+###
+
+#######
+#accept ratio and estimated vs known
+#######
+
+accept/n.mcmc
+known
+estimate
+
 
 #plot the estimation runs.
 
 col = c("#120d08", "#bc5356", "#538bbc", "#53bc84")
 
-#pdf(file = paste("./Simulation Practice/", Sys.time(), ".pdf", sep = ""))
+pdf(file = paste("./Simulation Practice/", Sys.time(), ".pdf", sep = ""))
 
 #gamma
 plot(0,0,xlab="MCMC Runs",
@@ -398,7 +407,7 @@ plot(0,0,xlab="MCMC Runs",
      xlim=c(0,n.mcmc), 
      type="n",
      cex.lab = 1)
-lines(1:n.mcmc, 60 * params[1, ], col = col[1])
+lines(1:n.mcmc, 60 * (params[1, ] + params[2, ]), col = col[1])
 lines(1:n.mcmc, 60 * params[2, ], col = col[2])
 abline(h = known[1] * 60)
 abline(h = known[2] * 60)
