@@ -107,7 +107,7 @@ q = .5
 #tuning parameter
 tau = rep(.01, 4)
 
-n.mcmc = 1000
+n.mcmc = 100000
 
 theta = matrix(c(999, 1, 1, 999), 2, 2)
 
