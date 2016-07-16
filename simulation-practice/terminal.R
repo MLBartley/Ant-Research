@@ -413,7 +413,7 @@ estimate
 
 col = c("#120d08", "#bc5356", "#538bbc", "#53bc84")
 
-pdf(file = paste("./simulation-practice/output/", Sys.time(), ".pdf", sep = ""))
+pdf(file = paste("./output/", Sys.time(), ".pdf", sep = ""))
 
 #gamma
 plot(0,0,xlab="MCMC Runs",
