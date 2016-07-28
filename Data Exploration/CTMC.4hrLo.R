@@ -77,7 +77,7 @@ tau = matrix( c(.01, 0, 0, 0,
                 0, 0, .01, 0, 
                 0, 0, 0, .01), nrow = 4, ncol = 4)
 
-n.mcmc = 10000
+n.mcmc = 5000
 
 theta = matrix(c(9999, 1, 1, 9999), 2, 2)
 
@@ -143,7 +143,7 @@ log.fullcond = function(params, P_L, P_H, data, X.param){
 accept = 0
 sigma = NA
 
-for(l in restart:n.mcmc){
+for(l in 2:n.mcmc){
   
   # print out every 10 iterations completed
   if( l %% 100 == 0 ) cat(paste("iteration", l, "complete\n")) 
@@ -381,13 +381,9 @@ plot(0,0,xlab="MCMC Runs",
      cex.lab = 1)
 lines(1:n.mcmc, 60 * (params[1, ] + params[2, ]), col = col[1])
 lines(1:n.mcmc, 60 * params[2, ], col = col[2])
-abline(h = (known[1] + known[2]) * 60, col = col[1])
-abline(h = known[2] * 60, col = col[2])
 
 lines(1:n.mcmc, (60 * params[3, ]), col = col[3])
 lines(1:n.mcmc, (60 * params[4, ]), col = col[4])
-abline(h = known[3] * 60, col = col[3])
-abline(h = known[4] * 60, col = col[4])
 
 #X params
 
@@ -407,7 +403,6 @@ plot(0,0,xlab="MCMC Runs", ylab = "M", ylim = c(0, max(M.param)), xlim=c(0,n.mcm
 for(i in 1:(4)){
   lines(1:n.mcmc, M.param[i, ], col = col[i])
 }
-abline(h = c(.99, .01))
 
 
 dev.off()

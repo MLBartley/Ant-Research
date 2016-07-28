@@ -10,15 +10,15 @@
 # Outline 
 #####
 
-  # code (turn into function?) to get data in order 
-    # now N_t is number of ants (or pairs of ants) 
-    # in trophallaxis at time t
+# code (turn into function?) to get data in order 
+# now N_t is number of ants (or pairs of ants) 
+# in trophallaxis at time t
 
-  # code/function to run new mcmc model
+# code/function to run new mcmc model
 
-  # Simulated data to ensure model works
-  
-  # apply to ant data
+# Simulated data to ensure model works
+
+# apply to ant data
 
 
 
@@ -56,12 +56,12 @@ Time = prep.high$hours * 60 * 60
 ###
 
 #Propose high and low gamma and lambda, 
-  #first simplest case
-  # then with additional state based conditions
+#first simplest case
+# then with additional state based conditions
 #calculate R* and then P* matrices
 #accept/reject
 
-data = N.low[1:(4*60*60)] #only using first two hours for time
+data = N.high[1:(4*60*60)] #only using first two hours for time
 Time = 4 * 60 * 60
 #hyperparameters
 a = .01
@@ -77,7 +77,7 @@ tau = matrix( c(.01, 0, 0, 0,
                 0, 0, .01, 0, 
                 0, 0, 0, .01), nrow = 4, ncol = 4)
 
-n.mcmc = 10000
+n.mcmc = 5000
 
 theta = matrix(c(9999, 1, 1, 9999), 2, 2)
 
@@ -273,7 +273,7 @@ for(l in restart:n.mcmc){
   
   #
   
- 
+  
   
   ##X Parameters
   
@@ -381,13 +381,9 @@ plot(0,0,xlab="MCMC Runs",
      cex.lab = 1)
 lines(1:n.mcmc, 60 * (params[1, ] + params[2, ]), col = col[1])
 lines(1:n.mcmc, 60 * params[2, ], col = col[2])
-abline(h = (known[1] + known[2]) * 60, col = col[1])
-abline(h = known[2] * 60, col = col[2])
 
 lines(1:n.mcmc, (60 * params[3, ]), col = col[3])
 lines(1:n.mcmc, (60 * params[4, ]), col = col[4])
-abline(h = known[3] * 60, col = col[3])
-abline(h = known[4] * 60, col = col[4])
 
 #X params
 
@@ -407,7 +403,6 @@ plot(0,0,xlab="MCMC Runs", ylab = "M", ylim = c(0, max(M.param)), xlim=c(0,n.mcm
 for(i in 1:(4)){
   lines(1:n.mcmc, M.param[i, ], col = col[i])
 }
-abline(h = c(.99, .01))
 
 
 dev.off()

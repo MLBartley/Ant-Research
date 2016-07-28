@@ -27,21 +27,36 @@
 high4 <- read.csv("./Data/Colony1_trophallaxis_high_density_4hr.csv")
 low4 <- read.csv("./Data/Colony1_trophallaxis_low_density_4hr.csv")
 
+low4.1 <- low4[which(low4$Location == 1), ]
+low4.4 <- low4[which(low4$Location == 4), ]
+
 prep.high = prep.troph.pairs(high4)
 prep.low = prep.troph.pairs(low4)
+prep.low.1 = prep.troph.pairs(low4.1)
+prep.low.4 = prep.troph.pairs(low4.4)
 
 N.high = prep.high$pairs2
 N.low = prep.low$pairs2
+N.low.1 = prep.low.1$pairs2
+N.low.4 = prep.low.4$pairs2
 
 
 ##visualize data
 ##
-par(mfrow = c(2,1))
+##
+
+col = c("#120d08", "#bc5356", "#538bbc", "#53bc84")
+
+par(mfrow = c(2,2))
+
 plot(N.high, main = "High Density", ylab = "# Interactions", xlab = "", type = "l", col = col[2])
 plot(N.low, main = "Low Density", ylab = "# Interactions", xlab = "Time (Seconds)", type = "l", col = col[3])
+plot(N.low.1, main = "Low Density, Chamber 1", ylab = "# Interactions", xlab = "Time (Seconds)", type = "l", col = col[3])
+plot(N.low.4, main = "Low Density, Chamber 2", ylab = "# Interactions", xlab = "Time (Seconds)", type = "l", col = col[3])
+
 par(mfrow = c(1,1))
 
-Time = prep.high$hours * 60 * 60
+Time = prep.low$hours * 60 * 60
 
 
 ###
@@ -61,25 +76,25 @@ Time = prep.high$hours * 60 * 60
 #calculate R* and then P* matrices
 #accept/reject
 
-data = N.low[1:(4*60*60)] #only using first two hours for time
-Time = 4 * 60 * 60
+data = N.low.1[1:(4*60*60)] #only using first two hours for time
+
 #hyperparameters
 a = .01
 b = .8
-c = .02
-d = .8
-r = .02
+c = .04
+d =  .8
+r = .024
 q = .5
 
 #tuning parameter
-tau = matrix( c(.01, 0, 0, 0,
-                0, .01, 0, 0,
-                0, 0, .01, 0, 
-                0, 0, 0, .01), nrow = 4, ncol = 4)
+tau = matrix( c(.05, 0, 0, 0,
+                0, .05, 0, 0,
+                0, 0, .05, 0, 
+                0, 0, 0, .05), nrow = 4, ncol = 4)
 
-n.mcmc = 10000
+n.mcmc = 5000
 
-theta = matrix(c(9999, 1, 1, 9999), 2, 2)
+theta = matrix(c(70000, 1, 1, 70000), 2, 2)
 
 #homes
 
@@ -106,10 +121,11 @@ colnames(M) <- c("High", "Low")
 
 #initialize
 
-params[1:2, 1] = c(.01, .04 )
-params[3:4, 1] = c(.03, .024)
+params[1:2, 1] = c(.01, .04)/2 #recall, known[1] is gamma.high^tilde
+params[3:4, 1] = (.24)/2
 
 X.param[, 1] = sample(c(1, 2), size = Time, replace = T) #1 - high state, 2 - low state
+
 
 M.param[, 1] = as.vector(t(M))
 
@@ -142,6 +158,7 @@ log.fullcond = function(params, P_L, P_H, data, X.param){
 
 accept = 0
 sigma = NA
+
 
 for(l in restart:n.mcmc){
   
@@ -273,7 +290,7 @@ for(l in restart:n.mcmc){
   
   #
   
- 
+  
   
   ##X Parameters
   
@@ -333,17 +350,15 @@ for(l in restart:n.mcmc){
 }
 
 
-
 #compile estimates - stop code midway version below
 X.est = matrix(data = rep(NA, Time), nrow = Time, ncol = 1)
-
 
 gamma.high.tilde.est = mean(params[1, ])
 gamma.low.est = mean(params[2, ])
 lambda.high.est = mean(params[3, ])
 lambda.low.est = mean(params[4, ])
 
-gamma.high.est = mean(params[1,] + params[2])
+gamma.high.est = mean(params[1,]) + mean(params[2])
 
 estimate = c(gamma.high.tilde.est, gamma.low.est, lambda.high.est, lambda.low.est, gamma.high.est)
 
@@ -363,7 +378,7 @@ for(t in 1:Time ){
 
 accept/n.mcmc
 estimate
-
+round(estimate, digits = 3)
 
 #plot the estimation runs.
 
@@ -381,13 +396,10 @@ plot(0,0,xlab="MCMC Runs",
      cex.lab = 1)
 lines(1:n.mcmc, 60 * (params[1, ] + params[2, ]), col = col[1])
 lines(1:n.mcmc, 60 * params[2, ], col = col[2])
-abline(h = (known[1] + known[2]) * 60, col = col[1])
-abline(h = known[2] * 60, col = col[2])
+
 
 lines(1:n.mcmc, (60 * params[3, ]), col = col[3])
 lines(1:n.mcmc, (60 * params[4, ]), col = col[4])
-abline(h = known[3] * 60, col = col[3])
-abline(h = known[4] * 60, col = col[4])
 
 #X params
 
@@ -399,7 +411,7 @@ lines(1:n.mcmc, X, col = col[4])
 
 #States over time
 plot(X.est, type = "l")
-plot(round(X.est), type = "l")
+plot(round(X.est), type = 'l')
 
 #M
 plot(0,0,xlab="MCMC Runs", ylab = "M", ylim = c(0, max(M.param)), xlim=c(0,n.mcmc), 
@@ -407,8 +419,6 @@ plot(0,0,xlab="MCMC Runs", ylab = "M", ylim = c(0, max(M.param)), xlim=c(0,n.mcm
 for(i in 1:(4)){
   lines(1:n.mcmc, M.param[i, ], col = col[i])
 }
-abline(h = c(.99, .01))
-
 
 dev.off()
 
@@ -433,7 +443,8 @@ lines(1:(l-1), 60 * (params[1, 1:(l-1)] + params[2, 1:(l-1)]), col = col[1])
 lines(1:(l - 1), 60 * params[2, 1:(l-1)], col = col[2])
 
 lines(1:(l-1), (60 * params[3, 1:(l-1)]), col = col[3])
-lines(1:(l-1), (60 * params[4, 1:(l-1) ]), col = col[4])
+lines(1:(l-1), (60 * params[4, 1:(l-1)]), col = col[3])
+
 
 #States over time
 #

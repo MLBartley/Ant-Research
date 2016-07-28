@@ -27,21 +27,36 @@
 high4 <- read.csv("./Data/Colony1_trophallaxis_high_density_4hr.csv")
 low4 <- read.csv("./Data/Colony1_trophallaxis_low_density_4hr.csv")
 
+low4.1 <- low4[which(low4$Location == 1), ]
+low4.4 <- low4[which(low4$Location == 4), ]
+
 prep.high = prep.troph.pairs(high4)
 prep.low = prep.troph.pairs(low4)
+prep.low.1 = prep.troph.pairs(low4.1)
+prep.low.4 = prep.troph.pairs(low4.4)
 
 N.high = prep.high$pairs2
 N.low = prep.low$pairs2
+N.low.1 = prep.low.1$pairs2
+N.low.4 = prep.low.4$pairs2
 
 
 ##visualize data
 ##
-par(mfrow = c(2,1))
+##
+
+col = c("#120d08", "#bc5356", "#538bbc", "#53bc84")
+
+par(mfrow = c(2,2))
+
 plot(N.high, main = "High Density", ylab = "# Interactions", xlab = "", type = "l", col = col[2])
 plot(N.low, main = "Low Density", ylab = "# Interactions", xlab = "Time (Seconds)", type = "l", col = col[3])
+plot(N.low.1, main = "Low Density, Chamber 1", ylab = "# Interactions", xlab = "Time (Seconds)", type = "l", col = col[3])
+plot(N.low.4, main = "Low Density, Chamber 2", ylab = "# Interactions", xlab = "Time (Seconds)", type = "l", col = col[3])
+
 par(mfrow = c(1,1))
 
-Time = prep.high$hours * 60 * 60
+Time = prep.low$hours * 60 * 60
 
 
 ###
@@ -61,30 +76,31 @@ Time = prep.high$hours * 60 * 60
 #calculate R* and then P* matrices
 #accept/reject
 
-data = N.low[1:(4*60*60)] #only using first two hours for time
+data = N.low.4[1:(4*60*60)] #only using first two hours for time
 Time = 4 * 60 * 60
 #hyperparameters
-a = .01
-b = .8
-c = .02
+# a = .01
+# b = .8
+c = .04
 d = .8
 r = .02
 q = .5
 
 #tuning parameter
-tau = matrix( c(.01, 0, 0, 0,
-                0, .01, 0, 0,
-                0, 0, .01, 0, 
-                0, 0, 0, .01), nrow = 4, ncol = 4)
+tau = matrix( c(.08, 0, 0, # 0,
+                0, .08, 0, #0,
+                0, 0, .08#, 0, 
+                #0, 0, 0, .01
+                ), nrow = 3, ncol = 3)
 
-n.mcmc = 10000
+n.mcmc = 5000
 
-theta = matrix(c(9999, 1, 1, 9999), 2, 2)
+theta = matrix(c(70000, 1, 1, 70000), 2, 2)
 
 #homes
 
-params = matrix(NA, nrow = 4, ncol = n.mcmc)
-rownames(params) <- c("gamma_high^tilde", "gamma_low", "lambda_high", "lambda_low")
+params = matrix(NA, nrow = 3, ncol = n.mcmc)
+rownames(params) <- c("gamma_low", "lambda_high", "lambda_low")
 colnames(params) <- 1:n.mcmc
 
 X.param = matrix(NA, nrow = Time, 
@@ -106,8 +122,8 @@ colnames(M) <- c("High", "Low")
 
 #initialize
 
-params[1:2, 1] = c(.01, .04 )
-params[3:4, 1] = c(.03, .024)
+params[1, 1] = c(.04 )/2
+params[2:3, 1] = c(.03, .024)/2
 
 X.param[, 1] = sample(c(1, 2), size = Time, replace = T) #1 - high state, 2 - low state
 
@@ -130,10 +146,10 @@ log.fullcond = function(params, P_L, P_H, data, X.param){
   
   loglike = sumP_L + 
     sumP_H +
-    dgamma(params[1], a, b, log = T) + 
-    dgamma(params[2], c, d, log = T) + 
-    dgamma(params[3], r, q, log = T) +
-    dgamma(params[4], r, q, log = T)
+    #dgamma(params[1], a, b, log = T) + 
+    dgamma(params[1], c, d, log = T) + 
+    dgamma(params[2], r, q, log = T) +
+    dgamma(params[3], r, q, log = T)
   
   
   
@@ -143,7 +159,7 @@ log.fullcond = function(params, P_L, P_H, data, X.param){
 accept = 0
 sigma = NA
 
-for(l in restart:n.mcmc){
+for(l in 2:n.mcmc){
   
   # print out every 10 iterations completed
   if( l %% 100 == 0 ) cat(paste("iteration", l, "complete\n")) 
@@ -152,17 +168,17 @@ for(l in restart:n.mcmc){
   #update
   
   # #adaptive tuning parameter
-  # if(l < n.mcmc/2 & l %% 100 == 0){
-  #   
-  #   sigma = 2.38 ^ 2 / 4 * var(log(t(params[, 1:(l - 1)])))
-  #   tau = sigma
-  # }
+  if(l < n.mcmc/2 & l %% 100 == 0){
+
+    sigma = 2.38 ^ 2 / 4 * var(log(t(params[, 1:(l - 1)])))
+    tau = sigma
+  }
   
   proposal = rmvnorm(n = 1, mean = log(params[, l - 1]), sigma = tau)
   
   theta.star = exp(proposal)
   
-  gamma.high = theta.star[1] + theta.star[2] #calculate correct gamma_high
+  #gamma.high = theta.star[1] + theta.star[2] #calculate correct gamma_high
   
   
   #calculate P* matrices - for high/low states
@@ -174,11 +190,11 @@ for(l in restart:n.mcmc){
   for(i in 1:nrow(R_H.star)){
     
     if( i %% 2 != 0 & i != nrow(R_H.star) & i != (nrow(R_H.star) - 1)){
-      R_H.star[i, i + 2] = gamma.high  #gamma_high
+      R_H.star[i, i + 2] = theta.star[1]  #gamma_high
     }
     
     if( i %% 2 != 0 & i != 1 & i != 2){
-      R_H.star[i, i - 2] = (i - 1)/2 * theta.star[3] #lambda_high
+      R_H.star[i, i - 2] = (i - 1)/2 * theta.star[2] #lambda_high
     }
     
   }
@@ -195,11 +211,11 @@ for(l in restart:n.mcmc){
   for(i in 1:nrow(R_L.star)){
     
     if( i %% 2 != 0 & i != nrow(R_L.star) & i != (nrow(R_L.star) - 1)){
-      R_L.star[i, i + 2] = theta.star[2]  #gamma_low
+      R_L.star[i, i + 2] = theta.star[1]  #gamma_low
     }
     
     if( i %% 2 != 0 & i != 1 & i != 2){
-      R_L.star[i, i - 2] = (i - 1)/2 * theta.star[4] #lambda_low
+      R_L.star[i, i - 2] = (i - 1)/2 * theta.star[3] #lambda_low
     }
     
   }
@@ -219,11 +235,11 @@ for(l in restart:n.mcmc){
   for(i in 1:nrow(R_H)){
     
     if( i %% 2 != 0 & i != nrow(R_H) & i != (nrow(R_H) - 1)){
-      R_H[i, i + 2] = params[1, l - 1] + params[2, l - 1]  #gamma_high
+      R_H[i, i + 2] = params[1, l - 1]  #gamma_high
     }
     
     if( i %% 2 != 0 & i != 1 & i != 2){
-      R_H[i, i - 2] = (i - 1)/2 * params[3, l - 1] #lambda_high
+      R_H[i, i - 2] = (i - 1)/2 * params[2, l - 1] #lambda_high
     }
     
   }
@@ -239,11 +255,11 @@ for(l in restart:n.mcmc){
   for(i in 1:nrow(R_L)){
     
     if( i %% 2 != 0 & i != nrow(R_L) & i != (nrow(R_L) - 1)){
-      R_L[i, i + 2] = params[2, l-1]  #gamma_low
+      R_L[i, i + 2] = params[1, l-1]  #gamma_low
     }
     
     if( i %% 2 != 0 & i != 1 & i != 2){
-      R_L[i, i - 2] = (i - 1)/2 * params[4, l-1] #lambda_low
+      R_L[i, i - 2] = (i - 1)/2 * params[3, l-1] #lambda_low
     }
     
   }
@@ -338,14 +354,14 @@ for(l in restart:n.mcmc){
 X.est = matrix(data = rep(NA, Time), nrow = Time, ncol = 1)
 
 
-gamma.high.tilde.est = mean(params[1, ])
-gamma.low.est = mean(params[2, ])
-lambda.high.est = mean(params[3, ])
-lambda.low.est = mean(params[4, ])
+# gamma.high.tilde.est = mean(params[1, ])
+gamma.low.est = mean(params[1, ])
+lambda.high.est = mean(params[2, ])
+lambda.low.est = mean(params[3, ])
 
-gamma.high.est = mean(params[1,] + params[2])
+# gamma.high.est = mean(params[1,] + params[2])
 
-estimate = c(gamma.high.tilde.est, gamma.low.est, lambda.high.est, lambda.low.est, gamma.high.est)
+estimate = c( gamma.low.est, lambda.high.est, lambda.low.est)
 
 for(t in 1:Time ){
   X.est[t, 1] = mean(X.param[t, ])  
@@ -381,13 +397,8 @@ plot(0,0,xlab="MCMC Runs",
      cex.lab = 1)
 lines(1:n.mcmc, 60 * (params[1, ] + params[2, ]), col = col[1])
 lines(1:n.mcmc, 60 * params[2, ], col = col[2])
-abline(h = (known[1] + known[2]) * 60, col = col[1])
-abline(h = known[2] * 60, col = col[2])
 
 lines(1:n.mcmc, (60 * params[3, ]), col = col[3])
-lines(1:n.mcmc, (60 * params[4, ]), col = col[4])
-abline(h = known[3] * 60, col = col[3])
-abline(h = known[4] * 60, col = col[4])
 
 #X params
 
@@ -407,7 +418,6 @@ plot(0,0,xlab="MCMC Runs", ylab = "M", ylim = c(0, max(M.param)), xlim=c(0,n.mcm
 for(i in 1:(4)){
   lines(1:n.mcmc, M.param[i, ], col = col[i])
 }
-abline(h = c(.99, .01))
 
 
 dev.off()
@@ -433,7 +443,6 @@ lines(1:(l-1), 60 * (params[1, 1:(l-1)] + params[2, 1:(l-1)]), col = col[1])
 lines(1:(l - 1), 60 * params[2, 1:(l-1)], col = col[2])
 
 lines(1:(l-1), (60 * params[3, 1:(l-1)]), col = col[3])
-lines(1:(l-1), (60 * params[4, 1:(l-1) ]), col = col[4])
 
 #States over time
 #

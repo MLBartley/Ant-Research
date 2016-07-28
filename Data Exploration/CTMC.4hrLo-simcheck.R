@@ -16,7 +16,7 @@ library("mvtnorm")
 Time = 1 * 60 * 60
 
 #two state transition probabilities for X_t
-M = matrix(c(.99, .01, .01, .99), 2, 2)
+M = matrix(c(.8, .2, .2, .8), 2, 2)
 
 
 #high/low trophallaxis rate states
@@ -33,7 +33,7 @@ for(t in 2:Time){
 plot(x, type = 'l')
 
 #choose known parameters for gammas and lambdas
-known = c(.15, .2, .1, .3)
+known = c(.0005, .042, .024, .024)
 gamma.high.known = known[1] + known[2]
 
 #calculate P matrices for KNOWN values - for high/low states
@@ -101,11 +101,11 @@ points(x, col = 'red')
 data = N
 
 #hyperparameters
-a = .1
+a = .001
 b = .8
-c = .2
+c = .04
 d =  .8
-r = .2
+r = .024
 q = .5
 
 #tuning parameter
@@ -114,9 +114,9 @@ tau = matrix( c(.05, 0, 0, 0,
                 0, 0, .05, 0, 
                 0, 0, 0, .05), nrow = 4, ncol = 4)
 
-n.mcmc = 10000
+n.mcmc = 5000
 
-theta = matrix(c(9999, 1, 1, 9999), 2, 2)
+theta = matrix(c(800, 200, 200, 800), 2, 2)
 
 #homes
 
@@ -181,246 +181,194 @@ accept = 0
 sigma = NA
 
 
- for(l in 2:n.mcmc){
-    
-    # print out every 10 iterations completed
-    if( l %% 100 == 0 ) cat(paste("iteration", l, "complete\n")) 
-    
-    #
-    #update
+for(l in 2:n.mcmc){
   
-    # #adaptive tuning parameter
-    if(l < n.mcmc/2 & l %% 100 == 0){
+  # print out every 10 iterations completed
+  if( l %% 100 == 0 ) cat(paste("iteration", l, "complete\n")) 
   
-        sigma = 2.38 ^ 2 / 4 * var(log(t(params[, 1:(l - 1)])))
-        tau = sigma
+  #
+  #update
+  
+  # #adaptive tuning parameter
+  # if(l < n.mcmc/2 & l %% 100 == 0){
+  #   
+  #   sigma = 2.38 ^ 2 / 4 * var(log(t(params[, 1:(l - 1)])))
+  #   tau = sigma
+  # }
+  
+  proposal = rmvnorm(n = 1, mean = log(params[, l - 1]), sigma = tau)
+  
+  theta.star = exp(proposal)
+  
+  gamma.high = theta.star[1] + theta.star[2] #calculate correct gamma_high
+  
+  
+  #calculate P* matrices - for high/low states
+  
+  R_H.star = matrix(0, nrow = max(data) + 1, ncol = max(data) + 1)
+  rownames(R_H.star) <- 0:max(data)
+  colnames(R_H.star) <- 0:max(data)
+  
+  for(i in 1:nrow(R_H.star)){
+    
+    if( i %% 2 != 0 & i != nrow(R_H.star) & i != (nrow(R_H.star) - 1)){
+      R_H.star[i, i + 2] = gamma.high  #gamma_high
     }
-  
-    proposal = rmvnorm(n = 1, mean = log(params[, l - 1]), sigma = tau)
-  
-    theta.star = exp(proposal)
-  
-    gamma.high = theta.star[1] + theta.star[2] #calculate correct gamma_high
-  
-  
-    #calculate P* matrices - for high/low states
-  
-    R_H.star = matrix(0, nrow = max(data) + 1, ncol = max(data) + 1)
-    rownames(R_H.star) <- 0:max(data)
-    colnames(R_H.star) <- 0:max(data)
-  
-    for(i in 1:nrow(R_H.star)){
-  
-      if( i %% 2 != 0 & i != nrow(R_H.star) & i != (nrow(R_H.star) - 1)){
-        R_H.star[i, i + 2] = gamma.high  #gamma_high
-      }
-  
-      if( i %% 2 != 0 & i != 1 & i != 2){
-        R_H.star[i, i - 2] = (i - 1)/2 * theta.star[3] #lambda_high
-      }
-  
-    }
-  
-    P_H.star = Pctmc(Q = R_H.star, t = 1)
-    rownames(P_H.star) <- 0:max(data)
-    colnames(P_H.star) <- 0:max(data)
-  
-  
-    R_L.star = matrix(0, nrow = max(data) + 1, ncol = max(data) + 1)
-    rownames(R_L.star) <- 0:max(data)
-    colnames(R_L.star) <- 0:max(data)
-  
-    for(i in 1:nrow(R_L.star)){
-  
-      if( i %% 2 != 0 & i != nrow(R_L.star) & i != (nrow(R_L.star) - 1)){
-        R_L.star[i, i + 2] = theta.star[2]  #gamma_low
-      }
-  
-      if( i %% 2 != 0 & i != 1 & i != 2){
-        R_L.star[i, i - 2] = (i - 1)/2 * theta.star[4] #lambda_low
-      }
-  
-    }
-  
-    P_L.star = Pctmc(Q = R_L.star, t = 1)
-    rownames(P_L.star) <- 0:max(data)
-    colnames(P_L.star) <- 0:max(data)
-  
-  
-  
-    #calculate P matrices for PREVIOUS values - for high/low states
-  
-    R_H = matrix(0, nrow = max(data) + 1, ncol = max(data) + 1)
-    rownames(R_H) <- 0:max(data)
-    colnames(R_H) <- 0:max(data)
-  
-    for(i in 1:nrow(R_H)){
-  
-      if( i %% 2 != 0 & i != nrow(R_H) & i != (nrow(R_H) - 1)){
-        R_H[i, i + 2] = params[1, l - 1] + params[2, l - 1]  #gamma_high
-      }
-  
-      if( i %% 2 != 0 & i != 1 & i != 2){
-        R_H[i, i - 2] = (i - 1)/2 * params[3, l - 1] #lambda_high
-      }
-  
-    }
-  
-    P_H = Pctmc(Q = R_H, t = 1)
-    rownames(P_H) <- 0:max(data)
-    colnames(P_H) <- 0:max(data)
-  
-    R_L = matrix(0, nrow = max(data) + 1, ncol = max(data) + 1)
-    rownames(R_L) <- 0:max(data)
-    colnames(R_L) <- 0:max(data)
-  
-    for(i in 1:nrow(R_L)){
-  
-      if( i %% 2 != 0 & i != nrow(R_L) & i != (nrow(R_L) - 1)){
-        R_L[i, i + 2] = params[2, l-1]  #gamma_low
-      }
-  
-      if( i %% 2 != 0 & i != 1 & i != 2){
-        R_L[i, i - 2] = (i - 1)/2 * params[4, l-1] #lambda_low
-      }
-  
-    }
-  
-    P_L = Pctmc(Q = R_L, t = 1)
-    rownames(P_L) <- 0:max(data)
-    colnames(P_L) <- 0:max(data)
-  
-  
-  
-    #calculate probability
-    MHprob = exp(log.fullcond(theta.star, P_L.star, P_H.star, data, X.param) -
-                   log.fullcond(params[, l - 1], P_L, P_H, data, X.param))
-  
-    if(is.finite(MHprob) == FALSE){MHprob = 0}
-    #accept/reject
-  
-    if(runif(1) < MHprob){
-      accept = accept + 1
-      params[, l] = theta.star[]
-      #needed for X
-      P_H = P_H.star
-      P_L = P_L.star
-    }else{
-      params[, l] = params[, l - 1]
-    }
-  
-    #
     
-    ######
-    ###### hold rate params constant - comment out above
-  
-    # params[, l] = known
-    # #calculate P matrices for PREVIOUS values - for high/low states
-    # 
-    # R_H = matrix(0, nrow = max(data) + 1, ncol = max(data) + 1)
-    # rownames(R_H) <- 0:max(data)
-    # colnames(R_H) <- 0:max(data)
-    # 
-    # for(i in 1:nrow(R_H)){
-    # 
-    #   if( i %% 2 != 0 & i != nrow(R_H) & i != (nrow(R_H) - 1)){
-    #     R_H[i, i + 2] = params[1, l] + params[2, l]  #gamma_high
-    #   }
-    # 
-    #   if( i %% 2 != 0 & i != 1 & i != 2){
-    #     R_H[i, i - 2] = (i - 1)/2 * params[3, l] #lambda_high
-    #   }
-    # 
-    # }
-    # 
-    # P_H = Pctmc(Q = R_H, t = 1)
-    # rownames(P_H) <- 0:max(data)
-    # colnames(P_H) <- 0:max(data)
-    # 
-    # R_L = matrix(0, nrow = max(data) + 1, ncol = max(data) + 1)
-    # rownames(R_L) <- 0:max(data)
-    # colnames(R_L) <- 0:max(data)
-    # 
-    # for(i in 1:nrow(R_L)){
-    # 
-    #   if( i %% 2 != 0 & i != nrow(R_L) & i != (nrow(R_L) - 1)){
-    #     R_L[i, i + 2] = params[2, l]  #gamma_low
-    #   }
-    # 
-    #   if( i %% 2 != 0 & i != 1 & i != 2){
-    #     R_L[i, i - 2] = (i - 1)/2 * params[4, l] #lambda_low
-    #   }
-    # 
-    # }
-    # 
-    # P_L = Pctmc(Q = R_L, t = 1)
-    # rownames(P_L) <- 0:max(data)
-    # colnames(P_L) <- 0:max(data)
-    # 
-  
-  
-    
-    ##X Parameters
-    
-    ### simulation - keep same
-    
-     # X.param[, l] = x #comment out when simulating X
-    ###################
-    
-    
-    m = matrix(data = 0, nrow = 2, ncol = 2)
-    rownames(m) <- c("high", "low")
-    colnames(m) <- c("high", "low")
-    # number states going from i to j, refreshes every run
-  
-  
-    prob_H = P_H[data[1] + 1, data[2] + 1] * .5 *
-      M[1, X.param[2, l - 1]]
-  
-  
-    prob_L = P_L[data[1] + 1, data[2] + 1] * .5 *
-      M[2, X.param[2, l - 1]]
-  
-    X.param[1, l] = sample(x = (1:2), size = 1, prob = c(prob_H, prob_L))
-  
-    m[X.param[1, l], X.param[1, l]] = m[X.param[1, l], X.param[1, l]] + 1
-    # 
-    # 
-    for(t in 2:(Time - 1)){
-  
-      prob_H = P_H[data[t] + 1, data[t + 1] + 1]  *
-        M[1, X.param[t + 1, l - 1]] *
-        M[X.param[t - 1, l - 1], 1]
-  
-      prob_L = P_L[data[t] + 1, data[t + 1] + 1]  *
-        M[2, X.param[t + 1, l - 1]] *
-        M[X.param[t - 1, l - 1], 2]
-  
-    X.param[t, l] = sample(x = (1:2), 1,  prob = c(prob_H, prob_L))
-  
-      m[X.param[t - 1, l], X.param[t, l]] = m[X.param[t - 1, l],
-                                              X.param[t, l]] + 1
+    if( i %% 2 != 0 & i != 1 & i != 2){
+      R_H.star[i, i - 2] = (i - 1)/2 * theta.star[3] #lambda_high
     }
-  
-    prob_H = P_H[data[Time - 1] + 1, data[Time] + 1]  *
-      M[X.param[1, l - 1], X.param[Time - 1, l - 1]]
-  
-    prob_L = P_L[data[X.param[Time - 1]] + 1, data[X.param[Time]] + 1]  *
-      M[X.param[2, l - 1], X.param[Time - 1, l - 1]]
-  
-     X.param[Time, l] = sample(x = (1:2), 1,  prob = c(prob_H, prob_L))
-  
-    m[X.param[Time - 1, l], X.param[Time, l]] = m[X.param[Time - 1, l],
-                                                  X.param[Time, l]] + 1
-    # 
-    #M matrix parameter
-  
-     M[1, ] = (rdirichlet(n = 1 , alpha = theta[1, ] + m[1, ]))
-     M[2, ] = (rdirichlet(n = 1 , alpha = theta[2, ] + m[2, ]))
-  
-    M.param[, l] = as.vector(t(M))
     
   }
+  
+  P_H.star = Pctmc(Q = R_H.star, t = 1)
+  rownames(P_H.star) <- 0:max(data)
+  colnames(P_H.star) <- 0:max(data)
+  
+  
+  R_L.star = matrix(0, nrow = max(data) + 1, ncol = max(data) + 1)
+  rownames(R_L.star) <- 0:max(data)
+  colnames(R_L.star) <- 0:max(data)
+  
+  for(i in 1:nrow(R_L.star)){
+    
+    if( i %% 2 != 0 & i != nrow(R_L.star) & i != (nrow(R_L.star) - 1)){
+      R_L.star[i, i + 2] = theta.star[2]  #gamma_low
+    }
+    
+    if( i %% 2 != 0 & i != 1 & i != 2){
+      R_L.star[i, i - 2] = (i - 1)/2 * theta.star[4] #lambda_low
+    }
+    
+  }
+  
+  P_L.star = Pctmc(Q = R_L.star, t = 1)
+  rownames(P_L.star) <- 0:max(data)
+  colnames(P_L.star) <- 0:max(data)
+  
+  
+  
+  #calculate P matrices for PREVIOUS values - for high/low states
+  
+  R_H = matrix(0, nrow = max(data) + 1, ncol = max(data) + 1)
+  rownames(R_H) <- 0:max(data)
+  colnames(R_H) <- 0:max(data)
+  
+  for(i in 1:nrow(R_H)){
+    
+    if( i %% 2 != 0 & i != nrow(R_H) & i != (nrow(R_H) - 1)){
+      R_H[i, i + 2] = params[1, l - 1] + params[2, l - 1]  #gamma_high
+    }
+    
+    if( i %% 2 != 0 & i != 1 & i != 2){
+      R_H[i, i - 2] = (i - 1)/2 * params[3, l - 1] #lambda_high
+    }
+    
+  }
+  
+  P_H = Pctmc(Q = R_H, t = 1)
+  rownames(P_H) <- 0:max(data)
+  colnames(P_H) <- 0:max(data)
+  
+  R_L = matrix(0, nrow = max(data) + 1, ncol = max(data) + 1)
+  rownames(R_L) <- 0:max(data)
+  colnames(R_L) <- 0:max(data)
+  
+  for(i in 1:nrow(R_L)){
+    
+    if( i %% 2 != 0 & i != nrow(R_L) & i != (nrow(R_L) - 1)){
+      R_L[i, i + 2] = params[2, l-1]  #gamma_low
+    }
+    
+    if( i %% 2 != 0 & i != 1 & i != 2){
+      R_L[i, i - 2] = (i - 1)/2 * params[4, l-1] #lambda_low
+    }
+    
+  }
+  
+  P_L = Pctmc(Q = R_L, t = 1)
+  rownames(P_L) <- 0:max(data)
+  colnames(P_L) <- 0:max(data)
+  
+  
+  
+  #calculate probability
+  MHprob = exp(log.fullcond(theta.star, P_L.star, P_H.star, data, X.param) -
+                 log.fullcond(params[, l - 1], P_L, P_H, data, X.param))
+  
+  if(is.finite(MHprob) == FALSE){MHprob = 0}
+  #accept/reject
+  
+  if(runif(1) < MHprob){
+    accept = accept + 1
+    params[, l] = theta.star[]
+    #needed for X
+    P_H = P_H.star
+    P_L = P_L.star
+  }else{
+    params[, l] = params[, l - 1]
+  }
+  
+  #
+  
+  
+  
+  ##X Parameters
+  
+  
+  m = matrix(data = 0, nrow = 2, ncol = 2)
+  rownames(m) <- c("high", "low")
+  colnames(m) <- c("high", "low")
+  # number states going from i to j, refreshes every run
+  
+  
+  prob_H = P_H[data[1] + 1, data[2] + 1] * .5 *
+    M[1, X.param[2, l - 1]]
+  
+  
+  prob_L = P_L[data[1] + 1, data[2] + 1] * .5 *
+    M[2, X.param[2, l - 1]]
+  
+  X.param[1, l] = sample(x = (1:2), size = 1, prob = c(prob_H, prob_L))
+  
+  m[X.param[1, l], X.param[1, l]] = m[X.param[1, l], X.param[1, l]] + 1
+  # 
+  # 
+  for(t in 2:(Time - 1)){
+    
+    prob_H = P_H[data[t] + 1, data[t + 1] + 1]  *
+      M[1, X.param[t + 1, l - 1]] *
+      M[X.param[t - 1, l - 1], 1]
+    
+    prob_L = P_L[data[t] + 1, data[t + 1] + 1]  *
+      M[2, X.param[t + 1, l - 1]] *
+      M[X.param[t - 1, l - 1], 2]
+    
+    X.param[t, l] = sample(x = (1:2), 1,  prob = c(prob_H, prob_L))
+    
+    m[X.param[t - 1, l], X.param[t, l]] = m[X.param[t - 1, l],
+                                            X.param[t, l]] + 1
+  }
+  
+  prob_H = P_H[data[Time - 1] + 1, data[Time] + 1]  *
+    M[X.param[1, l - 1], X.param[Time - 1, l - 1]]
+  
+  prob_L = P_L[data[X.param[Time - 1]] + 1, data[X.param[Time]] + 1]  *
+    M[X.param[2, l - 1], X.param[Time - 1, l - 1]]
+  
+  X.param[Time, l] = sample(x = (1:2), 1,  prob = c(prob_H, prob_L))
+  
+  m[X.param[Time - 1, l], X.param[Time, l]] = m[X.param[Time - 1, l],
+                                                X.param[Time, l]] + 1
+  # 
+  #M matrix parameter
+  
+  M[1, ] = (rdirichlet(n = 1 , alpha = theta[1, ] + m[1, ]))
+  M[2, ] = (rdirichlet(n = 1 , alpha = theta[2, ] + m[2, ]))
+  
+  M.param[, l] = as.vector(t(M))
+  
+}
 
 
 #compile estimates - stop code midway version below
@@ -432,7 +380,7 @@ gamma.low.est = mean(params[2, ])
 lambda.high.est = mean(params[3, ])
 lambda.low.est = mean(params[4, ])
 
-gamma.high.est = mean(params[1,] + params[2])
+gamma.high.est = mean(params[1,]) + mean(params[2])
 
 estimate = c(gamma.high.tilde.est, gamma.low.est, lambda.high.est, lambda.low.est, gamma.high.est)
 
@@ -453,7 +401,7 @@ for(t in 1:Time ){
 accept/n.mcmc
 known
 estimate
-
+round(estimate, digits = 3)
 
 #plot the estimation runs.
 
@@ -547,5 +495,5 @@ plot(0,0,xlab="MCMC Runs", ylab = "M", ylim = c(0, max(M.param[1:(l-1)])), xlim=
 for(i in 1:(4)){
   lines(1:(l-1), M.param[i, 1:(l-1)], col = col[i])
 }
-abline(h = c(.99, .01))
+abline(h = c(.8, .2))
 
