@@ -95,15 +95,8 @@
       leftskip=\metropolis@frametitle@padding,%
       rightskip=\metropolis@frametitle@padding,%
     ]{frametitle}%
-  \metropolis@frametitlestrut@start%
-  \insertframetitle%
-  \nolinebreak%
-  \metropolis@frametitlestrut@end%
+  \metropolis@frametitlestrut@start\insertframetitle\metropolis@frametitlestrut@end%
   \end{beamercolorbox}%
-}
-\setbeamertemplate{frametitle continuation}{%
-  \usebeamerfont{frametitle}
-  \romannumeral \insertcontinuationcount
 }
 \newlength{\metropolis@progressinheadfoot}
 \setbeamertemplate{progress bar in head/foot}{
@@ -113,8 +106,8 @@
   }%
   \begin{beamercolorbox}[wd=\paperwidth]{progress bar in head/foot}
     \begin{tikzpicture}
-      \fill[bg] (0,0) rectangle (\paperwidth, 0.4pt);
-      \fill[fg] (0,0) rectangle (\metropolis@progressinheadfoot, 0.4pt);
+      \draw[bg, fill=bg] (0,0) rectangle (\paperwidth, 0.4pt);
+      \draw[fg, fill=fg] (0,0) rectangle (\metropolis@progressinheadfoot, 0.4pt);
     \end{tikzpicture}%
   \end{beamercolorbox}
 }

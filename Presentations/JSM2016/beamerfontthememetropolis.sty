@@ -260,12 +260,6 @@
     \metropolis@sectiontitleformat{#1}}}}
   {}
   {\PackageError{beamerfontthememetropolis}{Patching section title failed}}
-\patchcmd{\beamer@subsection}
-  {\def\insertsubsectionhead{\hyperlink{Navigation\the\c@page}{#1}}}
-  {\def\insertsubsectionhead{\hyperlink{Navigation\the\c@page}{%
-    \metropolis@sectiontitleformat{#1}}}}
-  {}
-  {\PackageError{beamerfontthememetropolis}{Patching section title failed}}
 \patchcmd{\beamer@@frametitle}
   {\beamer@ifempty{#2}{}{%
       \gdef\insertframetitle{{#2\ifnum\beamer@autobreakcount>0\relax{}\space%
