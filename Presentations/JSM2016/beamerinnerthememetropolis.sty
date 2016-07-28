@@ -86,14 +86,13 @@
   \vspace*{0.5em}
 }
 \setbeamertemplate{subtitle}{
-  \raggedright%
   \insertsubtitle%
   \par%
   \vspace*{0.5em}
 }
 \setbeamertemplate{title separator}{
   \begin{tikzpicture}
-    \fill[fg] (0,0) rectangle (\textwidth, 0.4pt);
+    \draw[fg, fill=fg] (0,0) rectangle (\textwidth, 0.4pt);
   \end{tikzpicture}%
   \par%
 }
@@ -117,10 +116,10 @@
     \usebeamercolor[fg]{section title}
     \usebeamerfont{section title}
     \insertsectionhead\par
-    \ifx\insertsubsectionhead\@empty\else
+    \ifx\insertsubsection\@empty\else
       \usebeamercolor[fg]{subsection title}
       \usebeamerfont{subsection title}
-      \insertsubsectionhead
+      \insertsubsection
     \fi
   \end{center}
 }
@@ -133,10 +132,10 @@
     \insertsectionhead\\[-1ex]
     \usebeamertemplate*{progress bar in section page}
     \par
-    \ifx\insertsubsectionhead\@empty\else%
+    \ifx\insertsubsection\@empty\else%
       \usebeamercolor[fg]{subsection title}%
       \usebeamerfont{subsection title}%
-      \insertsubsectionhead
+      \insertsubsection
     \fi
   \end{minipage}
   \par
@@ -179,8 +178,8 @@
     \textwidth * \ratio{\insertframenumber pt}{\inserttotalframenumber pt}%
   }%
   \begin{tikzpicture}
-    \fill[bg] (0,0) rectangle (\textwidth, 0.4pt);
-    \fill[fg] (0,0) rectangle (\metropolis@progressonsectionpage, 0.4pt);
+    \draw[bg, fill=bg] (0,0) rectangle (\textwidth, 0.4pt);
+    \draw[fg, fill=fg] (0,0) rectangle (\metropolis@progressonsectionpage, 0.4pt);
   \end{tikzpicture}%
 }
 \def\inserttotalframenumber{100}

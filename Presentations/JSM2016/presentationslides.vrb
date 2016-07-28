@@ -1,0 +1,40 @@
+\frametitle{CTMC "Hidden" Markov Model}
+\begin{columns}[T]
+ \begin{column}{.4\textwidth}
+    \begin{block}{}
+\textbf{Unobserved:} $\{X_t, t = 1, \dots, T\}$ \\
+State = high/low rate of trophallaxis in colony.
+
+% $\alpha$: Rate of starting/ending trophallaxis event
+
+$\gamma_{X_t} $ = Rate at which new trophallaxis events start
+
+$\lambda_{X_t} $ = Rate at which pair ends current trophallaxis event
+
+$ \lambda_{X_t} \frac{N}{2}$ = Colony-wise rate of ending trophallaxis event
+
+\end{block}
+    \end{column}
+
+ \begin{column}{.6\textwidth}
+    \begin{block}{}
+    CTMC Rate Matrix $\mathbf{R}$\\
+
+$\mathbf{R}^{(X_t)} = \bordermatrix{
+   & 0 & 2 & 4 & 6 & \dots \cr
+ 0 & 0 & \gamma_{X_t} & 0 & 0 & \dots \cr
+ 2 & \lambda_{X_t} & 0  & \gamma_{X_t} & 0 & \dots \cr
+ 4 & 0 & 2\lambda_{X_t} & 0  & \ddots & \dots \cr
+ 6 & 0 & 0 & 3 \lambda_{X_t} & 0  & \ddots \cr
+ \vdots & \vdots & \vdots & \vdots & \ddots & \dots}$
+
+ $\mathbf{Q} = \mathbf{R} - diag(\mathbf{R1})$
+
+$\mathbf{P}^{(X_t)} = P(N_{t+1}|N_t, \gamma_{X_t}, \lambda_{X_t}, X_t ) = e^{\mathbf{Q}^{(X_t)} * \Delta t} $
+
+$\mathbf{P} = e^{\bm{Q}} = \bm{I} + \frac{\bm{Q}^2}{2} + \frac{\bm{Q}^3}{3} \dots $
+
+\end{block}
+    \end{column}
+  \end{columns}
+
