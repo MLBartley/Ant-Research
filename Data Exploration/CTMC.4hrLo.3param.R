@@ -27,18 +27,33 @@
 high4 <- read.csv("./Data/Colony1_trophallaxis_high_density_4hr.csv")
 low4 <- read.csv("./Data/Colony1_trophallaxis_low_density_4hr.csv")
 
+low4.1 <- low4[which(low4$Location == 1), ]
+low4.4 <- low4[which(low4$Location == 4), ]
+
 prep.high = prep.troph.pairs(high4)
 prep.low = prep.troph.pairs(low4)
+prep.low.1 = prep.troph.pairs(low4.1)
+prep.low.4 = prep.troph.pairs(low4.4)
 
 N.high = prep.high$pairs2
 N.low = prep.low$pairs2
+N.low.1 = prep.low.1$pairs2
+N.low.4 = prep.low.4$pairs2
 
 
 ##visualize data
 ##
-par(mfrow = c(2,1))
+##
+
+col = c("#120d08", "#bc5356", "#538bbc", "#53bc84")
+
+par(mfrow = c(2,2))
+
 plot(N.high, main = "High Density", ylab = "# Interactions", xlab = "", type = "l", col = col[2])
 plot(N.low, main = "Low Density", ylab = "# Interactions", xlab = "Time (Seconds)", type = "l", col = col[3])
+plot(N.low.1, main = "Low Density, Chamber 1", ylab = "# Interactions", xlab = "Time (Seconds)", type = "l", col = col[3])
+plot(N.low.4, main = "Low Density, Chamber 2", ylab = "# Interactions", xlab = "Time (Seconds)", type = "l", col = col[3])
+
 par(mfrow = c(1,1))
 
 Time = prep.low$hours * 60 * 60
@@ -61,7 +76,7 @@ Time = prep.low$hours * 60 * 60
 #calculate R* and then P* matrices
 #accept/reject
 
-data = N.low[1:(4*60*60)] #only using first two hours for time
+data = N.low.4[1:(4*60*60)] #only using first two hours for time
 Time = 4 * 60 * 60
 #hyperparameters
 # a = .01
@@ -80,7 +95,7 @@ tau = matrix( c(.08, 0, 0, # 0,
 
 n.mcmc = 5000
 
-theta = matrix(c(9999, 1, 1, 9999), 2, 2)
+theta = matrix(c(70000, 1, 1, 70000), 2, 2)
 
 #homes
 
@@ -144,7 +159,7 @@ log.fullcond = function(params, P_L, P_H, data, X.param){
 accept = 0
 sigma = NA
 
-for(l in restart:n.mcmc){
+for(l in 2:n.mcmc){
   
   # print out every 10 iterations completed
   if( l %% 100 == 0 ) cat(paste("iteration", l, "complete\n")) 

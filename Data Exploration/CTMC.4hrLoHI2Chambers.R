@@ -94,7 +94,7 @@ tau = matrix( c(.05, 0, 0, 0,
 
 n.mcmc = 5000
 
-theta = matrix(c(11000, 1, 1, 11000), 2, 2)
+theta = matrix(c(70000, 1, 1, 70000), 2, 2)
 
 #homes
 
@@ -160,7 +160,7 @@ accept = 0
 sigma = NA
 
 
-for(l in 2:n.mcmc){
+for(l in restart:n.mcmc){
   
   # print out every 10 iterations completed
   if( l %% 100 == 0 ) cat(paste("iteration", l, "complete\n")) 
@@ -377,7 +377,6 @@ for(t in 1:Time ){
 #######
 
 accept/n.mcmc
-known
 estimate
 round(estimate, digits = 3)
 
@@ -397,13 +396,10 @@ plot(0,0,xlab="MCMC Runs",
      cex.lab = 1)
 lines(1:n.mcmc, 60 * (params[1, ] + params[2, ]), col = col[1])
 lines(1:n.mcmc, 60 * params[2, ], col = col[2])
-abline(h = (known[1] + known[2]) * 60, col = col[1])
-abline(h = known[2] * 60, col = col[2])
+
 
 lines(1:n.mcmc, (60 * params[3, ]), col = col[3])
 lines(1:n.mcmc, (60 * params[4, ]), col = col[4])
-abline(h = known[3] * 60, col = col[3])
-abline(h = known[4] * 60, col = col[4])
 
 #X params
 
@@ -414,9 +410,8 @@ plot(0, 0, xlab = "MCMC Runs", ylab = "Single X", ylim = c(0,max(X)),
 lines(1:n.mcmc, X, col = col[4])
 
 #States over time
-plot(x, type = "l")
-lines(X.est, type = "l", cex.lab = 1, col = col[2])
-
+plot(X.est, type = "l")
+plot(round(X.est), type = 'l')
 
 #M
 plot(0,0,xlab="MCMC Runs", ylab = "M", ylim = c(0, max(M.param)), xlim=c(0,n.mcmc), 
