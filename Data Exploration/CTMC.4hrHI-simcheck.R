@@ -13,10 +13,10 @@ library("gtools")
 library("mvtnorm")
 
 
-Time = 1 * 60 * 60
+Time = 4 * 60 * 60
 
 #two state transition probabilities for X_t
-M = matrix(c(.8, .2, .2, .8), 2, 2)
+M = matrix(c(.99, .01, .99, .01), 2, 2)
 
 
 #high/low trophallaxis rate states
@@ -33,7 +33,7 @@ for(t in 2:Time){
 plot(x, type = 'l')
 
 #choose known parameters for gammas and lambdas
-known = c(.001, .032, .016, .016)
+known = c(0, .0325, .016, .016)
 gamma.high.known = known[1] + known[2]
 
 #calculate P matrices for KNOWN values - for high/low states
@@ -95,7 +95,19 @@ for(i in 2:Time){
 }
 
 #visualize, looks alright
-plot(N, type = 'l')
+#
+high4 <- read.csv("./Data/Colony1_trophallaxis_high_density_4hr.csv")
+prep.high = prep.troph.pairs(high4)
+
+N.high = prep.high$pairs2
+par(mfrow = c(2,1))
+
+plot(N.high, main = "High Density", ylab = "# Interactions", xlab = "", type = "l", col = col[2])
+plot(N, type = 'l',main = "Simulated Data", xlab = '', ylab = "# Interaction ")
+
+par(mfrow = c(1,1))
+
+
 points(x, col = 'red')
 
 data = N

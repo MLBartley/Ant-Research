@@ -1,8 +1,8 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=latex 2016.7.28)  28 JUL 2016 16:37
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=latex 2016.7.28)  28 JUL 2016 16:40
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**presentationslides.tex
+**presentation.tex
 (./presentationslides.tex
 LaTeX2e <2016/03/31> patch level 2
 Babel <3.9r> and hyphenation patterns for 83 language(s) loaded.
@@ -1082,12 +1082,10 @@ Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 LaTeX Info: Redefining \ref on input line 27.
 LaTeX Info: Redefining \pageref on input line 27.
 LaTeX Info: Redefining \nameref on input line 27.
+
+(./presentationslides.out) (./presentationslides.out)
 \@outlinefile=\write5
 \openout5 = `presentationslides.out'.
-
-
-
-Package hyperref Warning: Rerun to get /PageLabels entry.
 
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
 (Font)                  OT1/cmr/m/n --> OT1/cmss/m/n on input line 27.
@@ -1173,7 +1171,7 @@ LaTeX Info: Redefining \includegraphics on input line 27.
 Package pgfplots notification 'compat/show suggested version=true': you might b
 enefit from \pgfplotsset{compat=1.13} (current compat level: 1.9).
 
-No file presentationslides.nav.
+(./presentationslides.nav)
 
 ! LaTeX Error: File `psulogo' not found.
 
@@ -1183,13 +1181,7 @@ Type  H <return>  for immediate help.
                                                   
 l.29 \maketitle
                
-? latex present*.tex
-Type <return> to proceed, S to scroll future error messages,
-R to run without stopping, Q to run quietly,
-I to insert something, E to edit your file,
-1 or ... or 9 to ignore the next 1 to 9 tokens of input,
-H for help, X to quit.
-? q()
+? q
 OK, entering \batchmode...
 
 Overfull \vbox (20.00003pt too high) detected at line 29
@@ -1231,6 +1223,10 @@ If that doesn't work, type  X <return>  to quit.
 
 File: troph.jpg Graphic file (type eps)
  <troph.jpg>)
+Overfull \hbox (0.4pt too wide) in paragraph at lines 65--65
+[][]  
+ []
+
 
 LaTeX Font Warning: Font shape `OT1/cmss/m/n' in size <4> not available
 (Font)              size <5> substituted on input line 65.
@@ -1253,7 +1249,12 @@ If that doesn't work, type  X <return>  to quit.
 
 File: Ndata.jpeg Graphic file (type eps)
  <Ndata.jpeg>
-Overfull \vbox (125.15482pt too high) detected at line 90
+Overfull \hbox (0.4pt too wide) in paragraph at lines 90--90
+[][]  
+ []
+
+
+Overfull \vbox (125.55481pt too high) detected at line 90
  []
 
  [3
@@ -1294,7 +1295,12 @@ If that doesn't work, type  X <return>  to quit.
 
 File: Data-narrow.jpeg Graphic file (type eps)
  <Data-narrow.jpeg>)
-Overfull \vbox (5.17767pt too high) detected at line 120
+Overfull \hbox (0.4pt too wide) in paragraph at lines 120--120
+[][]  
+ []
+
+
+Overfull \vbox (5.57767pt too high) detected at line 120
  []
 
  [4
@@ -1302,7 +1308,12 @@ Overfull \vbox (5.17767pt too high) detected at line 120
 ]
 \openout4 = `presentationslides.vrb'.
 
- (./presentationslides.vrb) [5
+ (./presentationslides.vrb)
+Overfull \hbox (0.4pt too wide) in paragraph at lines 164--164
+[][]  
+ []
+
+ [5
 
 ]
 
@@ -1320,24 +1331,54 @@ If that doesn't work, type  X <return>  to quit.
 
 File: hiddendoodle.png Graphic file (type eps)
  <hiddendoodle.png>
-Overfull \vbox (84.00415pt too high) detected at line 214
+Overfull \hbox (0.4pt too wide) in paragraph at lines 214--214
+[][]  
+ []
+
+
+Overfull \vbox (84.40414pt too high) detected at line 214
  []
 
  [6
 
 ]
-Overfull \vbox (40.53865pt too high) detected at line 277
+Overfull \hbox (0.4pt too wide) in paragraph at lines 277--277
+[][]  
+ []
+
+
+Overfull \vbox (40.93864pt too high) detected at line 277
  []
 
  [7
 
-] [8
+]
+Overfull \hbox (0.4pt too wide) in paragraph at lines 292--292
+[][]  
+ []
 
-] [9
+ [8
 
-] [10
+]
+Overfull \hbox (0.4pt too wide) in paragraph at lines 296--296
+[][]  
+ []
 
-] [11
+ [9
+
+]
+Overfull \hbox (0.4pt too wide) in paragraph at lines 302--302
+[][]  
+ []
+
+ [10
+
+]
+Overfull \hbox (0.4pt too wide) in paragraph at lines 351--351
+[][]  
+ []
+
+ [11
 
 ] [12
 
@@ -1356,14 +1397,8 @@ Package atveryend Info: Empty hook `AfterLastShipout' on input line 365.
  (./presentationslides.aux)
 Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 365.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 365.
-
-Package rerunfilecheck Warning: File `presentationslides.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `presentationslides.out':
-(rerunfilecheck)             Before: <no file>
-(rerunfilecheck)             After:  D41D8CD98F00B204E9800998ECF8427E;0.
+Package rerunfilecheck Info: File `presentationslides.out' has not changed.
+(rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
 
 LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 1.0pt have occurred.
@@ -1374,12 +1409,12 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 365.
  ) 
 Here is how much of TeX's memory you used:
- 29667 strings out of 493014
- 723243 string characters out of 6133369
- 946816 words of memory out of 5000000
- 32562 multiletter control sequences out of 15000+600000
+ 29702 strings out of 493014
+ 723578 string characters out of 6133369
+ 946838 words of memory out of 5000000
+ 32590 multiletter control sequences out of 15000+600000
  15358 words of font info for 50 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 71i,15n,95p,3087b,963s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 71i,15n,95p,3081b,963s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on presentationslides.dvi (12 pages, 72028 bytes).
+Output written on presentationslides.dvi (12 pages, 74808 bytes).
