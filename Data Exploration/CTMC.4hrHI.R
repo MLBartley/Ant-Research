@@ -77,9 +77,9 @@ tau = matrix( c(.01, 0, 0, 0,
                 0, 0, .01, 0, 
                 0, 0, 0, .01), nrow = 4, ncol = 4)
 
-n.mcmc = 5000
+n.mcmc = 3000
 
-theta = matrix(c(9999, 1, 1, 9999), 2, 2)
+theta = matrix(c(70000, 1, 1, 70000), 2, 2)
 
 #homes
 
@@ -143,7 +143,7 @@ log.fullcond = function(params, P_L, P_H, data, X.param){
 accept = 0
 sigma = NA
 
-for(l in restart:n.mcmc){
+for(l in 2:n.mcmc){
   
   # print out every 10 iterations completed
   if( l %% 100 == 0 ) cat(paste("iteration", l, "complete\n")) 
@@ -335,17 +335,27 @@ for(l in restart:n.mcmc){
 
 
 #compile estimates - stop code midway version below
-X.est = matrix(data = rep(NA, Time), nrow = Time, ncol = 1)
+# X.est = matrix(data = rep(NA, Time), nrow = Time, ncol = 1)
+# 
+# 
+# gamma.high.tilde.est = mean(params[1, ])
+# gamma.low.est = mean(params[2, ])
+# lambda.high.est = mean(params[3, ])
+# lambda.low.est = mean(params[4, ])
+# 
+# gamma.high.est = mean(params[1,] + params[2])
+# 
+# estimate = c(gamma.high.tilde.est, gamma.low.est, lambda.high.est, lambda.low.est, gamma.high.est)
 
 
-gamma.high.tilde.est = mean(params[1, ])
-gamma.low.est = mean(params[2, ])
-lambda.high.est = mean(params[3, ])
-lambda.low.est = mean(params[4, ])
 
-gamma.high.est = mean(params[1,] + params[2])
+apply(params, 1, bm) 
 
-estimate = c(gamma.high.tilde.est, gamma.low.est, lambda.high.est, lambda.low.est, gamma.high.est)
+apply(params, 1, quantile, probs = c(0.025, 0.975),  na.rm = TRUE) 
+
+
+M.est = apply(M.param[,1:(l-1)], 1, bm)
+M.est = apply(M.param, 1 , quantile, probs = c(0.025, 0.975, na.rm = T))
 
 for(t in 1:Time ){
   X.est[t, 1] = mean(X.param[t, ])  

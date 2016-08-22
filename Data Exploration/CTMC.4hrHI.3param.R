@@ -6,6 +6,14 @@
 ## duration of Trophallaxis interactions
 ##
 ###########################
+
+
+chooseCRANmirror(ind = 27)
+install.packages("ctmcmove", dependencies = T)
+library("ctmcmove")
+library("gtools")
+library("mvtnorm")
+
 #####
 # Outline 
 #####

@@ -24,6 +24,8 @@ prep.troph.data = function(data, delta.t){
   #order data frame by start time so plot works better
   data.change = data.change[order(data.change$start_time), ]
   
+  
+  #combining the data into delta.t increments
   if(length(unique(data.change$Location)) == 1){
       #High Density Data
     for(i in 1:nrow(data.change)){

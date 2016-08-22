@@ -29,8 +29,7 @@ mcmc.troph = function(y.data, ant.file, title, a = 2, b = 2,
   int.num = length(start)
   maxtime = hours * 60 * 60
   
-  library(gtools) #this needs to be fixed and called at the package level
-  
+
   #homes
   ## Build Homes for X(1:T), lambda(1:n), and P(nXn) and gam vectors
   
@@ -53,10 +52,7 @@ mcmc.troph = function(y.data, ant.file, title, a = 2, b = 2,
   
   lambda.param[, 1] = rgamma(n = n, shape = a, rate = b)
   
-  # lambda.param[1, 1] = rgamma(n = 1, shape = a, rate = b)
-  # lambda.param[2, 1] = lambda.param[1, 1] + rgamma(n = 1, shape = a, rate = b)
-  # 
-  P.matrix = matrix(data = theta/100, nrow = n, ncol = n, byrow = T) 
+  P.matrix = matrix(data = theta/(sum(theta[1,])), nrow = n, ncol = n, byrow = T) 
   
   P.param[,1] = as.vector(t(P.matrix))
   #holds all P.parameter values over runs
@@ -64,6 +60,10 @@ mcmc.troph = function(y.data, ant.file, title, a = 2, b = 2,
   ## Gibbs Updates
   
   for(l in 2:n.mcmc) {
+    
+    # print out every 10 iterations completed
+    if( l %% 100 == 0 ) cat(paste("iteration", l, "complete\n")) 
+    
     
     m = matrix(data = rep(0, n * n), nrow = n, ncol = n) 
     # number states going from i to j, refreshes every run
