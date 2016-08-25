@@ -29,13 +29,20 @@ low1 = prep.troph.data(low4, 1)
 high30 = prep.troph.data(high4, 30)
 low30 = prep.troph.data(low4, 30)
 
+
+pairs.high = prep.troph.pairs(high4)
+pairs.low = prep.troph.pairs(low4)
+
+N.high = prep.high$pairs2
+N.low = prep.low$pairs2
+
 #Visualize Data
 
 
 #dt model 1 second
-theta1 = matrix(data = c(140, 1, 1, 140), nrow = 2, ncol = 2, byrow = T)
+theta1 = matrix(data = c(110, 1, 1, 110), nrow = 2, ncol = 2, byrow = T)
 
-theta1L = matrix(data = c(74, 1, 1, 74), nrow = 2, ncol = 2, byrow = T)
+theta1L = matrix(data = c(75, 1, 1, 75), nrow = 2, ncol = 2, byrow = T)
 
 
 
@@ -44,7 +51,7 @@ run.high1 = mcmc.troph(y.data = high1$high.y, ant.file = high4,
                        theta = theta1, states = 2, n.mcmc = 5000, 
                        delta.t = 1, hours = 4)
 
-  run.low1 = mcmc.troph(y.data = low1$low.y, ant.file = low4,
+run.low1 = mcmc.troph(y.data = low1$low.y, ant.file = low4,
                       title = "Test", a = 2, b = .5, 
                       theta = theta1L, states = 2, n.mcmc = 5000, 
                       delta.t = 1, hours = 4)
@@ -87,3 +94,5 @@ run.low30.queen = mcmc.troph(y.data = low30$low4.y, ant.file = low4,
                             
 
 #cd model 
+
+
