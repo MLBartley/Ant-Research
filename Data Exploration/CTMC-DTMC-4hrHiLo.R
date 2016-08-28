@@ -33,8 +33,8 @@ low30 = prep.troph.data(low4, 30)
 pairs.high = prep.troph.pairs(high4)
 pairs.low = prep.troph.pairs(low4)
 
-N.high = prep.high$pairs2
-N.low = prep.low$pairs2
+N.high = pairs.high$pairs2
+N.low = pairs.low$pairs2
 
 #Visualize Data
 
