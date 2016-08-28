@@ -1,3 +1,15 @@
+##
+##
+## Test code for Ants function: sim.mmpp
+## 28 August 2016
+##
+########################################################
+
+#check description
+?DT.mcmc.troph
+
+
+
 lambda = c(.05, 1)
 
 P = matrix(c(.8, .2, .2, .8), nrow = 2, byrow = T)

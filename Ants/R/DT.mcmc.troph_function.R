@@ -1,4 +1,4 @@
-#' MCMC Estimation function for Trophallaxis data
+#' Discrete Time MCMC Estimation function for Trophallaxis data
 #'
 #' The purpose of this function is to find MCMC generated estimates of 
 #' (1) - the state (X_t = high/low troph rates) of the colony at time t
@@ -15,7 +15,7 @@
 #' theta = theta, states = 2, n.mcmc = 3000)
 
 
-mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
+DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
                       theta, states = 2, n.mcmc, delta.t, hours){
   data = y.data
   Time = length(data)
