@@ -12,7 +12,6 @@
 #'        (6) - 1x1 visual of cumlative counts over time, colored by state, 
 #'              separated by location if applicable
 #' @keywords simulation, HMM, Poisson Process
-#' @export 
 #' @examples 
 #' P = matrix(c(.99, .01, .01, .99), nrow = 2, byrow = T)
 #' lambda = k = c(1, 4)
