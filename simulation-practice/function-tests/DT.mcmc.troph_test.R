@@ -21,12 +21,13 @@
 lambda = c(.05, 1)
 
 P30 = matrix(c(.8, .2, .2, .8), nrow = 2, byrow = T)
-sim30 = sim.mmpp(tmax = 2 * 60 * 60, delta.t = 30, 
-               start.state = 1, P = P30, lambda = lambda)
+sim30 = sim.DT.troph(tmax = 2 * 60 * 60, delta.t = 30, 
+               start.state = 1, P = P30, lambda = lambda,
+               num.locations = 1)
 
 P1 = matrix(c(.99, .01, .01, .99), nrow = 2, byrow = T)
-sim1 = sim.mmpp(tmax = 1 * 60 * 60, delta.t = 1, 
-               start.state = 1, P = P1, lambda = lambda)
+sim1 = sim.DT.troph(tmax = 2 * 60 * 60, delta.t = 1, 
+               start.state = 1, P = P1, lambda = lambda, num.locations = 1)
 ####
 
 delta.t = 60
