@@ -5,20 +5,28 @@
 ##
 ########################################################
 
+# OUTLINE
+# Check discription 
+# simulate data for 1 and 30 second intervals
+# fit simulated data using funcition
+# check given variables vs estimates
+# repeat with different starting parameters
+
+
 #check description
 ?DT.mcmc.troph
 
-
+#simulate data using sim.mmpp function
 
 lambda = c(.05, 1)
 
-P = matrix(c(.8, .2, .2, .8), nrow = 2, byrow = T)
-sim = sim.mmpp(tmax = 2 * 60 * 60, delta.t = 30, 
-               start.state = 1, P = P, lambda = lambda)
+P30 = matrix(c(.8, .2, .2, .8), nrow = 2, byrow = T)
+sim30 = sim.mmpp(tmax = 2 * 60 * 60, delta.t = 30, 
+               start.state = 1, P = P30, lambda = lambda)
 
-P = matrix(c(.99, .01, .01, .99), nrow = 2, byrow = T)
-sim = sim.mmpp(tmax = 1 * 60 * 60, delta.t = 1, 
-               start.state = 1, P = P, lambda = lambda)
+P1 = matrix(c(.99, .01, .01, .99), nrow = 2, byrow = T)
+sim1 = sim.mmpp(tmax = 1 * 60 * 60, delta.t = 1, 
+               start.state = 1, P = P1, lambda = lambda)
 ####
 
 delta.t = 60
@@ -30,19 +38,13 @@ sim$Location = rep(1, length(sim$start_time))
 
 sim$intbin = rep(NA, length(sim$y)/delta.t)
 
-tint = 1
+tint = 1 
 
 for(i in 1:length(sim$intbin)){
   
   sim$intbin[i] = sum(sim$y[tint:(tint + delta.t - 1)])
   tint = tint + delta.t
 }
-
-#######
-# what if instead of binning by totaling interactions, we instead average?
-
-sim$average = sim$intbin / delta.t
-
 
 
 ####
@@ -53,22 +55,17 @@ test = mcmc.troph(y.data = sim$y, ant.file = sim,
                   theta = theta, states = 2, n.mcmc = 2000,
                   delta.t = 1, hours = 1)
 
-test.bin5 =  mcmc.troph(y.data = sim$intbin, ant.file = sim,
-                        title = "test", a = .1, b = 2, 
-                        theta = theta, states = 2, n.mcmc = 2000,
-                        delta.t = 5, hours = 1)
+# test.bin5 =  mcmc.troph(y.data = sim$intbin, ant.file = sim,
+#                         title = "test", a = .1, b = 2, 
+#                         theta = theta, states = 2, n.mcmc = 2000,
+#                         delta.t = 5, hours = 1)
 
-# test.bin30 = mcmc.troph(y.data = sim$intbin, ant.file = sim,
-#                       title = "test", a = .1, b = 2, 
-#                       theta = theta, states = 2, n.mcmc = 2000,
-#                       delta.t = 30, hours = 1)
- 
- test.bin60 = mcmc.troph(y.data = sim$intbin, ant.file = sim,
-                       title = "test", a = .1, b = 2,
-                       theta = theta, states = 2, n.mcmc = 2000,
-                       delta.t = 60, hours = 1)
-
-# test.avg = mcmc.troph(y.data = sim$average, ant.file = sim,
-#                       title = "test", a = .1, b = 2, 
-#                       theta = theta, states = 2, n.mcmc = 2000,
-#                       delta.t = 5, hours = 1)
+test.bin30 = mcmc.troph(y.data = sim$intbin, ant.file = sim,
+                      title = "test", a = .1, b = 2,
+                      theta = theta, states = 2, n.mcmc = 2000,
+                      delta.t = 30, hours = 1)
+# 
+#  test.bin60 = mcmc.troph(y.data = sim$intbin, ant.file = sim,
+#                        title = "test", a = .1, b = 2,
+#                        theta = theta, states = 2, n.mcmc = 2000,
+#                        delta.t = 60, hours = 1)
