@@ -103,11 +103,11 @@ DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
       
       gam[t, 1] = lambda.low ^ data[t] * exp(-lambda.low) * 
          P.matrix[X.param[t - 1, l - 1], 1] *
-            P.matrix[k, X.param[t + 1, l - 1]]
+            P.matrix[1, X.param[t + 1, l - 1]]
       
       gam[t, 2] = lambda.high ^ data[t] * exp(-lambda.high) * 
         P.matrix[X.param[t - 1, l - 1], 2] *
-        P.matrix[k, X.param[t + 1, l - 1]]
+        P.matrix[2, X.param[t + 1, l - 1]]
       
       
       
@@ -125,7 +125,7 @@ DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
     gam[Time, 1] = lambda.low ^ data[Time] * exp(-lambda.low) * 
       P.matrix[X.param[Time - 1, l - 1], 1] 
     
-    gam[t, 2] = lambda.high ^ data[Time] * exp(-lambda.high) * 
+    gam[Time, 2] = lambda.high ^ data[Time] * exp(-lambda.high) * 
       P.matrix[X.param[Time - 1, l - 1], 2] 
     
     
@@ -244,6 +244,7 @@ DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
   
   par(mfrow = c(1, 1))
   
+  
   if(length(unique(location)) == 1){
     
   ##High Density - 4 Hours
@@ -260,8 +261,7 @@ DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
     rect(cs[j],0,cs[j + 1],int.num, 
          col = cols[embedded.chain[j]], density = NA)
   }
-  }
-  else{
+  }else{
     #Low Density - 4 Hours
   
   plot(start, 1:int.num, main="Low", xlab="Seconds",
@@ -316,3 +316,4 @@ DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
   list(X.est = X.est, lambda.est = lambda.est, P.est = P.est.matrix, P.run = P.param)
   
 }
+ 
