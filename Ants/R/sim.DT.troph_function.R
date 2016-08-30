@@ -12,6 +12,7 @@
 #'        (6) - 1x1 visual of cumlative counts over time, colored by state, 
 #'              separated by location if applicable
 #' @keywords simulation, HMM, Poisson Process
+#' @export
 #' @examples 
 #' P = matrix(c(.99, .01, .01, .99), nrow = 2, byrow = T)
 #' lambda = k = c(1, 4)
@@ -38,12 +39,12 @@ sim.DT.troph <- function(tmax, delta.t, start.state = 1 , P, lambda, num.locatio
     
     ## sample observed events
     #y[t]=rpois(1,lambda=lambda[x[t]]*delta.t)
-    y[t] = min(rpois(1,lambda = lambda[x[t]]*1), 1) 
+    y[t] = rpois(1,lambda = lambda[x[t]]*1)
     #want to simulate data every second, but then bin by delta.t aftwards
     #number of interactions per second cannot exceed 1
   }
   
-  t = (0:(tmax-1)) #vector of seconds through tmax
+  t = (0:(tmax - 1)) #vector of seconds through tmax
   
   bin.y =  rep(NA, length(y)/delta.t)
   

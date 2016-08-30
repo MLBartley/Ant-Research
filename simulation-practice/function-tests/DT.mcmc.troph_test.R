@@ -21,38 +21,20 @@
 lambda = c(.05, 1)
 
 P30 = matrix(c(.8, .2, .2, .8), nrow = 2, byrow = T)
-sim30 = sim.DT.troph(tmax = 2 * 60 * 60, delta.t = 30, 
+sim30 = sim.DT.troph(tmax = 1 * 60 * 60, delta.t = 30, 
                start.state = 1, P = P30, lambda = lambda,
                num.locations = 1)
 
 P1 = matrix(c(.99, .01, .01, .99), nrow = 2, byrow = T)
-sim1 = sim.DT.troph(tmax = 2 * 60 * 60, delta.t = 1, 
+sim1 = sim.DT.troph(tmax = 1 * 60 * 60, delta.t = 1, 
                start.state = 1, P = P1, lambda = lambda, num.locations = 1)
-####
 
-delta.t = 60
-sum(sim$y)
+#fit simulated date using function
 
-sim$start_time = sim$t[which(sim$y >= 1)] #only works with per second data
-
-sim$Location = rep(1, length(sim$start_time))
-
-sim$intbin = rep(NA, length(sim$y)/delta.t)
-
-tint = 1 
-
-for(i in 1:length(sim$intbin)){
-  
-  sim$intbin[i] = sum(sim$y[tint:(tint + delta.t - 1)])
-  tint = tint + delta.t
-}
-
-
-####
 theta = matrix(data = c(90, 10, 10, 90), nrow = 2, ncol = 2, byrow = T) 
 
-test = mcmc.troph(y.data = sim$y, ant.file = sim,
-                  title = "test", a = .1, b = 2, 
+test.bin1 = DT.mcmc.troph(y.data = sim30$y, ant.file = sim30,
+                  title = "test", a = .1, b = 2, c = .1, d = .5, 
                   theta = theta, states = 2, n.mcmc = 2000,
                   delta.t = 1, hours = 1)
 
