@@ -18,22 +18,49 @@
 
 #simulate data using sim.mmpp function
 
-lambda = c(.05, 1)
+lambda = c(.01, .05)
 
-P30 = matrix(c(.8, .2, .2, .8), nrow = 2, byrow = T)
+P30 = matrix(c(.995, .005, .005, .995), nrow = 2, byrow = T)
 sim30 = sim.DT.troph(tmax = 1 * 60 * 60, delta.t = 30, 
                start.state = 1, P = P30, lambda = lambda,
                num.locations = 1)
 
-P1 = matrix(c(.99, .01, .01, .99), nrow = 2, byrow = T)
-sim1 = sim.DT.troph(tmax = 1 * 60 * 60, delta.t = 1, 
-               start.state = 1, P = P1, lambda = lambda, num.locations = 1)
+
+#useful for working through function 
+#
+
+y.data = sim30$inter.persec
+ant.file = sim30
+title = "test"
+a = .1
+b = .5
+c = .1
+d = .5
+theta = theta
+states = 2
+n.mcmc = 2000
+delta.t = 1
+hours = 1
+
+data = sim30$inter.persec
+Time = length(data)
+n = 2
+delta = rep(1/n, n)
+
+#needed for final graphic
+location = sim30$location
+start = sim30$start.time
+start = sort(start)
+int.num = length(start)
+maxtime = hours * 60 * 60
+
+
 
 #fit simulated date using function
 
 theta = matrix(data = c(90, 10, 10, 90), nrow = 2, ncol = 2, byrow = T) 
 
-test.bin1 = DT.mcmc.troph(y.data = sim30$y, ant.file = sim30,
+test.bin1 = DT.mcmc.troph(y.data = sim30$inter.persec, ant.file = sim30,
                   title = "test", a = .1, b = 2, c = .1, d = .5, 
                   theta = theta, states = 2, n.mcmc = 2000,
                   delta.t = 1, hours = 1)
