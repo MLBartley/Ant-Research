@@ -84,5 +84,5 @@ sim.DT.troph <- function(tmax, delta.t, start.state = 1 , P, lambda, num.locatio
   
   list(inter.persec = y,state = x, cumu.inter = cumsum(y), delta.t = delta.t,
        bin.inter = bin.y, bin.state = bin.x, 
-       bin.sec = (0:(T - 1))*delta.t, start.time = start.time, location = Location)
+       bin.sec = (0:(T - 1))*delta.t, start.time = start.time, Location = Location)
 }
