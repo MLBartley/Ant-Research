@@ -48,7 +48,7 @@ DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
   
   ## Initialize parameters
   
-  X.param[,1] = rep(1, Time)
+  X.param[,1] = sample(1:2, replace = T, Time)
   
   #lambda.param[, 1] = rgamma(n = n, shape = a, rate = b)
   
@@ -260,7 +260,11 @@ DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
   for(j in 1:length(embedded.chain)){
     rect(cs[j],0,cs[j + 1],int.num, 
          col = cols[embedded.chain[j]], density = NA)
+    
   }
+  points(start, 1:int.num, main="Low", xlab="Seconds",
+         ylab = "Cumulative Interaction Count", 
+         xlim=c(0,maxtime))
   }else{
     #Low Density - 4 Hours
   
@@ -276,6 +280,9 @@ DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
   for(j in 1:length(embedded.chain)){
     rect(cs[j],0,cs[j+1],int.num, col=cols[embedded.chain[j]] , density=NA)
   }
+  points(start, 1:int.num, main="Low", xlab="Seconds",
+         ylab = "Cumulative Interaction Count", 
+         xlim=c(0,maxtime))
 
   # #Low Density - Location 1 
   # 

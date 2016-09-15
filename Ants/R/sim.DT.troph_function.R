@@ -68,9 +68,14 @@ sim.DT.troph <- function(tmax, delta.t, start.state = 1 , P, lambda, num.locatio
   start.time = t[which(y >= 1)] #only works with per second data
  
    par(mfrow = c(1, 1))
+   
+   plot(1:(length(cumsum(y))), cumsum(y), 
+        type = "p", pch = ".", cex = 2, col = x,
+        xlab = "Time", ylab = "Interactions", main = "Full Timeline")
+   
   plot(1:(length(cumsum(bin.y))), cumsum(bin.y), 
        type = "p", pch = ".", cex = 2, col = bin.x,
-       xlab = "Time", ylab = "Interactions")
+       xlab = "Time", ylab = "Interactions", main = "Binned Intervals")
   
   if(num.locations == 1){
      Location = rep(1, length(start.time))
