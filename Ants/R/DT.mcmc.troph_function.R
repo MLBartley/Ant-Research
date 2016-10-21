@@ -11,7 +11,7 @@
 #' @export
 #' @examples
 #' theta = matrix(data = c(90, 10, 10, 90), nrow = 2, ncol = 2, byrow = T) 
-#' out.high = mcmc.troph(data = high.y, title = "High Density", a = 5, b = 2, 
+#' out.high = DT.mcmc.troph(data = high.y, title = "High Density", a = 5, b = 2, 
 #' theta = theta, states = 2, n.mcmc = 3000)
 
 
@@ -205,6 +205,8 @@ DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
   par(mfrow = c(2,2),
       oma = c(0,0,2,0) + 1,
       mar = c(1,1,1,1) + 3)
+  
+  
   plot(0,0,xlab="MCMC Runs",
        ylab="Lambda (scaled per 60 seconds)",
        ylim=c(0,max(lambda.scale)), 
