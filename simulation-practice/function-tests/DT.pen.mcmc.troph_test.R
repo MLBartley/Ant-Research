@@ -22,30 +22,45 @@
 lambda = c(.01, .08)
 
 P30 = matrix(c(.995, .005, .005, .995), nrow = 2, byrow = T)
+gamma = c(0.005, 0.005)
+
 sim30 = sim.DT.troph(tmax = 4 * 60 * 60, delta.t = 30, 
-                     start.state = 1, P = P30, lambda = lambda,
+                     start.state = 1, P = P30, lambda = lambda, 
+                     gamma = gamma,
                      num.locations = 1)
 
  tau = matrix( c(.01, 0, 
                 0, .01), nrow = 2, ncol = 2)
  
- 
+tau.pen = .01 
+
+X = sim30$state
+X.30 = sim30$bin.state
+lambda = lambda
+gamma = gamma
+
+start = list(X = X, lambda = lambda, gamma = gamma)
+start.30 = list(X = X.30, lambda = lambda, gamma = gamma)
+
+
+
+
 #fit simulated date using function
 
 test.bin1a = DT.pen.mcmc.troph(y.data = sim30$inter.persec, states = 2,
-                               ant.file = sim30, hours = 4, tau = tau,
+                               ant.file = sim30, hours = 4, tau = tau, tau.pen = tau.pen,
                                a = .08, b = .005, c = .08, d = .005,  
-                               penalty = 10, n.mcmc = 1000, seconds = 1)
+                               penalty = 2, n.mcmc = 5000, seconds = 1, fig.save = T)
 
 
 ##############
 
 
 test.bin30a = DT.pen.mcmc.troph(y.data = sim30$bin.inter, states = 2, 
-                            ant.file = sim30, hours = 4, tau = tau,
+                            ant.file = sim30, hours = 4, tau = tau, tau.pen = .01, 
                             a = .1, b = .05, c = .1, d = .05,
-                          penalty = .008, n.mcmc = 5000,
-                           seconds = 30)
+                          penalty = 100, n.mcmc = 1000,
+                           seconds = 30, fig.save = T, start = start.30)
 
 
 ### Compare to non-penalized functions
