@@ -1,5 +1,12 @@
 
-
+library("ctmcmove")
+library("devtools")
+library("fdrtool")
+library("ggplot2")
+library("gtools")
+library("mvtnorm")
+library("roxygen2")
+library("Ants")
 
 lambda = c(.01, .12)
 
@@ -21,7 +28,7 @@ dev.off()
 tau = matrix( c(.005, 0, 
                 0, .005), nrow = 2, ncol = 2)
 penalty = seq(0.00001, 1, length.out = 10)
-penalty = 1
+# penalty = 1
 
 X = sim$state
 X.30 = sim$bin.state
