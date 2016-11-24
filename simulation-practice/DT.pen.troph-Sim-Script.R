@@ -20,7 +20,6 @@ sim = sim.DT.troph(tmax = 4 * 60 * 60, delta.t = 30, gamma = gamma,
                    num.locations = 1)
 
 dev.off()
-dev.off()
 
 
 #function parameters
