@@ -4,8 +4,8 @@
 \alias{DT.pen.mcmc.troph}
 \title{Penalized Discrete Time MCMC Estimation function for Trophallaxis data}
 \usage{
-DT.pen.mcmc.troph(y.data, states, ant.file, hours, a, b, c, d, tau, tau.pen,
-  penalty, n.mcmc, seconds, fig.save)
+DT.pen.mcmc.troph(penalty, y.data, states, ant.file, hours, a, b, c, d, tau,
+  tau.pen, n.mcmc, seconds, fig.save, start)
 }
 \arguments{
 \item{y.data, }{ant.file, title, a, b, c, d, theta, states, n.mcmc, delta.t}

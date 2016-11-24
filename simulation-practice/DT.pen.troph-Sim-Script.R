@@ -1,7 +1,7 @@
 
 
 
-lambda = c(.01, .08)
+lambda = c(.01, .12)
 
 P30 = matrix(c(.995, .005, .005, .995), nrow = 2, byrow = T)
 gamma = c(0.005, 0.005)
@@ -11,6 +11,7 @@ pdf(file = paste("./output/", Sys.time(), ".pdf", sep = ""))
 sim = sim.DT.troph(tmax = 4 * 60 * 60, delta.t = 30, gamma = gamma, 
                    start.state = 1, P = P30, lambda = lambda,
                    num.locations = 1)
+
 dev.off()
 dev.off()
 
@@ -20,7 +21,7 @@ dev.off()
 tau = matrix( c(.005, 0, 
                 0, .005), nrow = 2, ncol = 2)
 penalty = seq(0.00001, 1, length.out = 10)
-penalty = 10
+penalty = 1
 
 X = sim$state
 X.30 = sim$bin.state
@@ -30,7 +31,8 @@ start = list(X = X, lambda = lambda, gamma = gamma)
 
 #apply funciton to penalty parameters
 #
-n.mcmc = 2000
+n.mcmc = 5000
+seconds = 1
 
 results = lapply(penalty, FUN = DT.pen.mcmc.troph, y.data = sim$inter.persec, states = 2,
                  ant.file = sim, hours = 4, tau = tau, tau.pen = .01,
@@ -40,6 +42,8 @@ results = lapply(penalty, FUN = DT.pen.mcmc.troph, y.data = sim$inter.persec, st
 
 
 start.30 = list(X = X.30, lambda = lambda, gamma = gamma)
+seconds = 30
+
 results.30 = lapply(penalty, FUN = DT.pen.mcmc.troph, y.data = sim$bin.inter, states = 2,
                  ant.file = sim, hours = 4, tau = tau, tau.pen = .01,
                  a = .08, b = .005, c = .08, d = .005,
@@ -56,13 +60,13 @@ results.30 = lapply(penalty, FUN = DT.pen.mcmc.troph, y.data = sim$bin.inter, st
 results = results.30
 
 
-lambda.low.est = lambda[1]
+lambda.low.est = lambda[1] * seconds
 
 for(i in 1:length(penalty)){
     lambda.low.est = c(lambda.low.est, results[[i]]$lambda.est[[1]]$est)
 }
 
-lambda.high.est = lambda[2]
+lambda.high.est = lambda[2] * seconds
 
 for(i in 1:length(penalty)){
   lambda.high.est = c(lambda.high.est, results[[i]]$lambda.est[[2]]$est)

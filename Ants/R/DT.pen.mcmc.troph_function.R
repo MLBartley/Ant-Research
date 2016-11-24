@@ -291,7 +291,7 @@ gamma.est = apply(gamma.param, 1, bm)
 gamma.var = apply(gamma.param, 1, quantile, probs = c(0.025, 0.975),  na.rm = TRUE) 
 
 
-P.est = apply(P.param[,1:(l-1)], 1, bm)
+P.est = apply(P.param[,1:(l - 1)], 1, bm)
 P.var = apply(P.param, 1 , quantile, probs = c(0.025, 0.975, na.rm = T))
 
 
@@ -347,7 +347,7 @@ lines(1:n.mcmc,  lambda.param[1, ], col = col[2])
 lines(1:n.mcmc, gamma.param[1, ], col = col[3])
 lines(1:n.mcmc, gamma.param[2, ], col = col[4])
 
-#X params
+#X params 
 
 #P
 plot(0,0,xlab="MCMC Runs", ylab = "Probability Matrix for State Switching", ylim = c(0, max(P.param)), xlim=c(0,n.mcmc), 
