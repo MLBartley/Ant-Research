@@ -6,7 +6,8 @@
 X_t ~ Markov Chain ( X_t-1 , P ) [two states]
 Y_t ~ Pois (lambda_{X_t})}
 \usage{
-sim.DT.troph(tmax, delta.t, start.state = 1, P, lambda, num.locations = 1)
+sim.DT.troph(tmax, delta.t, start.state = 1, gamma = c(0, 0), P, lambda,
+  num.locations = 1)
 }
 \arguments{
 \item{tmax, }{delta.t, start.state, P, lambda, num.location}

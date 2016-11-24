@@ -22,7 +22,21 @@
 
 
 
-sim.DT.troph <- function(tmax, delta.t, start.state = 1 , P, lambda, num.locations = 1){
+sim.DT.troph <- function(tmax, delta.t, start.state = 1 ,
+                         gamma = c(0, 0), P, lambda, num.locations = 1){
+  
+  if(gamma[1] == 0){
+    P = P
+  }else{
+    P[1, 2] = gamma[1] * exp(-gamma[1] * 1)/
+        (gamma[1] / (-1 + exp(gamma[1])) )
+    P[1, 1] = 1 - P[1,2]
+    P[2, 1] = gamma[2] * exp(-gamma[2] * 1) / 
+        (gamma[2] / (-1 + exp(gamma[2])) )
+    P[2, 2] = 1 - P[1,2]
+  }
+    
+  
    T = floor(tmax/delta.t) + 1
   # x=rep(NA,T)
   # y=rep(NA,T)
@@ -90,4 +104,5 @@ sim.DT.troph <- function(tmax, delta.t, start.state = 1 , P, lambda, num.locatio
   list(inter.persec = y,state = x, cumu.inter = cumsum(y), delta.t = delta.t,
        bin.inter = bin.y, bin.state = bin.x, 
        bin.sec = (0:(T - 1))*delta.t, start_time = start.time, Location = Location)
+
 }
