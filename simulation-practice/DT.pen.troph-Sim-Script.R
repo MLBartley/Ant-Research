@@ -6,7 +6,7 @@
 # library("gtools")
 # library("mvtnorm")
 # library("roxygen2")
-# library("Ants")
+ library("Ants")
 
 lambda = c(.01, .12)
 
