@@ -291,7 +291,7 @@ gamma.est = apply(gamma.param, 1, bm)
 gamma.var = apply(gamma.param, 1, quantile, probs = c(0.025, 0.975),  na.rm = TRUE) 
 
 
-P.est = apply(P.param[,1:(l - 1)], 1, bm)
+P.est = apply(P.param, 1, bm)
 P.var = apply(P.param, 1 , quantile, probs = c(0.025, 0.975, na.rm = T))
 
 
