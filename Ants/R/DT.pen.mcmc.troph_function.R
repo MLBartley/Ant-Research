@@ -94,6 +94,14 @@ P.matrix[2, 1] = gamma.param[2, 1] * exp(-gamma.param[2, 1] * seconds) /
 P.matrix[2, 2] = 1 - P.matrix[1,2]
 
 P.param[,1] = as.vector(t(P.matrix))
+        
+
+      #Uncomment to keep P matrix held constant - check gamma values
+      #
+      # P.param[ ,1] = c(.995, .005, .005, .995)
+      #
+
+
 #holds all P.parameter values over runs
 
 penalty.param[1, 1] = penalty
@@ -129,12 +137,12 @@ for(l in 2:n.mcmc) {
   #MH updates - want to propose/accept/reject gammaLH and gammaHL
   
   #adaptive tuning parameter
-  if(l < n.mcmc/2 & l %% 100 == 0){
+  # if(l < n.mcmc/2 & l %% 100 == 0){
+  # 
+  #   sigma = (2.38^2 / 2) * var(log(t(gamma.param[, 1:(l - 1)])))
+  #   tau = sigma
+  # }
 
-    sigma = (2.38^2 / 2) * var(log(t(gamma.param[, 1:(l - 1)])))
-    tau = sigma
-  }
-  
   
   proposal = rmvnorm(n = 1, mean = log(gamma.param[, l - 1]), sigma = tau)
   # proposal.pen = rmvnorm(n = 1, mean = log(penalty.param[, l - 1]), sigma = tau.pen)
@@ -142,6 +150,13 @@ for(l in 2:n.mcmc) {
   #unlog 
   theta.star = exp(proposal)
   # theta.star.pen = exp(proposal.pen)
+  
+  
+        #uncomment to hold gamma proposal fixed at true values
+        #
+         # theta.star = c(.005, .005)
+        # 
+  
   
   
   ## Need to take the gamma values 
@@ -158,6 +173,11 @@ for(l in 2:n.mcmc) {
   P.matrix[2, 2] = 1 - P.matrix[2, 1]
   
   P.star = as.vector(t(P.matrix))
+  
+        #Uncommont to hold P matrix constant
+        #
+        # P.star = P.param[,1]
+        #
   
   #calculate probability
   MHprob = exp(log.fullcond(P.star, theta.star, X.param, penalty) -
@@ -177,6 +197,8 @@ for(l in 2:n.mcmc) {
     gamma.param[, l] = gamma.param[, l - 1]
     P.param[, l] = P.param[, l - 1]
   }
+  
+        
   
 # #calculate probability
 #     MHprob.pen = exp(log.fullcond(P.param[, l-1], gamma.param[, l-1], X.param, theta.star.pen) -
@@ -276,6 +298,11 @@ for(l in 2:n.mcmc) {
   lambda.param[2, l] = rgamma(n = 1, shape =
                                 sum(data[which(X.param[, l] == 2)]) + c,
                               rate = sum(m[2, ]) + d)
+  
+  #Uncomment to hold lambda values fixed at truth
+  #
+  # lambda.param[, l] = lambda.start
+  #
 }
 
 
@@ -337,7 +364,7 @@ par(mfrow = c(2,2),
 #Rate Parameters
 plot(0,0,xlab="MCMC Runs",
      ylab="Rates (per minute)",
-     ylim=c(0, 60* max(gamma.param, lambda.param)), 
+     ylim=c(0, max(gamma.param, lambda.param)), 
      xlim=c(0,n.mcmc), 
      type="n",
      cex.lab = 1)
