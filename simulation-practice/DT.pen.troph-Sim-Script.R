@@ -15,7 +15,7 @@ gamma = c(0.005, 0.005)
 
 pdf(file = paste("./output/", Sys.time(), ".pdf", sep = ""))
 
-sim = sim.DT.troph(tmax = 4 * 60 * 60, delta.t = 30, gamma = gamma, 
+sim = sim.DT.troph(tmax = 4 * 60 * 60, delta.t = 5, gamma = gamma, 
                    start.state = 1, P = P30, lambda = lambda,
                    num.locations = 1)
 
@@ -24,10 +24,10 @@ dev.off()
 
 #function parameters
 
-tau = matrix( c(.005, 0, 
-                0, .005), nrow = 2, ncol = 2)
+tau = matrix( c(.001, 0, 
+                0, .001), nrow = 2, ncol = 2)
 penalty = seq(0.00001, 1, length.out = 10)
-# penalty = 1
+ penalty = 1
 
 X = sim$state
 X.30 = sim$bin.state
@@ -139,12 +139,12 @@ write.csv(x = table, file = paste("./output/", Sys.time(), ".csv", sep = "") )
 
 
 start.30 = list(X = X.30, lambda = lambda, gamma = gamma)
-seconds = 30
+seconds = 5
 
 results.30 = lapply(penalty, FUN = DT.pen.mcmc.troph, y.data = sim$bin.inter, states = 2,
                  ant.file = sim, hours = 4, tau = tau, tau.pen = .01,
                  a = .08, b = .005, c = .08, d = .005,
-                 n.mcmc = n.mcmc, seconds = 30, fig.save = T, start = start.30)
+                 n.mcmc = n.mcmc, seconds = seconds, fig.save = T, start = start.30)
 
 
 
