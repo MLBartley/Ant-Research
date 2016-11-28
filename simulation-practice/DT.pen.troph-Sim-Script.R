@@ -27,7 +27,7 @@ dev.off()
 tau = matrix( c(.001, 0, 
                 0, .001), nrow = 2, ncol = 2)
 penalty = seq(0.00001, 1, length.out = 10)
- penalty = 1
+ # penalty = 1
 
 X = sim$state
 X.30 = sim$bin.state
