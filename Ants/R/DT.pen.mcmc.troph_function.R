@@ -247,7 +247,11 @@ for(l in 2:n.mcmc) {
   
   
   X.param[1, l] = sample(x = (1:n), size = 1, prob = gam[1,])
-  
+ 
+          ##################
+        # X.param[1, l] = X.start[1] 
+          ##################
+   
   m[X.param[1, l], X.param[1, l]] = m[X.param[1, l], X.param[1, l]] + 1
   
   Y.1SA.param[1, l] = lambda.low * P.matrix[X.param[1, l], 1] + 
@@ -266,7 +270,11 @@ for(l in 2:n.mcmc) {
     
     
     X.param[t, l] = sample(x = (1:n), 1,  prob = gam[t, ]) 
-    
+              
+                ##################
+            # X.param[t, l] = X.start[t]
+                ##################
+          
     m[X.param[t - 1, l], X.param[t, l]] = m[X.param[t - 1, l], 
                                             X.param[t,l]] + 1
   
@@ -284,6 +292,10 @@ for(l in 2:n.mcmc) {
   
   X.param[Time, l] = sample(x = 1:n, 1,  prob = gam[Time, ])
   
+        ##################
+      # X.param[Time, l] = X.start[Time]
+       ##################
+      
   m[X.param[Time - 1, l], X.param[Time, l]] = m[X.param[Time - 1, l], 
                                                 X.param[Time, l]] + 1
   Y.1SA.param[Time, l] = lambda.low * P.matrix[X.param[Time, l], 1] + 
@@ -363,12 +375,12 @@ par(mfrow = c(2,2),
 
 #Rate Parameters
 plot(0,0,xlab="MCMC Runs",
-     ylab="Rates (per minute)",
-     ylim=c(0, max(gamma.param, lambda.param)), 
+     ylab="Rates (per second)",
+     ylim=c(0, max(gamma.param, lambda.param)/seconds), 
      xlim=c(0,n.mcmc), 
      type="n",
      cex.lab = 1)
-lines(1:n.mcmc, (lambda.param[1, ] + lambda.param[2, ]), col = col[1])
+lines(1:n.mcmc, (lambda.param[1, ] + lambda.param[2, ])/seconds, col = col[1])
 lines(1:n.mcmc,  lambda.param[1, ], col = col[2])
 
 lines(1:n.mcmc, gamma.param[1, ], col = col[3])

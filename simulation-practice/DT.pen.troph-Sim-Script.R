@@ -1,4 +1,6 @@
-# 
+
+install_github("mlbartley/Ant-Research", subdir = "Ants")
+
 # library("ctmcmove")
 # library("devtools")
 # # library("fdrtool")
@@ -26,8 +28,8 @@ dev.off()
 
 tau = matrix( c(.001, 0, 
                 0, .001), nrow = 2, ncol = 2)
-penalty = seq(0.00001, 1, length.out = 10)
- # penalty = 1
+penalty = seq(0.000000001, .1, length.out = 10)
+# penalty = .00001
 
 X = sim$state
 X.30 = sim$bin.state
@@ -37,7 +39,7 @@ start = list(X = X, lambda = lambda, gamma = gamma)
 
 #apply funciton to penalty parameters
 #
-n.mcmc = 10000
+n.mcmc = 150
 seconds = 1
 
 results = lapply(penalty, FUN = DT.pen.mcmc.troph, y.data = sim$inter.persec, states = 2,
@@ -63,7 +65,7 @@ for(i in 1:length(penalty)){
     lambda.low.est = c(lambda.low.est, results[[i]]$lambda.est[[1]]$est)
 }
 
-lambda.high.est = lambda[2] * seconds
+lambda.high.est = lamdodriobda[2] * seconds
 
 for(i in 1:length(penalty)){
   lambda.high.est = c(lambda.high.est, results[[i]]$lambda.est[[2]]$est)
