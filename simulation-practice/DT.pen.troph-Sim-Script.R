@@ -1,8 +1,8 @@
+ library("devtools")
 
 install_github("mlbartley/Ant-Research", subdir = "Ants")
 
 # library("ctmcmove")
-# library("devtools")
 # # library("fdrtool")
 # library("ggplot2")
 # library("gtools")
