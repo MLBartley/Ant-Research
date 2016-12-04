@@ -1,11 +1,12 @@
- library("devtools")
+install.packages("devtools")
+library("devtools")
 
 install_github("mlbartley/Ant-Research", subdir = "Ants")
 
 # library("ctmcmove")
 # # library("fdrtool")
 # library("ggplot2")
-# library("gtools")
+ library("gtools")
  library("mvtnorm")
 # library("roxygen2")
  library("Ants")
@@ -39,7 +40,7 @@ start = list(X = X, lambda = lambda, gamma = gamma)
 
 #apply funciton to penalty parameters
 #
-n.mcmc = 5000
+n.mcmc = 50
 seconds = 1
 
 results = lapply(penalty, FUN = DT.pen.mcmc.troph, y.data = sim$inter.persec, states = 2,
@@ -51,7 +52,7 @@ results = lapply(penalty, FUN = DT.pen.mcmc.troph, y.data = sim$inter.persec, st
 
 
 
-#what do I want to pull out for table?
+         #what do I want to pull out for table?
 # penalty
 # lambda estimates - poisson rates
 # P estimates
