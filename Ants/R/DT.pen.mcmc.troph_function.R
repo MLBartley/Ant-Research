@@ -364,9 +364,9 @@ if(fig.save == TRUE){
 
 col = c("#120d08", "#bc5356", "#538bbc", "#53bc84")
 
-if(fig.save == T){
-  pdf(file = paste("./output/", Sys.time(), ".pdf", sep = ""))
-}
+# if(fig.save == T){
+#   pdf(file = paste("./output/", Sys.time(), ".pdf", sep = ""))
+# }
 
 par(mfrow = c(2,2),
     oma = c(0,0,2,0) + 1,
