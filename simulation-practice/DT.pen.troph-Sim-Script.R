@@ -29,7 +29,7 @@ dev.off()
 
 tau = matrix( c(.001, 0, 
                 0, .001), nrow = 2, ncol = 2)
-penalty = seq(0.000000001, .0001, length.out = 10)
+penalty = seq(0.0000000001, .0001, length.out = 20)
 # penalty = .00001
 
 X = sim$state
@@ -40,7 +40,7 @@ start = list(X = X, lambda = lambda, gamma = gamma)
 
 #apply funciton to penalty parameters
 #
-n.mcmc = 50
+n.mcmc = 5000
 seconds = 1
 
 results = lapply(penalty, FUN = DT.pen.mcmc.troph, y.data = sim$inter.persec, states = 2,
