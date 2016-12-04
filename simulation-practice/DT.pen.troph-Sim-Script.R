@@ -1,4 +1,4 @@
-install.packages("devtools")
+install.packages("devtools",  repos='http://cran.us.r-project.org')
 library("devtools")
 
 install_github("mlbartley/Ant-Research", subdir = "Ants")
