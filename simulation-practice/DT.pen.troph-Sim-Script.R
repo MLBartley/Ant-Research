@@ -29,7 +29,7 @@ dev.off()
 
 tau = matrix( c(.001, 0, 
                 0, .001), nrow = 2, ncol = 2)
-penalty = seq(0.0000000001, .0001, length.out = 20)
+penalty = seq(0.0000000001, .00000001, length.out = 20)
 # penalty = .00001
 
 X = sim$state
@@ -131,9 +131,9 @@ table = data.frame(c(0,penalty), lambda.low.est, lambda.high.est,
                    P.11.est, P.12.est, P.21.est, P.22.est, 
                    MSPE.est, accept)
   
-  rownames(table) <- c("Truth", "Model 1", "Model 2", "Model 3", 
-                       "Model 4", "Model 5", "Model 6", "Model 7", 
-                       "Model 8", "Model 9", "Model 10")
+  # rownames(table) <- c("Truth", "Model 1", "Model 2", "Model 3", 
+  #                      "Model 4", "Model 5", "Model 6", "Model 7", 
+  #                      "Model 8", "Model 9", "Model 10")
 write.csv(x = table, file = paste("./output/", Sys.time(), ".csv", sep = "") )
 
 
@@ -219,10 +219,10 @@ table = data.frame(c(0,penalty), lambda.low.est, lambda.high.est,
                    gamma.low.est, gamma.high.est,
                    P.11.est, P.12.est, P.21.est, P.22.est, 
                    MSPE.est, accept)
-
-rownames(table) <- c("Truth", "Model 1", "Model 2", "Model 3", 
-                     "Model 4", "Model 5", "Model 6", "Model 7", 
-                     "Model 8", "Model 9", "Model 10")
+# 
+# rownames(table) <- c("Truth", "Model 1", "Model 2", "Model 3", 
+#                      "Model 4", "Model 5", "Model 6", "Model 7", 
+#                      "Model 8", "Model 9", "Model 10")
 write.csv(x = table, file = paste("./output/", Sys.time(), ".csv", sep = "") )
 
 
