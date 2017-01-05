@@ -29,7 +29,7 @@ dev.off()
 
 tau = matrix( c(.001, 0, 
                 0, .001), nrow = 2, ncol = 2)
-penalty = seq(0.000000001, .000001, length.out = 20)
+penalty = seq(0.0000000001, .00001, length.out = 50)
 # penalty = .00001
 
 X = sim$state
@@ -139,90 +139,90 @@ write.csv(x = table, file = paste("./output/", Sys.time(), ".csv", sep = "") )
 
 
 
-
-
-start.30 = list(X = X.30, lambda = lambda, gamma = gamma)
-seconds = 5
-
-results.30 = lapply(penalty, FUN = DT.pen.mcmc.troph, y.data = sim$bin.inter, states = 2,
-                 ant.file = sim, hours = 4, tau = tau, tau.pen = .01,
-                 a = .08, b = .005, c = .08, d = .005,
-                 n.mcmc = n.mcmc, seconds = seconds, fig.save = T, start = start.30)
-
-
-
-lambda.low.est = lambda[1] * seconds
-
-for(i in 1:length(penalty)){
-  lambda.low.est = c(lambda.low.est, results.30[[i]]$lambda.est[[1]]$est)
-}
-
-lambda.high.est = lambda[2] * seconds
-
-for(i in 1:length(penalty)){
-  lambda.high.est = c(lambda.high.est, results.30[[i]]$lambda.est[[2]]$est)
-}
-
-gamma.low.est = 0.005
-
-for(i in 1:length(penalty)){
-  gamma.low.est = c(gamma.low.est, results.30[[i]]$gamma.est[[1]]$est)
-}
-
-gamma.high.est = 0.005
-
-for(i in 1:length(penalty)){
-  gamma.high.est = c(gamma.high.est, results.30[[i]]$gamma.est[[2]]$est)
-}
-
-
-
-P.11.est = P30[1, 1]
-
-for(i in 1:length(penalty)){
-  P.11.est = c(P.11.est, results.30[[i]]$P.est[[1]]$est)
-}
-
-P.12.est = P30[1, 2]
-
-for(i in 1:length(penalty)){
-  P.12.est = c(P.12.est, results.30[[i]]$P.est[[2]]$est)
-}
-
-P.21.est = P30[2, 1]
-
-for(i in 1:length(penalty)){
-  P.21.est = c(P.21.est, results.30[[i]]$P.est[[3]]$est)
-}
-
-P.22.est = P30[2, 2]
-
-for(i in 1:length(penalty)){
-  P.22.est = c(P.22.est, results.30[[i]]$P.est[[4]]$est)
-}
-
-
-MSPE.est = 0
-
-for(i in 1:length(penalty)){
-  MSPE.est = c(MSPE.est, results.30[[i]]$MSPE)
-}
-
-
-accept = n.mcmc
-
-for(i in 1:length(penalty)){
-  accept = c(accept, results.30[[i]]$accept)
-}
-
-table = data.frame(c(0,penalty), lambda.low.est, lambda.high.est, 
-                   gamma.low.est, gamma.high.est,
-                   P.11.est, P.12.est, P.21.est, P.22.est, 
-                   MSPE.est, accept)
 # 
-# rownames(table) <- c("Truth", "Model 1", "Model 2", "Model 3", 
-#                      "Model 4", "Model 5", "Model 6", "Model 7", 
-#                      "Model 8", "Model 9", "Model 10")
-write.csv(x = table, file = paste("./output/", Sys.time(), ".csv", sep = "") )
-
-
+# 
+# start.30 = list(X = X.30, lambda = lambda, gamma = gamma)
+# seconds = 5
+# 
+# results.30 = lapply(penalty, FUN = DT.pen.mcmc.troph, y.data = sim$bin.inter, states = 2,
+#                  ant.file = sim, hours = 4, tau = tau, tau.pen = .01,
+#                  a = .08, b = .005, c = .08, d = .005,
+#                  n.mcmc = n.mcmc, seconds = seconds, fig.save = T, start = start.30)
+# 
+# 
+# 
+# lambda.low.est = lambda[1] * seconds
+# 
+# for(i in 1:length(penalty)){
+#   lambda.low.est = c(lambda.low.est, results.30[[i]]$lambda.est[[1]]$est)
+# }
+# 
+# lambda.high.est = lambda[2] * seconds
+# 
+# for(i in 1:length(penalty)){
+#   lambda.high.est = c(lambda.high.est, results.30[[i]]$lambda.est[[2]]$est)
+# }
+# 
+# gamma.low.est = 0.005
+# 
+# for(i in 1:length(penalty)){
+#   gamma.low.est = c(gamma.low.est, results.30[[i]]$gamma.est[[1]]$est)
+# }
+# 
+# gamma.high.est = 0.005
+# 
+# for(i in 1:length(penalty)){
+#   gamma.high.est = c(gamma.high.est, results.30[[i]]$gamma.est[[2]]$est)
+# }
+# 
+# 
+# 
+# P.11.est = P30[1, 1]
+# 
+# for(i in 1:length(penalty)){
+#   P.11.est = c(P.11.est, results.30[[i]]$P.est[[1]]$est)
+# }
+# 
+# P.12.est = P30[1, 2]
+# 
+# for(i in 1:length(penalty)){
+#   P.12.est = c(P.12.est, results.30[[i]]$P.est[[2]]$est)
+# }
+# 
+# P.21.est = P30[2, 1]
+# 
+# for(i in 1:length(penalty)){
+#   P.21.est = c(P.21.est, results.30[[i]]$P.est[[3]]$est)
+# }
+# 
+# P.22.est = P30[2, 2]
+# 
+# for(i in 1:length(penalty)){
+#   P.22.est = c(P.22.est, results.30[[i]]$P.est[[4]]$est)
+# }
+# 
+# 
+# MSPE.est = 0
+# 
+# for(i in 1:length(penalty)){
+#   MSPE.est = c(MSPE.est, results.30[[i]]$MSPE)
+# }
+# 
+# 
+# accept = n.mcmc
+# 
+# for(i in 1:length(penalty)){
+#   accept = c(accept, results.30[[i]]$accept)
+# }
+# 
+# table = data.frame(c(0,penalty), lambda.low.est, lambda.high.est, 
+#                    gamma.low.est, gamma.high.est,
+#                    P.11.est, P.12.est, P.21.est, P.22.est, 
+#                    MSPE.est, accept)
+# # 
+# # rownames(table) <- c("Truth", "Model 1", "Model 2", "Model 3", 
+# #                      "Model 4", "Model 5", "Model 6", "Model 7", 
+# #                      "Model 8", "Model 9", "Model 10")
+# write.csv(x = table, file = paste("./output/", Sys.time(), ".csv", sep = "") )
+# 
+# 
