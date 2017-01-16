@@ -29,7 +29,7 @@ dev.off()
 
 tau = matrix( c(.001, 0, 
                 0, .001), nrow = 2, ncol = 2)
-penalty = seq(0.0000000001, .001, by = .00002)
+penalty = exp(seq(-25, -5, by = .5))
 # penalty = .00001
 
 X = sim$state
