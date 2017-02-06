@@ -37,6 +37,21 @@ N.high = pairs.high$pairs2
 N.low = pairs.low$pairs2
 
 #Visualize Data
+par(mfrow = c(1, 1))
+
+plot(high4$start_time, 1:nrow(high4), 
+     main = "High Density Trophallaxis, 4 Hours",
+     xlab = "Start Time", 
+     ylab = "Number of Interactions")
+
+
+plot(low4$start_time, 1:nrow(low4), main="Low Density Trophallaxis",
+     xlab = "Start Time", 
+     ylab = "Number of Interactions", 
+     col=low4$Location)
+legend(5000, 100, c("Loc1", "Loc4"), lty = c(1,1), col = c("black", "blue"))
+points(cov.low$time, rep(0, nrow(cov.low)), pch=8, col="red")
+
 
 
 #dt model 1 second

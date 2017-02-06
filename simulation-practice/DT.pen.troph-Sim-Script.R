@@ -11,6 +11,9 @@ install_github("mlbartley/Ant-Research", subdir = "Ants")
 # library("roxygen2")
  library("Ants")
 
+# setwd("~/Google Drive/PSU/Projects/Ant-Research/simulation-practice")
+# run above if running code on personal computer
+
 lambda = c(.01, .12)
 
 P30 = matrix(c(.995, .005, .005, .995), nrow = 2, byrow = T)
@@ -29,8 +32,9 @@ dev.off()
 
 tau = matrix( c(.001, 0, 
                 0, .001), nrow = 2, ncol = 2)
-# penalty = exp(seq(-25, -5, by = .5))
-penalty = exp(c(-20, -17, -14, 1, 7))
+ penalty = exp(seq(-25, -5, by = .5))
+# penalty = exp(c(-20, -14, 7))
+
 # penalty = .00001
 
 X = sim$state
@@ -41,14 +45,18 @@ start = list(X = X, lambda = lambda, gamma = gamma)
 
 #apply funciton to penalty parameters
 #
-n.mcmc = 10000
+n.mcmc = 5000
 seconds = 1
 
-results = lapply(penalty, FUN = DT.pen.mcmc.troph, y.data = sim$inter.persec, states = 2,
-                 ant.file = sim, hours = 4, tau = tau, tau.pen = .01,
-                 a = .08, b = .005, c = .08, d = .005,  
-                 n.mcmc = n.mcmc, seconds = 1, fig.save = T, start = start)
+# results = lapply(penalty, FUN = DT.pen.mcmc.troph, y.data = sim$inter.persec, states = 2,
+#                  ant.file = sim, hours = 4, tau = tau, tau.pen = .01,
+#                  a = .08, b = .005, c = .08, d = .005,  
+#                  n.mcmc = n.mcmc, seconds = 1, fig.save = T, start = start)
 
+results.exp = lapply(penalty, FUN = DT.pen.mcmc.troph.expprior, y.data = sim$inter.persec, states = 2,
+                     ant.file = sim, hours = 4, tau = tau, tau.pen = .01,
+                     a = .08, b = .005, c = .08, d = .005,  
+                     n.mcmc = n.mcmc, seconds = 1, fig.save = T, start = start)
 
 
 
