@@ -23,7 +23,7 @@
 
 
 DT.pen.mcmc.troph.expprior = function(penalty, y.data,states, ant.file, 
-                                  hours, a, b, tau, tau.pen,
+                                  hours, a, b, c, d, tau, tau.pen,
                                    n.mcmc, seconds, fig.save, start){
   
 #starting values - mostly to keep this all in one place to easily check
