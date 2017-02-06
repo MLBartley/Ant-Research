@@ -12,7 +12,7 @@ setwd("./Ants")
 document()
 
 #go updata github first
-install_github("MLBartley/Ant-Research", subdir = "Ants", force=TRUE)
+install_github("MLBartley/Ant-Research", subdir = "Ants", force=T)
 library(Ants)
 
 setwd("~/Google Drive/PSU/Projects/Ant-Research")

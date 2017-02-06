@@ -22,7 +22,7 @@
 #' 
 
 
-DT.pen.mcmc.troph = function(penalty, y.data,states, ant.file, 
+DT.pen.mcmc.troph.expprior = function(penalty, y.data,states, ant.file, 
                                   hours, a, b, tau, tau.pen,
                                    n.mcmc, seconds, fig.save, start){
   
