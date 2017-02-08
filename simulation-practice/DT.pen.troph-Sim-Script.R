@@ -61,6 +61,7 @@ results.exp = lapply(penalty, FUN = DT.pen.mcmc.troph.expprior, y.data = sim$int
                      n.mcmc = n.mcmc, seconds = 1, fig.save = T, start = start)
 
 
+results.exp = results
 
 
          #what do I want to pull out for table?
