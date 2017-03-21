@@ -34,7 +34,9 @@ dev.off()
 
 tau = matrix( c(.001, 0, 
                 0, .001), nrow = 2, ncol = 2)
- penalty = exp(seq(-25, -5, by = .5))
+penalty = exp(seq(-5, 5, by =  1)) 
+
+penalty = exp(seq(-25, -5, by = .5))
 # penalty = exp(c(-20, -14, 7))
 
 # penalty = .00001
