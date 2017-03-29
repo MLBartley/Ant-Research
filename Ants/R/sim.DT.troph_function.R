@@ -2,7 +2,11 @@
 #'
 #' This function allows you to simulate data from the following moddel: 
 #' X_t ~ Markov Chain ( X_t-1 , P ) [two states]
-#' Y_t ~ Pois (lambda_{X_t})
+#' N_t ~ Pois (lambda_L + lambda_Change)
+#' lambda_L ~ Gam(a, b)
+#' lambda_Change ~ Gam(c, d)
+#' lambda_H = lambda_l + lambda_Change
+#' 
 #' @param tmax, delta.t, start.state, P, lambda, num.location
 #' @return #Output: (1) - state: (1, 2) unobserved two state process 
 #'        (2) - inter.persec: (0, ...) "observed" number of interactions per 1 second
@@ -16,14 +20,14 @@
 #' @examples 
 #' P = matrix(c(.99, .01, .01, .99), nrow = 2, byrow = T)
 #' lambda = k = c(1, 4)
-#' delta.t = 1 #needs to be 1, else observations dependent on time
-#' sim = sim.DT.troph(7200, delta.t, start.state = 1, P, lambda, num.location = 1)
+#' delta.t = 1 
+#' sim = sim.DT.troph(7200, delta.t, start.state = 1,
+#'                    P, lambda, num.location = 1)
 #' 
 
-
-
 sim.DT.troph <- function(tmax, delta.t, start.state = 1 ,
-                         gamma = c(0, 0), P, lambda, num.locations = 1){
+                         gamma = c(0, 0), P, lambda,
+                         num.locations = 1){
   
   if(gamma[1] == 0){
     P = P
@@ -37,10 +41,7 @@ sim.DT.troph <- function(tmax, delta.t, start.state = 1 ,
   }
     
   
-   T = floor(tmax/delta.t) + 1
-  # x=rep(NA,T)
-  # y=rep(NA,T)
-  # 
+  
   x = rep(NA, tmax)
   y = rep(NA, tmax)
   x[1] = start.state
@@ -48,15 +49,17 @@ sim.DT.troph <- function(tmax, delta.t, start.state = 1 ,
   
   #for(t in 2:T){
   for(t in 2:tmax){
+    
+    
     ## sample latent state
     x[t]=sample(1:2,1,prob = P[x[t - 1],])
     
     ## sample observed events
-    #y[t]=rpois(1,lambda=lambda[x[t]]*delta.t)
+
     y[t] = rpois(1,lambda = lambda[x[t]]*1)
     #want to simulate data every second, but then bin by delta.t aftwards
-    #number of interactions per second cannot exceed 1
-  }
+
+    }
   
   t = (0:(tmax - 1)) #vector of seconds through tmax
   
@@ -78,19 +81,30 @@ sim.DT.troph <- function(tmax, delta.t, start.state = 1 ,
         bin.x[i] = round(mean(x[tint:(tint + delta.t - 1)]))
         tint = tint + delta.t
       }
-        
-  start.time = t[which(y >= 1)] #only works with per second data
+      
+    start = 1  
+  for(i in 2:length(t)){
+    if(y[i] > y[i-1] ){
+          start = c(start,  1) #only works with per second data
+    }
+    else{
+      start = c(start, 0)
+    }
+  } 
+    
+  start.time = t[which(start == 1)]  
  
    par(mfrow = c(1, 1))
    
-   plot(1:(length(cumsum(y))), cumsum(y), 
+   plot(1:(length(cumsum(start))), cumsum(start), 
         type = "p", pch = ".", cex = 2, col = x,
-        xlab = "Time", ylab = "Interactions", main = "Full Timeline")
+        xlab = "Time", ylab = "Cumulative Interactions", main = "Full Timeline")
    
-  plot(1:(length(cumsum(bin.y))), cumsum(bin.y), 
-       type = "p", pch = ".", cex = 2, col = bin.x,
-       xlab = "Time", ylab = "Interactions", main = "Binned Intervals")
-  
+   plot(1:tmax, y, 
+        type = "l", cex = 2, col = x,
+        xlab = "Time", ylab = "Number of Interactions", 
+        main = "Full Timeline")
+   
   if(num.locations == 1){
      Location = rep(1, length(start.time))
   }

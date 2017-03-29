@@ -16,11 +16,15 @@
 
 
 DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
-                      theta, states = 2, n.mcmc, delta.t, hours){
+                      theta, states = 2, n.mcmc, delta.t, hours, param.start){
   data = y.data
   Time = length(data)
   n = states
   delta = rep(1/n, n)
+  
+  X.start = param.start$X
+  lambda.start = param.start$lambda
+  P.start = param.start$P
   
   #needed for final graphic 
   location = ant.file$Location 
@@ -33,34 +37,53 @@ DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
   #homes
   ## Build Homes for X(1:T), lambda(1:n), and P(nXn) and gam vectors
   
-  X.param = matrix(data = rep(NA, Time * n.mcmc), nrow = Time, 
+  X.param = matrix(data = NA, nrow = Time, 
                    ncol = n.mcmc, byrow = T)
   
-  lambda.param = matrix(data = rep(NA, n * n.mcmc), nrow = n, 
+  lambda.param = matrix(data = rep(NA, (n+1) * n.mcmc), nrow = n+1, 
                         ncol = n.mcmc, byrow = T)
+  row.names(lambda.param) <- c("trop.rate.low", "trop.rate.change", "trop.rate.high")
   
   P.param = matrix(data = rep(NA, n * n * n.mcmc), nrow = n * n, 
                    ncol = n.mcmc, byrow = T)
+  row.names(P.param) <- c("LL", "LH", "HL", "HH")
   
   gam = matrix(NA, nrow = Time, ncol = n, 
                byrow = T)
   
+  data.low = matrix(NA, nrow = Time, ncol = n.mcmc)
+  data.high = matrix(NA, nrow = Time, ncol = n.mcmc)
   
-  ## Initialize parameters
+  ## Initialize parameters - MOVE START VALUES TO OUTSIDE FUNCTION?
   
-  X.param[,1] = sample(1:2, replace = T, Time)
+  X.param[,1] = X.start
   
-  #lambda.param[, 1] = rgamma(n = n, shape = a, rate = b)
-  
-  lambda.param[1, 1] = rgamma(n = 1, shape = a, rate = b) #lambda low
-  lambda.param[2, 1] = rgamma(n = 1, shape = c, rate = d) #change in lambda
-  
-  lambda.high = lambda.param[1,1] + lambda.param[2, 1] #lambda high, not needed, just a reminder  
 
-  P.matrix = matrix(data = theta/(sum(theta[1,])), nrow = n, ncol = n, byrow = T) 
+  lambda.param[1, 1] = lambda.start[1] #lambda low
+  lambda.param[2, 1] = lambda.start[2] - lambda.start[1] #change in lambda
+  
+  lambda.param[3, 1] = lambda.param[1, 1] + lambda.param[2, 1] #lambda high, not needed, just a reminder  
+
+  P.matrix = P.start
   
   P.param[,1] = as.vector(t(P.matrix))
   #holds all P.parameter values over runs
+  
+  
+  #HOW BEST TO CODE SPLITTING OF DATA?
+  for(t in 1:Time){
+    if(X.param[t, 1] == 1){
+        data.low[t, 1] = data[t]
+        data.high[t, 1] = 0
+    }
+    else{
+      split = rmultinom(1, size = data[t], prob = c(lambda.param[1, 1], lambda.param[2, 1]))
+      data.low[t, 1] = split[1]
+      data.high[t, 1] = split[2]
+    }
+    
+  }
+  
   
   ## Gibbs Updates
   
@@ -71,6 +94,8 @@ DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
     
     
     m = matrix(data = rep(0, n * n), nrow = n, ncol = n) 
+    rownames(m) <- c("Low", "High")
+    colnames(m) <- c("Low", "High")
     # number states going from i to j, refreshes every run
     
     P.matrix = matrix(data = c(P.param[, l - 1]), nrow = n, ncol = n, byrow = T)
@@ -78,8 +103,10 @@ DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
     lambda.low = lambda.param[1, l - 1]
     lambda.high = lambda.low + lambda.param[2, l - 1]
     
-    ##X Parameters
-  
+    
+    
+    #X Parameters, split into X_1, X_{2:Time-1}, X_Time
+
       gam[1, 1] = lambda.low ^ data[1] * exp(-lambda.low) * 
         delta[1] * P.matrix[1, X.param[2, l - 1]]
       
@@ -94,13 +121,7 @@ DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
     
     for(t in 2:(Time - 1)){
       
-      # for(k in 1:n){
-      #   gam[t, k] = (lambda.param[k, l - 1] ^ data[t]) * 
-      #     exp(-lambda.param[k, l - 1]) * P.matrix[X.param[t - 1, l - 1], k] *
-      #     P.matrix[k, X.param[t + 1, l - 1]]
-      # }
-      # 
-      
+
       gam[t, 1] = lambda.low ^ data[t] * exp(-lambda.low) * 
          P.matrix[X.param[t - 1, l - 1], 1] *
             P.matrix[1, X.param[t + 1, l - 1]]
@@ -115,13 +136,8 @@ DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
       
       m[X.param[t - 1, l], X.param[t, l]] = m[X.param[t - 1, l], 
                                               X.param[t,l]] + 1
-    }
-    
-    # for(k in 1:n){
-    #   gam[Time, k] = lambda.param[k, l - 1] ^ data[Time] * 
-    #     exp(-lambda.param[k, l - 1]) * P.matrix[X.param[(Time - 1), l - 1], k]
-    # }
-    
+}
+
     gam[Time, 1] = lambda.low ^ data[Time] * exp(-lambda.low) * 
       P.matrix[X.param[Time - 1, l - 1], 1] 
     
@@ -134,27 +150,37 @@ DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
     m[X.param[Time - 1, l], X.param[Time, l]] = m[X.param[Time - 1, l], 
                                                   X.param[Time, l]] + 1
     
+    
+    
+    #Split data (N_t) into N_Ht, N_Lt  
+    for(t in 1:Time){
+      if(X.param[t, l] == 1){
+        data.low[t, l] = data[t]
+        data.high[t, l] = 0
+      }
+      else{
+        split = rmultinom(1, size = data[t], prob = c(lambda.param[1, l-1], lambda.param[2, l-1]))
+        data.low[t, l] = split[1]
+        data.high[t, l] = split[2]
+      }
+      
+    }
+    
     #Lambda and P parameters
     for(h in 1:n) {
 
-      # lambda.param[h, l] = rgamma(n = 1, shape =
-      #                               sum(data[which(X.param[, l] == h)]) + a,
-      #                             rate = sum(m[h, ]) + b )
-
-
-
-
+    
 
       P.matrix[h, ] = (rdirichlet(n = 1 , alpha = theta[h, ] + m[h, ]))
       
     }
     
-    lambda.param[1, l] = rgamma(n = 1, shape =
-                        sum(data[which(X.param[, l] == 1)]) + a,
-                        rate = sum(m[1, ]) + b )
+    lambda.param[1, l] = rgamma( n = 1, 
+                                 shape = sum(data.low[, l]) + a,
+                                 rate = Time + b )
     
     lambda.param[2, l] = rgamma(n = 1, shape =
-                                  sum(data[which(X.param[, l] == 2)]) + c,
+                                  sum(data.high[which(X.param[, l] == 2)]) + c,
                                 rate = sum(m[2, ]) + d)
     
     
@@ -165,7 +191,7 @@ DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
   ## Rescale Lambda parameters into per minute 
   ## segments (instead of delta.t time segments)
   
-  lambda.scale = lambda.param / delta.t * 60
+   lambda.scale = lambda.param / delta.t 
   
   
   
@@ -175,28 +201,27 @@ DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
   
   #homes
   X.est = matrix(data = rep(NA, Time), nrow = Time, ncol = 1)
-  lambda.est = matrix(data = rep(NA, n), nrow = n, ncol = 1)
+  lambda.est = matrix(data = NA, nrow = n + 1, ncol = 1)
   P.est = matrix(data = rep(NA, n * n), nrow = n * n, ncol = 1)
+  
+  #estimation
+  source("http://www.stat.psu.edu/~mharan/batchmeans.R")
   
   
   for(t in 1:Time ){
     X.est[t, 1] = mean(X.param[t, ])  
   }
   
-  # for(i in 1:n ){
-  #   lambda.est[i, 1] = mean(lambda.scale[i, ])
-  # }  
-  # 
   
-  lambda.est[1, 1] = mean(lambda.scale[1, ])
-  lambda.est[2, 1] = mean(lambda.scale[1, ] + lambda.scale[2, ])
+  lambda.high =  lambda.scale[2, ] + lambda.scale[1, ]
   
-  for(l in 1:(n * n) ){
-    P.est[l, 1] = mean(P.param[l, ])
-  }
+  lambda.est = apply(rbind(lambda.scale[1, ], lambda.high), 1, bm) 
+  lambda.var = apply(lambda.scale, 1, quantile, probs = c(0.025, 0.975),  na.rm = TRUE) 
   
-  P.est.matrix = matrix(data = c(P.est[, 1]), nrow = n, ncol = n, byrow = T)
+  P.est = apply(P.param, 1, bm)
+  P.var = apply(P.param, 1, quantile, probs = c(.025, 0.975), na.rm = T)
   
+
   #plot the estimation runs.
   
   col = c("#120d08", "#bc5356", "#538bbc", "#53bc84")
@@ -208,15 +233,18 @@ DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
   
   
   plot(0,0,xlab="MCMC Runs",
-       ylab="Lambda (scaled per 60 seconds)",
-       ylim=c(0,max(lambda.scale)), 
+       ylab="Lambda (scaled per second)",
+       ylim=c(0,max(lambda.high)), 
        xlim=c(0,n.mcmc), 
        type="n",
        cex.lab = 1)
+  lines(1:n.mcmc, lambda.scale[1, ], col = col[1])
+  lines(1:n.mcmc, lambda.high, col = col[2])
+  
  
-  for(i in 1:n){
-    lines(1:n.mcmc, lambda.scale[i, ], col = col[i])
-  }
+  # for(i in 1:n){
+  #   lines(1:n.mcmc, lambda.scale[i, ], col = col[i])
+  # }
   
   
   #P
@@ -233,7 +261,7 @@ DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
   lines(1:n.mcmc, X, col = col[2])
   
   #States over time
-  plot(X.est,type = "l",lwd=3, cex.lab = 1, col = col[1])
+  plot(round(X.est),type = "l",lwd=3, cex.lab = 1, col = col[1])
   
   title(main = title, outer=T)
   
@@ -261,9 +289,11 @@ DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
   cols=c('#bc535644','#538bbc44')
   for(j in 1:length(embedded.chain)){
     rect(cs[j],0,cs[j + 1],int.num, 
-         col = cols[embedded.chain[j]], density = NA)
+         col = cols[embedded.chain[j]],
+         density = NA, border = NA)
     
   }
+  
   points(start, 1:int.num, main="Low", xlab="Seconds",
          ylab = "Cumulative Interaction Count", 
          xlim=c(0,maxtime))
@@ -322,7 +352,7 @@ DT.mcmc.troph = function(y.data, ant.file, title, a, b, c, d,
 
   
   
-  list(X.est = X.est, lambda.est = lambda.est, P.est = P.est.matrix, P.run = P.param)
+  list(X.est = X.est, lambda.est = lambda.est, P.est = P.est, P.run = P.param)
   
 }
  
