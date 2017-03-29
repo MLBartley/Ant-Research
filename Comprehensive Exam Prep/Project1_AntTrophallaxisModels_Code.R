@@ -89,4 +89,8 @@ plot(low4$start_time, 1:nrow(low4), main="Low Density Trophallaxis",
 legend(5000, 100, c("Loc1", "Loc4"), lty = c(1,1), col = c("black", "blue"))
 
 
+#Ant Data - Simple Model 
+
+
+
 
