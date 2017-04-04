@@ -5,7 +5,7 @@
 \title{Discrete Time MCMC Estimation function for Trophallaxis data}
 \usage{
 DT.mcmc.troph(y.data, ant.file, title, a, b, c, d, theta, states = 2, n.mcmc,
-  delta.t, hours)
+  delta.t, hours, param.start)
 }
 \arguments{
 \item{y.data, }{ant.file, title, a, b, theta, states, n.mcmc, delta.t}
@@ -22,7 +22,6 @@ The purpose of this function is to find MCMC generated estimates of
 }
 \examples{
 theta = matrix(data = c(90, 10, 10, 90), nrow = 2, ncol = 2, byrow = T) 
-out.high = DT.mcmc.troph(data = high.y, title = "High Density", a = 5, b = 2, 
+out.high = DT.mcmc.troph(data = high.y, title = 'High Density', a = 5, b = 2, 
 theta = theta, states = 2, n.mcmc = 3000)
 }
-

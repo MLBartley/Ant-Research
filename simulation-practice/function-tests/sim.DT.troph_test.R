@@ -11,7 +11,7 @@
 
 #CASE 1
 P = matrix(c(.997, .003, .003, .997), nrow = 2, byrow = T)
-lambda = k = c(.05, .3)
+lambda = k = c(.02, .08)
 
 simulate = sim.DT.troph(tmax = (1*60*60), delta.t = 5,
                         start.state = 1, gamma = 0,

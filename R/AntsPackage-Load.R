@@ -6,13 +6,13 @@ library(roxygen2)
 getwd()
 
 setwd("~/Google Drive/PSU/Projects/Ant-Research")
-#create("Ants")
+# create('Ants')
 
 setwd("./Ants")
 document()
 
-#go updata github first
-install_github("MLBartley/Ant-Research", subdir = "Ants", force=T)
+# go updata github first
+install_github("MLBartley/Ant-Research", subdir = "Ants", force = T)
 library(Ants)
 
 setwd("~/Google Drive/PSU/Projects/Ant-Research")

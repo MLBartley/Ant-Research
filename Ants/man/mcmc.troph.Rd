@@ -22,7 +22,6 @@ The purpose of this function is to find MCMC generated estimates of
 }
 \examples{
 theta = matrix(data = c(90, 10, 10, 90), nrow = 2, ncol = 2, byrow = T) 
-out.high = mcmc.troph(data = high.y, title = "High Density", a = 5, b = 2, 
+out.high = mcmc.troph(data = high.y, title = 'High Density', a = 5, b = 2, 
 theta = theta, states = 2, n.mcmc = 3000)
 }
-

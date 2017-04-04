@@ -1,0 +1,179 @@
+####
+####
+#### Project One Final* Code
+#### February 2017
+####
+
+
+# *Wishful thinking; who am I kidding? 
+
+
+###Outline
+    # Ant data visualization - 4 hour High/Low density
+            #histograms of events per ant
+            #scatterplots of each density (and each location in low density)
+            #scatter plots of each density with entrance times     
+    # Ant data simple model - want to show motivation - doesn't work!
+    # Simulated data - visualization 
+            # scatter plots of each simulated density?   
+    # Simulated data penalized model - show that it can be effective
+    # Simulated data penalized model with covariates - include the biology
+  
+
+#Call in Trophallaxis Data
+    # Currently the .cvs files also load a bunch of columns that are empty 
+    # In low density, chamber 4 is entrance and chamber 1 has queen
+
+col1_high4 <- read.csv("./Data/Colony1_trophallaxis_high_density_4hr.csv")
+col1_low4 <- read.csv("./Data/Colony1_trophallaxis_low_density_4hr.csv")
+
+col2.high4 <- read.csv("./Data/Colony2_trophallaxis_high_density_4hr.csv")
+col2.low4 <- read.csv("./Data/Colony2_trophallaxis_low_density_4hr.csv")
+
+col3.high4 <- read.csv("./Data/Colony3_trophallaxis_high_density_4hr.csv")
+col3.low4 <- read.csv("./Data/Colony3_trophallaxis_low_density_4hr.csv")
+
+
+#Call in Foraging Data
+
+inout_high4 <- read.csv("./Data/Colony1_in&out_high_density_4hr.csv")
+inout_low4 <- read.csv("./Data/Colony1_in&out_low_density_4hr.csv")
+
+
+
+#Visualize the Trophallaxis Data - NEED TO UPDATE SUMVIS FUNCTION
+    #Want these to save to .pdf (in new folder?)
+    
+# 
+# par(mfrow = c(1, 1))
+# plot(col1.high4.1$start_time,1:nrow(col1.high4.1), main = "High Density Trophallaxis, 4 Hours",
+#      xlab = "Start Time", 
+#      ylab = "Number of Interactions")
+# 
+# 
+# plot(low4$start_time, 1:nrow(low4), main="Low Density Trophallaxis",
+#      xlab = "Start Time", 
+#      ylab = "Number of Interactions", 
+#      col=low4$Location)
+# legend(5000, 100, c("Loc1", "Loc4"), lty = c(1,1), col = c("black", "blue"))
+
+#Prep Trophallaxis Data - note decided to keep prep.torph.data function 
+
+
+col1_high4_5 = prep_troph_data(col1_high4, 5)
+col1.low4.5 = prep_troph_data(col1_low4, 5)
+
+col1.high4.30 = prep_troph_data(col1.high4, 30)
+col1.low4.30 = prep_troph_data(col1.low4, 30)
+
+
+col2.high4.5 = prep_troph_data(col2.high4, 5)
+col2.low4.5 = prep_troph_data(col2.low4, 5)
+
+col2.high4.30 = prep_troph_data(col2.high4, 30)
+col2.low4.30 = prep_troph_data(col2.low4, 30)
+
+
+col3.high4.5 = prep_troph_data(col3.high4, 5)
+col3.low4.5 = prep_troph_data(col3.low4, 5)
+
+col3.high4.30 = prep_troph_data(col3.high4, 30)
+col3.low4.30 = prep_troph_data(col3.low4, 30)
+
+
+#Prep In & Out Data
+
+col1_hi4_inout_1 <- prep_inout_data(data = inout_high4, delta_t = 1, hours = 4)
+col1_lo4_inout_1 <- prep_inout_data(data = inout_low4, delta_t = 1, hours = 4)
+
+col1_hi4_inout_5 <- prep_inout_data(data = inout_high4, delta_t = 5, hours = 4)
+col1_lo4_inout_5 <- prep_inout_data(data = inout_low4, delta_t = 5, hours = 4)
+
+
+
+
+# Variables needed for all 
+
+path <- "./Comprehensive-Exam-Prep/output_images/"
+states <- 2
+n_mcmc <- 100
+hours <- 4
+X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
+lambda <- c(.01, .08)
+
+
+#Ant Data - Simple Model 
+
+theta <- matrix(data = c(5000, 1, 1, 5000), nrow = 2, ncol = 2, byrow = T) 
+
+
+P <- matrix(c(.997, .003, .003, .997), nrow = 2, byrow = T)
+
+param_start <- list(X = X, lambda = lambda, P = P)
+
+simple_col1hi4bin1 <- DT_mcmc_troph(starts_data = col1_high4_5$starts_persec, 
+                                  ant_file = col1_high4_5$data, title = "Test", 
+                                  a = .005, b = .001, c = .005, d = .001, 
+                                  theta = theta, states = states, 
+                                  n_mcmc = n_mcmc, delta_t = 1, hours = hours,
+                                  param_start = param_start, fig_save = TRUE, 
+                                  fig_path = path, fig_name = "simp_col1hi4bin1") 
+
+
+
+#Ant Data - Penalized Model 
+
+penalty <- seq(-5, 5, by =  3)
+tau <- matrix( c(.01, 0, 
+    0, .01), nrow = 2, ncol = 2)
+gamma <- c(.005, .005)
+start <- list(X = X, lambda = lambda, gamma = gamma)
+delta_t <- 1
+
+#create vector of names with penalty information, otherwise files
+#will over write each other
+# file_name <- rep(NA, length(penalty))
+# 
+# for (i in 1:length(penalty)) {
+#   file_name[i] <- paste("pen_col1hi4bin1.", penalty[i], sep = "")
+# }
+
+file_name <- "pen_col1hi4bin1_"
+
+penalize_col1hi4bin1 <- lapply(penalty, FUN = DT_pen_mcmc, 
+                              starts_data = col1_high4_5$starts_persec, 
+                              states = states, ant_file = col1_high4_5$data,
+                              hours = hours, 
+                              a = .005, b = .001, c = .005, d = .001,
+                              tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
+                              delta_t = delta_t, start = start, fig_save = TRUE,
+                              fig_path = path, 
+                              fig_name = file_name)
+
+
+#CREATE FUNCTION THAT TAKES OUTPUTS (for each penalty used) AND
+#CREATES LOVELY TABLE OF INFORMATION
+
+#Ant Data - Penalized Model with Covariates
+
+penalty <- exp(seq(-5, 5, by =  3)) 
+tau <- matrix( c(.0001, 0, 0 , 0,
+                  0, .0001, 0, 0,
+                  0, 0, .0001, 0, 
+                  0, 0, 0, .00001), nrow = 4, ncol = 4)
+
+file_name <- "pencov_col1hi4bin1."
+
+alpha.beta = c(.005, .001, .005, .001)
+start <- list(X = X, lambda = lambda, alpha.beta = alpha.beta)
+covariate <- col1_hi4_inout_1$cov
+
+pencov_col1hi4bin1 <- lapply(penalty,
+                            FUN = DT_pencov_mcmc,
+                            covariate = covariate, title = "Test",
+                            starts_data = col1_high4_5$starts_persec, 
+                            states = states, ant_file = col1_high4_5$data,
+                            hours = hours, start = start,
+                            a = .005, b = .001, c = .005, d = .001, 
+                            tau = tau, n_mcmc = n_mcmc, delta_t = delta_t,
+                            fig_save = TRUE, fig_path = path, fig_name = file_name)
