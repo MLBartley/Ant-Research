@@ -829,7 +829,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, hours,
     rr <- rle(states[, 1])
     rr$values <- round(rr$values, digits = 0)
     embedded.chain <- rr$values
-    cs <- c(0, cumsum(rr$lengths)) * delta.t - delta.t
+    cs <- c(0, cumsum(rr$lengths)) * delta_t - delta_t
     cols <- c("#bc535644", "#538bbc44")
     for (j in 1:length(embedded.chain)) {
       rect(cs[j], 0, cs[j + 1], int.num, col = cols[embedded.chain[j]], 
@@ -1339,7 +1339,7 @@ DT_pencov_mcmc <- function(penalty, covariate, starts_data, states, ant_file,
   #visualization
   #
   if (fig_save == TRUE) {
-    jpeg(file = paste(fig_path, fig_name, penalty, ".diagnostics", ".jpg", sep = ""))
+    jpeg(file = paste(fig_path, fig_name, round(penalty, digits = 4), ".diagnostics", ".jpg", sep = ""))
     
   }
   
@@ -1420,7 +1420,7 @@ DT_pencov_mcmc <- function(penalty, covariate, starts_data, states, ant_file,
   #########################################################
  
   if (fig_save == TRUE) {
-    jpeg(file = paste(fig_path, fig_name, penalty, ".states", ".jpg", sep = ""))
+    jpeg(file = paste(fig_path, fig_name, round(penalty, digits = 4), ".states", ".jpg", sep = ""))
   }
   
   par(mfrow = c(1, 1))
@@ -1457,7 +1457,7 @@ DT_pencov_mcmc <- function(penalty, covariate, starts_data, states, ant_file,
     rr <- rle(states[,1])
     rr$values <- round(rr$values, digits = 0)
     embedded.chain <- rr$values
-    cs <- c(0,cumsum(rr$lengths))*delta.t - delta.t
+    cs <- c(0,cumsum(rr$lengths))*delta_t - delta_t
     cols <- c('#bc535644','#538bbc44')
     for (j in 1:length(embedded.chain)) {
       rect(cs[j],0,cs[j + 1],int.num, col = cols[embedded.chain[j]] , density = NA)

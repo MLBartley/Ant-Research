@@ -4,10 +4,12 @@
 \alias{prep_troph_data}
 \title{Data Preparation for Ant Trophallaxis Data File}
 \usage{
-prep_troph_data(data, delta_t)
+prep_troph_data(data, hours, delta_t)
 }
 \arguments{
 \item{data}{Ant trophallaxis data file in .csv format, already loaded into R.}
+
+\item{hours}{Total time ants are observed.}
 
 \item{delta_t}{Time increments for (starting time) data to be binned into.}
 }

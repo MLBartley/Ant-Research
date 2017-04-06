@@ -7,6 +7,7 @@
 #' chunks.
 #' 
 #' @param data Ant trophallaxis data file in .csv format, already loaded into R. 
+#' @param hours Total time ants are observed. 
 #' @param delta_t Time increments for (starting time) data to be binned into. 
 #' 
 #' @return This function will return one or three (depending on high or low density, 
@@ -18,7 +19,9 @@
 #' 
 #' 
 
-prep_troph_data <- function(data, delta_t) {
+prep_troph_data <- function(data, hours, delta_t) {
+  
+  seconds <- hours * 60 * 60 
   
   # remove columns with NA values
   data <- data[, colSums(is.na(data)) < nrow(data)]
@@ -37,8 +40,8 @@ prep_troph_data <- function(data, delta_t) {
     
     # High Density Data
       start <- data$start_time
-      start_persec <- rep(0, max(data$end_time))
-      bin_starts <- rep(0, max(data$end_time)/delta_t)
+      start_persec <- rep(0, seconds)
+      bin_starts <- rep(0, floor(seconds/delta_t))
       mint <- 0
       
       for (t in 1:length(start_persec)) {
@@ -65,8 +68,8 @@ prep_troph_data <- function(data, delta_t) {
     
     # Low Density Data: Both Locations
       start <- data$start_time
-      start_persec <- rep(0, max(data$end_time))
-      bin_starts <- rep(0, max(data$end_time)/delta_t)  #max time same ~7200
+      start_persec <- rep(0, seconds)
+      bin_starts <- rep(0, floor(seconds/delta_t))  #max time same ~7200
       mint <- 0
       
       for (t in 1:length(start_persec)) {
@@ -82,8 +85,8 @@ prep_troph_data <- function(data, delta_t) {
     
     # Low Density Data: Location 1
       start <- low_1$start_time
-      start_persec_l1 <- rep(0, max(data$end_time))
-      bin_starts_l1 <- rep(0, max(data$end_time)/delta_t)
+      start_persec_l1 <- rep(0, seconds)
+      bin_starts_l1 <- rep(0, floor(seconds/delta_t))
       mint <- 0
       
       for (t in 1:length(start_persec)) {
@@ -99,8 +102,8 @@ prep_troph_data <- function(data, delta_t) {
     
     # Low Density Data: Location 4
       start <- low_4$start_time
-      start_persec_l4 <- rep(0, max(data$end_time))
-      bin_starts_l4 <- rep(0, max(data$end_time)/delta_t)
+      start_persec_l4 <- rep(0, seconds)
+      bin_starts_l4 <- rep(0, floor(seconds/delta_t))
       mint <- 0
       
       for (t in 1:length(start_persec)) {

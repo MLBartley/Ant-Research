@@ -60,8 +60,8 @@ inout_low4 <- read.csv("./Data/Colony1_in&out_low_density_4hr.csv")
 #Prep Trophallaxis Data - note decided to keep prep.torph.data function 
 
 
-col1_high4_5 = prep_troph_data(col1_high4, 5)
-col1.low4.5 = prep_troph_data(col1_low4, 5)
+col1_high4_5 = prep_troph_data(col1_high4, hours = 4, delta_t =  5)
+col1_low4_5 = prep_troph_data(col1_low4, hours = 4, delta_t = 5)
 
 col1.high4.30 = prep_troph_data(col1.high4, 30)
 col1.low4.30 = prep_troph_data(col1.low4, 30)
@@ -96,7 +96,7 @@ col1_lo4_inout_5 <- prep_inout_data(data = inout_low4, delta_t = 5, hours = 4)
 
 path <- "./Comprehensive-Exam-Prep/output_images/"
 states <- 2
-n_mcmc <- 100
+n_mcmc <- 1000
 hours <- 4
 X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
 lambda <- c(.01, .08)
@@ -112,12 +112,36 @@ P <- matrix(c(.997, .003, .003, .997), nrow = 2, byrow = T)
 param_start <- list(X = X, lambda = lambda, P = P)
 
 simple_col1hi4bin1 <- DT_mcmc_troph(starts_data = col1_high4_5$starts_persec, 
-                                  ant_file = col1_high4_5$data, title = "Test", 
-                                  a = .005, b = .001, c = .005, d = .001, 
-                                  theta = theta, states = states, 
-                                  n_mcmc = n_mcmc, delta_t = 1, hours = hours,
-                                  param_start = param_start, fig_save = TRUE, 
-                                  fig_path = path, fig_name = "simp_col1hi4bin1") 
+                                    ant_file = col1_high4_5$data, title = "Test", 
+                                    a = .005, b = .001, c = .005, d = .001, 
+                                    theta = theta, states = states, 
+                                    n_mcmc = n_mcmc, delta_t = 1, hours = hours,
+                                    param_start = param_start, fig_save = TRUE, 
+                                    fig_path = path, fig_name = "simp_col1hi4bin1") 
+
+simple_col1lo4tbin1 <- DT_mcmc_troph(starts_data = col1_low4_5$starts_persec, 
+                                    ant_file = col1_low4_5$data, title = "Test", 
+                                    a = .005, b = .001, c = .005, d = .001, 
+                                    theta = theta, states = states, 
+                                    n_mcmc = n_mcmc, delta_t = 1, hours = hours,
+                                    param_start = param_start, fig_save = TRUE, 
+                                    fig_path = path, fig_name = "simp_col1lo4tbin1") 
+
+simple_col1lo4qbin1 <- DT_mcmc_troph(starts_data = col1_low4_5$queen_starts_persec, 
+                                    ant_file = col1_high4_5$data, title = "Test", 
+                                    a = .005, b = .001, c = .005, d = .001, 
+                                    theta = theta, states = states, 
+                                    n_mcmc = n_mcmc, delta_t = 1, hours = hours,
+                                    param_start = param_start, fig_save = TRUE, 
+                                    fig_path = path, fig_name = "simp_col1lo4qbin1") 
+
+simple_col1lo4ebin1 <- DT_mcmc_troph(starts_data = col1_low4_5$entrance_start_persec, 
+                                    ant_file = col1_low4_5$data, title = "Test", 
+                                    a = .005, b = .001, c = .005, d = .001, 
+                                    theta = theta, states = states, 
+                                    n_mcmc = n_mcmc, delta_t = 1, hours = hours,
+                                    param_start = param_start, fig_save = TRUE, 
+                                    fig_path = path, fig_name = "simp_col1lo4ebin1") 
 
 
 
@@ -130,15 +154,6 @@ gamma <- c(.005, .005)
 start <- list(X = X, lambda = lambda, gamma = gamma)
 delta_t <- 1
 
-#create vector of names with penalty information, otherwise files
-#will over write each other
-# file_name <- rep(NA, length(penalty))
-# 
-# for (i in 1:length(penalty)) {
-#   file_name[i] <- paste("pen_col1hi4bin1.", penalty[i], sep = "")
-# }
-
-file_name <- "pen_col1hi4bin1_"
 
 penalize_col1hi4bin1 <- lapply(penalty, FUN = DT_pen_mcmc, 
                               starts_data = col1_high4_5$starts_persec, 
@@ -148,7 +163,35 @@ penalize_col1hi4bin1 <- lapply(penalty, FUN = DT_pen_mcmc,
                               tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
                               delta_t = delta_t, start = start, fig_save = TRUE,
                               fig_path = path, 
-                              fig_name = file_name)
+                              fig_name = "pen_col1hi4bin1_")
+
+penalize_col1lo4tbin1 <- lapply(penalty, FUN = DT_pen_mcmc, 
+                                starts_data = col1_low4_5$starts_persec, 
+                                states = states, ant_file = col1_low4_5$data,
+                                hours = hours, 
+                                a = .005, b = .001, c = .005, d = .001,
+                                tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
+                                delta_t = delta_t, start = start, 
+                                fig_save = TRUE, fig_path = path, 
+                                fig_name = "pen_col1lo4tbin1_")
+
+penalize_col1lo4qbin1 <- lapply(penalty, FUN = DT_pen_mcmc, 
+                                starts_data = col1_low4_5$queen_starts_persec, 
+                                states = states, ant_file = col1_low4_5$data,
+                                hours = hours, 
+                                a = .005, b = .001, c = .005, d = .001,
+                                tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
+                                delta_t = delta_t, start = start, fig_save = TRUE,
+                                fig_path = path, fig_name = "pen_col1lo4qbin1_")
+
+penalize_col1lo4ebin1 <- lapply(penalty, FUN = DT_pen_mcmc, 
+                                starts_data = col1_low4_5$entrance_start_persec, 
+                                states = states, ant_file = col1_low4_5$data,
+                                hours = hours, 
+                                a = .005, b = .001, c = .005, d = .001,
+                                tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
+                                delta_t = delta_t, start = start, fig_save = TRUE,
+                                fig_path = path, fig_name = "pen_col1lo4ebin1_")
 
 
 #CREATE FUNCTION THAT TAKES OUTPUTS (for each penalty used) AND
@@ -162,11 +205,11 @@ tau <- matrix( c(.0001, 0, 0 , 0,
                   0, 0, .0001, 0, 
                   0, 0, 0, .00001), nrow = 4, ncol = 4)
 
-file_name <- "pencov_col1hi4bin1."
 
 alpha.beta = c(.005, .001, .005, .001)
 start <- list(X = X, lambda = lambda, alpha.beta = alpha.beta)
 covariate <- col1_hi4_inout_1$cov
+
 
 pencov_col1hi4bin1 <- lapply(penalty,
                             FUN = DT_pencov_mcmc,
@@ -176,4 +219,37 @@ pencov_col1hi4bin1 <- lapply(penalty,
                             hours = hours, start = start,
                             a = .005, b = .001, c = .005, d = .001, 
                             tau = tau, n_mcmc = n_mcmc, delta_t = delta_t,
-                            fig_save = TRUE, fig_path = path, fig_name = file_name)
+                            fig_save = TRUE, fig_path = path, 
+                            fig_name = "pencov_col1hi4bin1.")
+
+covariate <- col1_lo4_inout_1$cov
+
+pencov_col1lo4tbin1 <- lapply(penalty, FUN = DT_pencov_mcmc,
+                              covariate = covariate, title = "Test",
+                              starts_data = col1_low4_5$starts_persec, 
+                              states = states, ant_file = col1_low4_5$data,
+                              hours = hours, start = start,
+                              a = .005, b = .001, c = .005, d = .001, 
+                              tau = tau, n_mcmc = n_mcmc, delta_t = delta_t,
+                              fig_save = TRUE, fig_path = path, 
+                              fig_name = "pencov_col1lo4tbin1.")
+
+pencov_col1lo4qbin1 <- lapply(penalty, FUN = DT_pencov_mcmc,
+                              covariate = covariate, title = "Test",
+                              starts_data = col1_low4_5$queen_starts_persec, 
+                              states = states, ant_file = col1_low4_5$data,
+                              hours = hours, start = start,
+                              a = .005, b = .001, c = .005, d = .001, 
+                              tau = tau, n_mcmc = n_mcmc, delta_t = delta_t,
+                              fig_save = TRUE, fig_path = path, 
+                              fig_name = "pencov_col1lo4qbin1.")
+
+pencov_col1lo4ebin1 <- lapply(penalty, FUN = DT_pencov_mcmc,
+                             covariate = covariate, title = "Test",
+                              starts_data = col1_low4_5$entrance_start_persec, 
+                              states = states, ant_file = col1_low4_5$data,
+                              hours = hours, start = start,
+                              a = .005, b = .001, c = .005, d = .001, 
+                              tau = tau, n_mcmc = n_mcmc, delta_t = delta_t,
+                              fig_save = TRUE, fig_path = path, 
+                              fig_name = "pencov_col1lo4ebin1.")
