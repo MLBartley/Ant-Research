@@ -17,4 +17,3 @@ The purpose of this function is to find MCMC generated estimates of
 \examples{
 
 }
-

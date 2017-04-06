@@ -1,10 +1,28 @@
 Package: Ants
-Title: Useful Functions and Data for Modeling Ant Research Data
+Title: Useful Functions and Data for Modeling Ant Trophallaxis Data
 Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Authors@R: person("Meridith", "Bartley", email = "bartley@psu.edu",
+    role = c("aut", "cre"))
+Description: This package takes ant trophallaxis interaction files
+    provided by the David Hughes Entomology Lab at The Pennsylvania 
+    State University and provides the following functions: 
+    data prep, data simulation, data visualization, and parameter 
+    estimation within different Hidden Markov models. Functions 
+    contained within this package are inspired by my work on my first
+    project of my Statistics PhD thesis. 
 Depends:
     R (>= 3.2.2)
-License: What license is it under?
 LazyData: true
-RoxygenNote: 5.0.1
+License: mine
+RoxygenNote: 6.0.1
+Imports:
+    ctmcmove,
+    fdrtool,
+    ggplot2,
+    gtools,
+    magrittr,
+    Matrix,
+    mvtnorm,
+    tidyverse,
+    sp,
+Suggests: testthat

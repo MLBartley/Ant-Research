@@ -12,9 +12,8 @@ theme.research(theme = "ants", tech_key = list(ants = list(family_title =
 research theme
 }
 \examples{
-theme_tech(theme="ants")
+theme_tech(theme='ants')
 }
 \author{
 Meridith Bartley
 }
-

@@ -29,8 +29,8 @@ sig.all = matrix(data = c(0.2, 0, 0,
                          0, 0.2, 0, 
                          0, 0, 0.0002), nrow = 3, ncol = 3, byrow = T)
                          
-in.out =  read.csv("Data/Colony_1_in&out_high_density_4hrs.csv")
-in.out = in.out[which(in.out$Action == "enter"),]
+in.out =  read.csv('Data/Colony_1_in&out_high_density_4hrs.csv')
+in.out = in.out[which(in.out$Action == 'enter'),]
 in.out = in.out[order(in.out$time), ]
 
 #Create vector of covariates - time since last ant entered
@@ -40,7 +40,6 @@ for(i in 2:nrow(in.out)){
  }
  
 cov = c(cov, 0:(14400 - in.out$time[nrow(in.out)]))
-out.high = mcmc.troph.cov(data = high.y, title = "High Density", a = 5, b = 2, 
+out.high = mcmc.troph.cov(data = high.y, title = 'High Density', a = 5, b = 2, 
 theta = theta, states = 2, n.mcmc = 3000, cov = cov, mu.cov = mu.all, sig.cov = sig.all)
 }
-

@@ -13,7 +13,7 @@ sim.mcmc.dynamP(tmax, start.state = 1, P11, P12, P21, P22, lambda)
 }
 \value{
 #Output: (1) - x: (1, 2) unobserved two state process 
-       (2) - y: (0, ...) "observed" number of interactions at time t
+       (2) - y: (0, ...) 'observed' number of interactions at time t
        (3) - N: (0, ...) cumulative count of interactions
        (4) - delta.t
        (5) - t: (0, ...) time (in seconds)
@@ -38,4 +38,3 @@ sim = sim.mcmc.dynamP(7200, start.state = 1, P11, P12, P21, P22, lambda)
 \keyword{Process,}
 \keyword{covariate,}
 \keyword{simulation,}
-
