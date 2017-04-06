@@ -4,8 +4,8 @@
 \alias{DT.pen.mcmc.troph.expprior}
 \title{Penalized Discrete Time MCMC Estimation function for Trophallaxis data}
 \usage{
-DT.pen.mcmc.troph.expprior(penalty, y.data, states, ant.file, hours, a, b, tau,
-  tau.pen, n.mcmc, seconds, fig.save, start)
+DT.pen.mcmc.troph.expprior(penalty, y.data, states, ant.file, hours, a, b, c, d,
+  tau, tau.pen, n.mcmc, seconds, fig.save, start)
 }
 \arguments{
 \item{y.data, }{ant.file, title, ?, theta, states, n.mcmc, delta.t}
@@ -33,4 +33,3 @@ out.high = DT.pen.mcmc.troph()
 
 
 }
-

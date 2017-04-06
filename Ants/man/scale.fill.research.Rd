@@ -11,9 +11,8 @@
 research scale fill
 }
 \examples{
-scale_fill_tech(theme="ants")
+scale_fill_tech(theme='ants')
 }
 \author{
 Meriidth Bartley
 }
-
