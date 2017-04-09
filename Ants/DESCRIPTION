@@ -17,12 +17,10 @@ License: mine
 RoxygenNote: 6.0.1
 Imports:
     ctmcmove,
-    fdrtool,
     ggplot2,
     gtools,
     magrittr,
     Matrix,
     mvtnorm,
-    tidyverse,
     sp,
 Suggests: testthat
