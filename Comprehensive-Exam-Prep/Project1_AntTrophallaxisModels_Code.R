@@ -96,7 +96,7 @@ col1_lo4_inout_5 <- prep_inout_data(data = inout_low4, delta_t = 5, hours = 4)
 
 path <- "./Comprehensive-Exam-Prep/output_images/"
 states <- 2
-n_mcmc <- 1000
+n_mcmc <- 4000
 hours <- 4
 X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
 lambda <- c(.01, .08)
@@ -146,8 +146,7 @@ simple_col1lo4ebin1 <- DT_mcmc_troph(starts_data = col1_low4_5$entrance_start_pe
 
 
 #Ant Data - Penalized Model 
-
-penalty <- seq(-5, 5, by =  3)
+penalty <- exp(seq(-25, 1, by =  3)) 
 tau <- matrix( c(.01, 0, 
     0, .01), nrow = 2, ncol = 2)
 gamma <- c(.005, .005)
@@ -164,6 +163,8 @@ penalize_col1hi4bin1 <- lapply(penalty, FUN = DT_pen_mcmc,
                               delta_t = delta_t, start = start, fig_save = TRUE,
                               fig_path = path, 
                               fig_name = "pen_col1hi4bin1_")
+
+
 
 penalize_col1lo4tbin1 <- lapply(penalty, FUN = DT_pen_mcmc, 
                                 starts_data = col1_low4_5$starts_persec, 
@@ -194,12 +195,10 @@ penalize_col1lo4ebin1 <- lapply(penalty, FUN = DT_pen_mcmc,
                                 fig_path = path, fig_name = "pen_col1lo4ebin1_")
 
 
-#CREATE FUNCTION THAT TAKES OUTPUTS (for each penalty used) AND
-#CREATES LOVELY TABLE OF INFORMATION
+
 
 #Ant Data - Penalized Model with Covariates
-
-penalty <- exp(seq(-5, 5, by =  3)) 
+penalty <- seq(0, 10, by =  1)
 tau <- matrix( c(.0001, 0, 0 , 0,
                   0, .0001, 0, 0,
                   0, 0, .0001, 0, 

@@ -169,81 +169,120 @@ sumvis_troph <- function(data, entrance = FALSE, hours, density = "high"){
 
 
 
-sumtable_model <- function(model, file_path, file_name){
+
+
+#' Title
+#'
+#' @param results
+#' @param compare 
+#' @param file_path 
+#' @param file_name 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+
+
+sumtable_model <- function(results, compare, file_path, file_name){
+ 
   
-##NEEDS LOTS OF WORK
+#Simple Model:  start rates (high, low), and PTM (P)
+#Penalized Model:  start rates (high, low), and switch rate (gamma)
+#Penalized/Covariate Model: start rates (high, low), switch rate parameters (alpha, betas)
   
+  #note that states over time (X_t) are summerized already with figure
 
-lambda.low.est = lambda[1] * seconds
+ 
+  
+#Create Homes for vectors
 
-for(i in 1:length(penalty)){
-  lambda.low.est = c(lambda.low.est, results[[i]]$lambda.est[[1]]$est)
+st_rate_low_est = rep(0, length(compare))
+st_rate_high_est = rep(0, length(compare))
+
+tpm_11_est = rep(0, length(compare))
+tpm_12_est = rep(0, length(compare))
+tpm_21_est = rep(0, length(compare))
+tpm_22_est = rep(0, length(compare))
+
+if (model == "penalized") {
+sw_rate_low_est =  rep(0, length(compare))
+sw_rate_high_est = rep(0, length(compare))  
 }
 
-lambda.high.est = lambda[2] * seconds
-
-for(i in 1:length(penalty)){
-  lambda.high.est = c(lambda.high.est, results[[i]]$lambda.est[[2]]$est)
-}
-
-gamma.low.est = 0.005
-
-for(i in 1:length(penalty)){
-  gamma.low.est = c(gamma.low.est, results[[i]]$gamma.est[[1]]$est)
-}
-
-gamma.high.est = 0.005
-
-for(i in 1:length(penalty)){
-  gamma.high.est = c(gamma.high.est, results[[i]]$gamma.est[[2]]$est)
-}
-
-
-
-P.11.est = P30[1, 1]
-
-for(i in 1:length(penalty)){
-  P.11.est = c(P.11.est, results[[i]]$P.est[[1]]$est)
-}
-
-P.12.est = P30[1, 2]
-
-for(i in 1:length(penalty)){
-  P.12.est = c(P.12.est, results[[i]]$P.est[[2]]$est)
-}
-
-P.21.est = P30[2, 1]
-
-for(i in 1:length(penalty)){
-  P.21.est = c(P.21.est, results[[i]]$P.est[[3]]$est)
-}
-
-P.22.est = P30[2, 2]
-
-for(i in 1:length(penalty)){
-  P.22.est = c(P.22.est, results[[i]]$P.est[[4]]$est)
+if (model == "covariate"){
+  
 }
 
 
-MSPE.est = 0
+MSPE_est = rep(0, length(compare))
 
-for(i in 1:length(penalty)){
-  MSPE.est = c(MSPE.est, results[[i]]$MSPE)
+accept = rep(0, length(compare))
+
+
+
+for(i in 1:length(compare)){
+  st_rate_low_est[i] =  results[[i]]$lambda.est[[1]]$est
 }
 
 
-accept = n.mcmc
+for(i in 1:length(compare)){
+  st_rate_high_est[i] = results[[i]]$lambda.est[[2]]$est
+}
 
-for(i in 1:length(penalty)){
-  accept = c(accept, results[[i]]$accept)
+
+for(i in 1:length(compare)){
+  sw_rate_low_est[i] = results[[i]]$gamma.est[[1]]$est
+}
+
+
+for(i in 1:length(compare)){
+  sw_rate_high_est[i] = results[[i]]$gamma.est[[2]]$est
 }
 
 
 
-table = data.frame(c(0,penalty), lambda.low.est, lambda.high.est, 
-  gamma.low.est, gamma.high.est,
-  P.11.est, P.12.est, P.21.est, P.22.est, 
-  MSPE.est, accept)
+
+for(i in 1:length(compare)){
+  tpm_11_est = c(tpm_11_est, results[[i]]$P.est[[1]]$est)
+}
+
+
+for(i in 1:length(compare)){
+  tpm_12_est = c(tpm_12_est, results[[i]]$P.est[[2]]$est)
+}
+
+
+for(i in 1:length(compare)){
+  tpm_21_est = c(tpm_21_est, results[[i]]$P.est[[3]]$est)
+}
+
+
+for(i in 1:length(compare)){
+  tpm_22_est = c(tpm_22_est, results[[i]]$P.est[[4]]$est)
+}
+
+
+
+for(i in 1:length(compare)){
+  MSPE_est = c(MSPE_est, results[[i]]$MSPE)
+}
+
+
+
+for(i in 1:length(compare)){
+  accept = results[[i]]$accept
+}
+
+
+
+
+
+table = data.frame(compare, st_rate_low_est, st_rate_high_est, 
+                  sw_rate_low_est, sw_rate_high_est,
+                  tpm_11_est, tpm_12_est, tpm_21_est, tpm_22_est, 
+                  MSPE_est, accept)
 
 
 write.csv(x = table, file = paste(file_path, file_name, ".csv", sep = "") )
