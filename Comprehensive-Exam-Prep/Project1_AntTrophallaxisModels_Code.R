@@ -96,7 +96,7 @@ col1_lo4_inout_5 <- prep_inout_data(data = inout_low4, delta_t = 5, hours = 4)
 
 path <- "./Comprehensive-Exam-Prep/output_images/"
 states <- 2
-n_mcmc <- 4000
+n_mcmc <- 5000
 hours <- 4
 X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
 lambda <- c(.01, .08)
@@ -154,15 +154,26 @@ start <- list(X = X, lambda = lambda, gamma = gamma)
 delta_t <- 1
 
 
-penalize_col1hi4bin1 <- lapply(penalty, FUN = DT_pen_mcmc, 
-                              starts_data = col1_high4_5$starts_persec, 
-                              states = states, ant_file = col1_high4_5$data,
-                              hours = hours, 
-                              a = .005, b = .001, c = .005, d = .001,
-                              tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
-                              delta_t = delta_t, start = start, fig_save = TRUE,
-                              fig_path = path, 
-                              fig_name = "pen_col1hi4bin1_")
+# penalize_col1hi4bin1 <- lapply(penalty, FUN = DT_pen_mcmc, 
+#                               starts_data = col1_high4_5$starts_persec, 
+#                               states = states, ant_file = col1_high4_5$data,
+#                               hours = hours, 
+#                               a = .005, b = .001, c = .005, d = .001,
+#                               tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
+#                               delta_t = delta_t, start = start, fig_save = TRUE,
+#                               fig_path = path, 
+#                               fig_name = "pen_col1hi4bin1_")
+
+penalize_col1hi4bin1 <- foreach (i = exp(seq(-25, 1, by =  3)) ,
+                                 .errorhandling="remove") %dopar% 
+                                      DT_pen_mcmc(penalty = i, starts_data = col1_high4_5$starts_persec, 
+                                                  states = states, ant_file = col1_high4_5$data,
+                                                  hours = hours, 
+                                                  a = .005, b = .001, c = .005, d = .001,
+                                                  tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
+                                                  delta_t = delta_t, start = start, fig_save = TRUE,
+                                                  fig_path = path, 
+                                                  fig_name = "pen_col1hi4bin1_")
 
 
 
