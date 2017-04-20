@@ -34,7 +34,7 @@
 
 sumvis_troph <- function(data, entrance = FALSE, hours, density = "high"){
   
-  
+
   if (entrance != F) {
     
     #Number of unique ants entering (foragers)
@@ -125,10 +125,10 @@ sumvis_troph <- function(data, entrance = FALSE, hours, density = "high"){
     
     # ## Separate Low Density by Location
     # 
-    # low.1 = data.change[which(data.change$Location == 1), ]
+    low.1 = data.change[which(data.change$Location == 1), ]
     # 
-    # low.4 = data.change[which(data.change$Location == 4), ]
-    # low.4 = low.4[order(low.4$start_time), ]
+     low.4 = data.change[which(data.change$Location == 4), ]
+     low.4 = low.4[order(low.4$start_time), ]
     # 
     
     plot(data.change$start_time, 1:nrow(data.change), main = "Low Density Trophallaxis",
