@@ -185,7 +185,7 @@ sumvis_troph <- function(data, entrance = FALSE, hours, density = "high"){
 #' 
 
 
-sumtable_model <- function(results, compare, file_path, file_name){
+sumtable_model <- function(results, compare, file_path, file_name, model){
  
   
 #Simple Model:  start rates (high, low), and PTM (P)
@@ -245,34 +245,34 @@ for(i in 1:length(compare)){
 
 
 for(i in 1:length(compare)){
-  tpm_11_est = c(tpm_11_est, results[[i]]$P.est[[1]]$est)
+  tpm_11_est[i] =  results[[i]]$P.est[[1]]$est
 }
 
 
 for(i in 1:length(compare)){
-  tpm_12_est = c(tpm_12_est, results[[i]]$P.est[[2]]$est)
+  tpm_12_est[i] = results[[i]]$P.est[[2]]$est
 }
 
 
 for(i in 1:length(compare)){
-  tpm_21_est = c(tpm_21_est, results[[i]]$P.est[[3]]$est)
+  tpm_21_est[i] =  results[[i]]$P.est[[3]]$est
 }
 
 
 for(i in 1:length(compare)){
-  tpm_22_est = c(tpm_22_est, results[[i]]$P.est[[4]]$est)
-}
-
-
-
-for(i in 1:length(compare)){
-  MSPE_est = c(MSPE_est, results[[i]]$MSPE)
+  tpm_22_est[i] = results[[i]]$P.est[[4]]$est
 }
 
 
 
 for(i in 1:length(compare)){
-  accept = results[[i]]$accept
+  MSPE_est[i] =  results[[i]]$MSPE
+}
+
+
+
+for(i in 1:length(compare)){
+  accept[i] = results[[i]]$accept
 }
 
 
@@ -283,6 +283,11 @@ table = data.frame(compare, st_rate_low_est, st_rate_high_est,
                   sw_rate_low_est, sw_rate_high_est,
                   tpm_11_est, tpm_12_est, tpm_21_est, tpm_22_est, 
                   MSPE_est, accept)
+
+plot(log(compare), MSPE_est, col=ifelse(accept<=1000,"red","black"), 
+     ylim = c(min(MSPE_est) - 0.01, max(MSPE_est) + 0.01))
+# lines(predict(lm(one.data$MSPE.est~one.data$penalty+I(one.data$penalty^2))))
+
 
 
 write.csv(x = table, file = paste(file_path, file_name, ".csv", sep = "") )

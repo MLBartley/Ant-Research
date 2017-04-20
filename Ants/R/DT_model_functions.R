@@ -765,7 +765,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, hours,
   
   # visualization
   if (fig_save == TRUE) {
-    jpeg( file = paste(fig_path, fig_name, round(penalty, 4), ".diagnostics", ".jpg", sep = ""))
+    jpeg( file = paste(fig_path, fig_name, round(penalty, 11), ".diagnostics", ".jpg", sep = ""))
   }
   
   # plot the estimation runs.
@@ -817,7 +817,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, hours,
   
   ######################################################### Fancy Plots with Background Colors
   if (fig_save == TRUE) {
-    jpeg( file = paste(fig_path, fig_name, round(penalty, 4), ".states", ".jpg", sep = ""))
+    jpeg( file = paste(fig_path, fig_name, round(penalty, 11), ".states", ".jpg", sep = ""))
   }
   
   par(mfrow = c(1, 1))
@@ -1361,7 +1361,7 @@ DT_pencov_mcmc <- function(penalty, covariate, starts_data, states, ant_file,
   #visualization
   #
   if (fig_save == TRUE) {
-    jpeg(file = paste(fig_path, fig_name, round(penalty, digits = 4), ".diagnostics", ".jpg", sep = ""))
+    jpeg(file = paste(fig_path, fig_name, round(penalty, digits = 11), ".diagnostics", ".jpg", sep = ""))
     
   }
   
@@ -1442,7 +1442,7 @@ DT_pencov_mcmc <- function(penalty, covariate, starts_data, states, ant_file,
   #########################################################
  
   if (fig_save == TRUE) {
-    jpeg(file = paste(fig_path, fig_name, round(penalty, digits = 4), ".states", ".jpg", sep = ""))
+    jpeg(file = paste(fig_path, fig_name, round(penalty, digits = 11), ".states", ".jpg", sep = ""))
   }
   
   par(mfrow = c(1, 1))

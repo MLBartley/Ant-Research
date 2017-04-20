@@ -2,3 +2,7 @@
 .Rhistory
 .RData
 packrat/lib*/
+
+*.jpg
+
+Comprehensive-Exam-Prep/Project1_AntTrophallaxisModels_Code.R
