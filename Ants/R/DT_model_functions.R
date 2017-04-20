@@ -82,10 +82,13 @@ DT_mcmc_troph <- function(starts_data, ant_file, title, a, b, c, d, theta,
   starts_low <- matrix(NA, nrow = Time, ncol = n_mcmc)
   starts_high <- matrix(NA, nrow = Time, ncol = n_mcmc)
   
+  osa_param <- matrix(NA, Time, n_mcmc, T)
+  
   ## Initialize parameters - MOVE START VALUES TO OUTSIDE FUNCTION?
   
   states_param[, 1] <- states_start
   
+  osa_param[, 1] <- data
   
   st_rates_param[1, 1] <- st_rates_start[1]  #lambda low
   st_rates_param[2, 1] <- st_rates_start[2] - st_rates_start[1]  #change in lambda
@@ -150,6 +153,9 @@ DT_mcmc_troph <- function(starts_data, ant_file, title, a, b, c, d, theta,
     m[states_param[1, l], states_param[1, l]] <- m[states_param[1, l], states_param[1, 
       l]] + 1
     
+    osa_param[1, l] <- st_rates_low * ptm_matrix[states_param[1, l], 1] + 
+      st_rates_high * ptm_matrix[states_param[1, l], 2]
+    
     for (t in 2:(Time - 1)) {
       
       
@@ -166,6 +172,10 @@ DT_mcmc_troph <- function(starts_data, ant_file, title, a, b, c, d, theta,
       
       m[states_param[t - 1, l], states_param[t, l]] <- m[states_param[t - 1, 
         l], states_param[t, l]] + 1
+      
+      osa_param[t, l] <- st_rates_low * ptm_matrix[states_param[t, l], 
+        1] + st_rates_high * ptm_matrix[states_param[t, l], 2]
+      
     }
     
     gam[Time, 1] <- st_rates_low^data[Time] * exp(-st_rates_low) * 
@@ -180,6 +190,8 @@ DT_mcmc_troph <- function(starts_data, ant_file, title, a, b, c, d, theta,
     m[states_param[Time - 1, l], states_param[Time, l]] <- m[states_param[Time - 
         1, l], states_param[Time, l]] + 1
     
+    osa_param[Time, l] <- st_rates_low * ptm_matrix[states_param[Time, l], 
+      1] + st_rates_high * ptm_matrix[states_param[Time, l], 2]
     
     
     # Split data (N_t) into N_Ht, N_Lt
@@ -252,6 +264,15 @@ DT_mcmc_troph <- function(starts_data, ant_file, title, a, b, c, d, theta,
   st_ptm_est <- apply(st_ptm_param, 1, bm)
   st_ptm_var <- apply(st_ptm_param, 1, quantile, probs = c(0.025, 0.975), na.rm = T)
   
+  sum.it <- 0 
+  
+  for (i in 1:n_mcmc) {
+    for (t in 1:Time) {
+      sum.it <- sum.it +  (osa_param[t, i] - data[t])^2
+    }
+  }
+  
+  MSPE.1SA <- 1/n_mcmc * 1/Time * sum.it 
   
   # plot the estimation runs.
   col <- c("#120d08", "#bc5356", "#538bbc", "#53bc84")
@@ -356,7 +377,7 @@ DT_mcmc_troph <- function(starts_data, ant_file, title, a, b, c, d, theta,
   }
   
   list(states_est = states_est, st_rates_est = st_rates_est, 
-       st_ptm_est = st_ptm_est, P.run = st_ptm_param)
+       st_ptm_est = st_ptm_est, P.run = st_ptm_param, MSPE = MSPE.1SA)
   
 }
 
@@ -744,7 +765,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, hours,
   
   # visualization
   if (fig_save == TRUE) {
-    jpeg( file = paste(fig_path, fig_name, round(penalty, 4), ".diagnostics", ".jpg", sep = ""))
+    jpeg( file = paste(fig_path, fig_name, round(penalty, 11), ".diagnostics", ".jpg", sep = ""))
   }
   
   # plot the estimation runs.
@@ -796,7 +817,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, hours,
   
   ######################################################### Fancy Plots with Background Colors
   if (fig_save == TRUE) {
-    jpeg( file = paste(fig_path, fig_name, round(penalty, 4), ".states", ".jpg", sep = ""))
+    jpeg( file = paste(fig_path, fig_name, round(penalty, 11), ".states", ".jpg", sep = ""))
   }
   
   par(mfrow = c(1, 1))
@@ -1257,6 +1278,7 @@ DT_pencov_mcmc <- function(penalty, covariate, starts_data, states, ant_file,
     
     m[states_param[Time - 1, l], states_param[Time, l]] <- m[states_param[Time - 1, l], 
       states_param[Time, l]] + 1
+    
     osa_param[Time, l] <- st_rate_low * P.matrix[states_param[Time, l], 1] + 
       st_rate_high * P.matrix[states_param[Time, l], 2]
     
@@ -1339,7 +1361,7 @@ DT_pencov_mcmc <- function(penalty, covariate, starts_data, states, ant_file,
   #visualization
   #
   if (fig_save == TRUE) {
-    jpeg(file = paste(fig_path, fig_name, round(penalty, digits = 4), ".diagnostics", ".jpg", sep = ""))
+    jpeg(file = paste(fig_path, fig_name, round(penalty, digits = 11), ".diagnostics", ".jpg", sep = ""))
     
   }
   
@@ -1420,7 +1442,7 @@ DT_pencov_mcmc <- function(penalty, covariate, starts_data, states, ant_file,
   #########################################################
  
   if (fig_save == TRUE) {
-    jpeg(file = paste(fig_path, fig_name, round(penalty, digits = 4), ".states", ".jpg", sep = ""))
+    jpeg(file = paste(fig_path, fig_name, round(penalty, digits = 11), ".states", ".jpg", sep = ""))
   }
   
   par(mfrow = c(1, 1))
