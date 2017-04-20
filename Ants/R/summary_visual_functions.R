@@ -101,7 +101,7 @@ sumvis_troph <- function(data, entrance = FALSE, hours, density = "high"){
   # ##
   # #########################################################
   # 
-  # data.change = data[seq(1, nrow(data), by = 2), ]
+   data.change = data[seq(1, nrow(data), by = 2), ]
   # 
   # #########################################################
   # ##
@@ -110,7 +110,7 @@ sumvis_troph <- function(data, entrance = FALSE, hours, density = "high"){
   # #########################################################
   # 
   # #order data frame by start time so plot works better
-  # data.change = data.change[order(data.change$start_time), ]
+   data.change = data.change[order(data.change$start_time), ]
   # 
   par(mfrow = c(1, 1))
   
@@ -140,7 +140,9 @@ sumvis_troph <- function(data, entrance = FALSE, hours, density = "high"){
       pch = c(1,2), 
       col = c("#120d08", "#538bbc"),
       text.width = 1200)
-    points(cov$time, rep(0, nrow(cov)), pch = 8, col = "#53bc84")
+   if (entrance != F) {
+          points(cov$time, rep(0, nrow(cov)), pch = 8, col = "#53bc84")
+   }
     
     
     par(mfrow = c(1, 2), oma = c(0, 0, 2, 0))
@@ -149,7 +151,9 @@ sumvis_troph <- function(data, entrance = FALSE, hours, density = "high"){
       xlab = "Start Time", 
       ylab = "Number of Interactions",
       col = "#120d08")
-    points(cov$time, rep(0, nrow(cov)), pch = 8, col = "#53bc84")
+    if (entrance != F) {
+          points(cov$time, rep(0, nrow(cov)), pch = 8, col = "#53bc84")
+    }
     
     plot(low.4$start_time, 1:nrow(low.4), main = "Location 4",
       xlim = c(0, max(data.change$end_time)),
@@ -157,7 +161,9 @@ sumvis_troph <- function(data, entrance = FALSE, hours, density = "high"){
       ylab = "Number of Interactions",
       col = "#538bbc", 
       pch = 2)
-    points(cov$time, rep(0, nrow(cov)), pch = 8, col = "#53bc84")
+    if (entrance != F) {
+          points(cov$time, rep(0, nrow(cov)), pch = 8, col = "#53bc84")
+    }
     
     mtext("Low Density Trophallaxis", outer = TRUE, cex = 1.5 )
     
