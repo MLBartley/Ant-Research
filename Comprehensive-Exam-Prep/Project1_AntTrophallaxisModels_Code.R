@@ -28,10 +28,10 @@ col1_high4 <- read.csv("./Data/Colony1_trophallaxis_high_density_4hr.csv")
 col1_low4 <- read.csv("./Data/Colony1_trophallaxis_low_density_4hr.csv")
 
 col2.high4 <- read.csv("./Data/Colony2_trophallaxis_high_density_4hr.csv")
-col2.low4 <- read.csv("./Data/Colony2_trophallaxis_low_density_4hr.csv")
+col2_low4 <- read.csv("./Data/Colony2_trophallaxis_low_density_4hr.csv")
 
 col3.high4 <- read.csv("./Data/Colony3_trophallaxis_high_density_4hr.csv")
-col3.low4 <- read.csv("./Data/Colony3_trophallaxis_low_density_4hr.csv")
+col3_low4 <- read.csv("./Data/Colony3_trophallaxis_low_density_4hr.csv")
 
 
 #Call in Foraging Data
@@ -43,19 +43,13 @@ inout_low4 <- read.csv("./Data/Colony1_in&out_low_density_4hr.csv")
 
 #Visualize the Trophallaxis Data - NEED TO UPDATE SUMVIS FUNCTION
     #Want these to save to .pdf (in new folder?)
-    
-# 
-# par(mfrow = c(1, 1))
-# plot(col1.high4.1$start_time,1:nrow(col1.high4.1), main = "High Density Trophallaxis, 4 Hours",
-#      xlab = "Start Time", 
-#      ylab = "Number of Interactions")
-# 
-# 
-# plot(low4$start_time, 1:nrow(low4), main="Low Density Trophallaxis",
-#      xlab = "Start Time", 
-#      ylab = "Number of Interactions", 
-#      col=low4$Location)
-# legend(5000, 100, c("Loc1", "Loc4"), lty = c(1,1), col = c("black", "blue"))
+
+sumvis_troph(data = col1_low4, entrance = FALSE, hours = 4, density = "low")
+
+sumvis_troph(data = col2_low4, entrance = F, hours = 4, density = "low")
+
+sumvis_troph(data = col3_low4, entrance = F, hours = 4, density = "low")
+
 
 #Prep Trophallaxis Data - note decided to keep prep.torph.data function 
 
@@ -100,6 +94,7 @@ n_mcmc <- 5000
 hours <- 4
 X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
 lambda <- c(.01, .08)
+registerDoMC(cores=5)
 
 
 #Ant Data - Simple Model 
@@ -147,24 +142,24 @@ simple_col1lo4ebin1 <- DT_mcmc_troph(starts_data = col1_low4_5$entrance_start_pe
 
 #Ant Data - Penalized Model 
 penalty <- exp(seq(-25, 1, by =  3)) 
-tau <- matrix( c(.01, 0, 
-    0, .01), nrow = 2, ncol = 2)
+tau <- matrix( c(.0001, 0, 
+    0, .0001), nrow = 2, ncol = 2)
 gamma <- c(.005, .005)
 start <- list(X = X, lambda = lambda, gamma = gamma)
 delta_t <- 1
 
 
-# penalize_col1hi4bin1 <- lapply(penalty, FUN = DT_pen_mcmc, 
-#                               starts_data = col1_high4_5$starts_persec, 
+# penalize_col1hi4bin1 <- lapply(penalty, FUN = DT_pen_mcmc,
+#                               starts_data = col1_high4_5$starts_persec,
 #                               states = states, ant_file = col1_high4_5$data,
-#                               hours = hours, 
+#                               hours = hours,
 #                               a = .005, b = .001, c = .005, d = .001,
-#                               tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
+#                               tau = tau, tau.pen = 0, n_mcmc = n_mcmc,
 #                               delta_t = delta_t, start = start, fig_save = TRUE,
-#                               fig_path = path, 
+#                               fig_path = path,
 #                               fig_name = "pen_col1hi4bin1_")
 
-penalize_col1hi4bin1 <- foreach (i = exp(seq(-25, 1, by =  3)) ,
+penalize_col1hi4bin1 <- foreach (i = exp(seq(-25, -5, by =  2)) ,
                                  .errorhandling="remove") %dopar% 
                                       DT_pen_mcmc(penalty = i, starts_data = col1_high4_5$starts_persec, 
                                                   states = states, ant_file = col1_high4_5$data,
@@ -175,35 +170,57 @@ penalize_col1hi4bin1 <- foreach (i = exp(seq(-25, 1, by =  3)) ,
                                                   fig_path = path, 
                                                   fig_name = "pen_col1hi4bin1_")
 
+sumtable_model(results = penalize_col1hi4bin1, compare = penalty, 
+               file_path = "./Comprehensive-Exam-Prep/output_tables/", 
+               file_name = "pen_col1hi4bin1", model = "penalized")
 
 
-penalize_col1lo4tbin1 <- lapply(penalty, FUN = DT_pen_mcmc, 
-                                starts_data = col1_low4_5$starts_persec, 
-                                states = states, ant_file = col1_low4_5$data,
-                                hours = hours, 
-                                a = .005, b = .001, c = .005, d = .001,
-                                tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
-                                delta_t = delta_t, start = start, 
-                                fig_save = TRUE, fig_path = path, 
-                                fig_name = "pen_col1lo4tbin1_")
+penalize_col1lo4tbin1 <- foreach (i = exp(seq(-25, -5, by =  1)) ,
+                                 .errorhandling="remove") %dopar% 
+                          DT_pen_mcmc(penalty = i, starts_data = col1_low4_5$starts_persec, 
+                                      states = states, ant_file = col1_low4_5$data,
+                                      hours = hours, 
+                                      a = .005, b = .001, c = .005, d = .001,
+                                      tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
+                                      delta_t = delta_t, start = start, fig_save = TRUE,
+                                      fig_path = path, 
+                                      fig_name = "pen_col1lo4tbin1_")
 
-penalize_col1lo4qbin1 <- lapply(penalty, FUN = DT_pen_mcmc, 
-                                starts_data = col1_low4_5$queen_starts_persec, 
+sumtable_model(results = penalize_col1lo4tbin1, compare = penalty, 
+               file_path = "./Comprehensive-Exam-Prep/output_tables/", 
+               file_name = "pen_col1lo4tbin1", model = "penalized")
+
+
+penalize_col1lo4qbin1 <- foreach (i = exp(seq(-25, -5, by =  1)) ,
+                                 .errorhandling="remove") %dopar% 
+                        DT_pen_mcmc(penalty = i, starts_data = col1_low4_5$queen_starts_persec, 
+                                    states = states, ant_file = col1_low4_5$data,
+                                    hours = hours, 
+                                    a = .005, b = .001, c = .005, d = .001,
+                                    tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
+                                    delta_t = delta_t, start = start, fig_save = TRUE,
+                                    fig_path = path, 
+                                    fig_name = "pen_col1lo4qbin1_")
+
+sumtable_model(results = penalize_col1lo4qbin1, compare = penalty, 
+               file_path = "./Comprehensive-Exam-Prep/output_tables/", 
+               file_name = "pen_col1lo4qbin1", model = "penalized")
+
+
+penalize_col1lo4ebin1 <- foreach (i = exp(seq(-25, -15, by =  .5)) ,
+                                 .errorhandling="remove") %dopar% 
+                                DT_pen_mcmc(penalty = i, starts_data = col1_low4_5$entrance_start_persec, 
                                 states = states, ant_file = col1_low4_5$data,
                                 hours = hours, 
                                 a = .005, b = .001, c = .005, d = .001,
                                 tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
                                 delta_t = delta_t, start = start, fig_save = TRUE,
-                                fig_path = path, fig_name = "pen_col1lo4qbin1_")
+                                fig_path = path, 
+                                fig_name = "pen_col1lo4ebin1_")
 
-penalize_col1lo4ebin1 <- lapply(penalty, FUN = DT_pen_mcmc, 
-                                starts_data = col1_low4_5$entrance_start_persec, 
-                                states = states, ant_file = col1_low4_5$data,
-                                hours = hours, 
-                                a = .005, b = .001, c = .005, d = .001,
-                                tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
-                                delta_t = delta_t, start = start, fig_save = TRUE,
-                                fig_path = path, fig_name = "pen_col1lo4ebin1_")
+sumtable_model(results = penalize_col1lo4ebin1, compare = exp(seq(-25, -15, by =  .5)), 
+               file_path = "./Comprehensive-Exam-Prep/output_tables/", 
+               file_name = "pen_col1lo4ebin1", model = "penalized")
 
 
 
