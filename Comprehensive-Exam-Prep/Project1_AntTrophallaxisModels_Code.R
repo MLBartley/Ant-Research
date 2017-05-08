@@ -190,7 +190,19 @@ delta_t <- 1
 #                               fig_path = path,
 #                               fig_name = "pen_col1hi4bin1_")
 
-penalize_col1hi4bin1 <- foreach (i = exp(seq(-25, -5, by =  2)) ,
+
+# penalize_col1hi4bin1 <- lapply(penalty, FUN = DT_pen_mcmc, 
+#                               starts_data = col1_high4_5$starts_persec, 
+#                               states = states, ant_file = col1_high4_5$data,
+#                               hours = hours, 
+#                               a = .005, b = .001, c = .005, d = .001,
+#                               tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
+#                               delta_t = delta_t, start = start, fig_save = TRUE,
+#                               fig_path = path, 
+#                               fig_name = "pen_col1hi4bin1_")
+
+penalize_col1hi4bin1 <- foreach (i = exp(seq(-25, 1, by =  3)) ,
+
                                  .errorhandling="remove") %dopar% 
                                       DT_pen_mcmc(penalty = i, starts_data = col1_high4_5$starts_persec, 
                                                   states = states, ant_file = col1_high4_5$data,
@@ -241,6 +253,21 @@ sumtable_model(results = penalize_col1lo4qbin1, compare = penalty,
 penalize_col1lo4ebin1 <- foreach (i = exp(seq(-25, -15, by =  .5)) ,
                                  .errorhandling="remove") %dopar% 
                                 DT_pen_mcmc(penalty = i, starts_data = col1_low4_5$entrance_start_persec, 
+
+
+
+penalize_col1lo4tbin1 <- lapply(penalty, FUN = DT_pen_mcmc, 
+                                starts_data = col1_low4_5$starts_persec, 
+                                states = states, ant_file = col1_low4_5$data,
+                                hours = hours, 
+                                a = .005, b = .001, c = .005, d = .001,
+                                tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
+                                delta_t = delta_t, start = start, 
+                                fig_save = TRUE, fig_path = path, 
+                                fig_name = "pen_col1lo4tbin1_")
+
+penalize_col1lo4qbin1 <- lapply(penalty, FUN = DT_pen_mcmc, 
+                                starts_data = col1_low4_5$queen_starts_persec, 
                                 states = states, ant_file = col1_low4_5$data,
                                 hours = hours, 
                                 a = .005, b = .001, c = .005, d = .001,
