@@ -43,7 +43,7 @@
 #' theta = theta, states = 2, n_mcmc = 3000)
 
 
-DT_mcmc_troph <- function(starts_data, ant_file, title, a, b, c, d, theta, 
+DT_mcmc_troph <- function(starts_data, ant_file, chamber, title, a, b, c, d, theta, 
                           states = 2, n_mcmc, delta_t, hours, param_start,
                           fig_save = TRUE, fig_path, fig_name) {
   
@@ -59,6 +59,17 @@ DT_mcmc_troph <- function(starts_data, ant_file, title, a, b, c, d, theta,
   # needed for final graphic
   location <- ant_file$Location
   start <- ant_file$start_time
+  # chamber <- chamber
+  
+  if (length(unique(location)) != 1){
+    
+    if(chamber == "queen") {
+     start = start[which(location == 1)] 
+    }else {
+          start = start[which(location == 4)]
+    }
+  }
+  
   start <- sort(start)
   int.num <- length(start)
   maxtime <- hours * 60 * 60
@@ -278,7 +289,7 @@ DT_mcmc_troph <- function(starts_data, ant_file, title, a, b, c, d, theta,
   col <- c("#120d08", "#bc5356", "#538bbc", "#53bc84")
   
   if (fig_save == TRUE) {
-    jpeg(file = paste(fig_path, fig_name, ".diagnostics" , ".jpg", sep = ""))
+    jpeg(file = paste(fig_path, fig_name, ".diagnostics" , theta[1], ".jpg", sep = ""))
     
   }
   
@@ -321,7 +332,7 @@ DT_mcmc_troph <- function(starts_data, ant_file, title, a, b, c, d, theta,
   }
   ######################################################### Fancy Plots with Background Colors
   if (fig_save == TRUE) {
-    jpeg(file = paste(fig_path, fig_name, ".states" , ".jpg", sep = ""))
+    jpeg(file = paste(fig_path, fig_name, ".states" , theta[1], ".jpg", sep = ""))
     
   }
   
@@ -351,6 +362,16 @@ DT_mcmc_troph <- function(starts_data, ant_file, title, a, b, c, d, theta,
       xlim = c(0, maxtime))
   } else {
     # Low Density - 4 Hours
+    
+    # if (chamber == "queen") {
+    #   start <- start_1
+    #   int.num <- length(start)
+    #   
+    # } else {
+    #   start <- start_4
+    #   int.num <- length(start)
+    #   
+    # }
     
     plot(start, 1:int.num, main = "Low", xlab = "delta_t", ylab = "Cumulative 
       Interaction Count", 
@@ -431,7 +452,7 @@ DT_mcmc_troph <- function(starts_data, ant_file, title, a, b, c, d, theta,
 #' 
 
 
-DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, hours, 
+DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours, 
   a, b, c, d, tau, tau.pen, n_mcmc, delta_t, start, fig_save, fig_path, fig_name) {
   
   # starting values - mostly to keep this all in one place to easily
@@ -450,6 +471,16 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, hours,
   # needed for final graphic
   location <- ant_file$Location
   start <- ant_file$start_time
+  
+  if (length(unique(location)) != 1){
+    
+    if(chamber == "queen") {
+      start = start[which(location == 1)] 
+    }else {
+      start = start[which(location == 4)]
+    }
+  }
+  
   start <- sort(start)
   int.num <- length(start)
   maxtime <- hours * 60 * 60
@@ -549,7 +580,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, hours,
   }
   
   accept <- 0
-  
+  sigma <- tau
   
   for (l in 2:n_mcmc) {
     
@@ -560,8 +591,10 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, hours,
     
     # MH updates - want to propose/accept/reject gammaLH and gammaHL
     
-    # adaptive tuning parameter if(l < n_mcmc/2 & l %% 100 == 0){ sigma =
-    # (2.38^2 / 2) * var(log(t(switch_rate_param[, 1:(l - 1)]))) tau = sigma }
+    # adaptive tuning parameter 
+    if (l < n_mcmc/2 & l %% 100 == 0) { 
+      sigma <- c(sigma,  (2.38^2 / 2) * var(log(t(switch_rate_param[, 1:(l - 1)]))))
+      tau <- matrix(tail(sigma, n=4), 2, 2) }
     
     #propose switch rates for LH and HL (gamma_LH, gamma_HL)
     proposal <- rmvnorm(n = 1, mean = log(switch_rate_param[, l - 1]), sigma = tau)
@@ -826,7 +859,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, hours,
   if (length(unique(location)) == 1) {
     
     ## High Density - 4 Hours
-    plot(start, 1:int.num, main = "High", xlab = "delta_t", ylab = "Cumulative Interaction Count", 
+    plot(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative Interaction Count", 
       xlim = c(0, maxtime))
     states <- X.est  #from code above
     rr <- rle(states[, 1])
@@ -839,12 +872,12 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, hours,
         density = NA)
       
     }
-    points(start, 1:int.num, main = "Low", xlab = "delta_t", ylab = "Cumulative Interaction Count", 
+    points(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative Interaction Count", 
       xlim = c(0, maxtime))
   } else {
     # Low Density - 4 Hours
     
-    plot(start, 1:int.num, main = "Low", xlab = "delta_t", ylab = "Cumulative Interaction Count", 
+    plot(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative Interaction Count", 
       xlim = c(0, maxtime))
     states <- X.est
     rr <- rle(states[, 1])
@@ -856,7 +889,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, hours,
       rect(cs[j], 0, cs[j + 1], int.num, col = cols[embedded.chain[j]], 
         density = NA)
     }
-    points(start, 1:int.num, main = "Low", xlab = "delta_t", ylab = "Cumulative Interaction Count", 
+    points(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative Interaction Count", 
       xlim = c(0, maxtime))
   }
   
@@ -865,8 +898,8 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, hours,
   }
   
   
-  list(X.est = X.est, lambda.est = lambda.est, gamma.est = gamma.est, 
-    P.est = P.est, P.run = st_ptm_param, MSPE = MSPE.1SA, accept = accept)
+  list(X.est = X.est, st_rates_est = lambda.est, sw_rates_est = gamma.est, 
+    st_ptm_est = P.est, P.run = st_ptm_param, MSPE = MSPE.1SA, accept = accept, sigma = sigma)
   
 }
 
@@ -925,7 +958,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, hours,
 #' 
 
 
-DT_pencov_mcmc <- function(penalty, covariate, starts_data, states, ant_file, 
+DT_pencov_mcmc <- function(penalty, covariate, starts_data, states, ant_file, chamber,
                           hours, title, a, b, c, d, tau, #tau.pen,
                           n_mcmc, delta_t, fig_save, fig_path, fig_name, start){
   
@@ -945,6 +978,16 @@ DT_pencov_mcmc <- function(penalty, covariate, starts_data, states, ant_file,
   #needed for final graphic 
   location <- ant_file$Location 
   start <- ant_file$start_time
+  
+  if (length(unique(location)) != 1){
+    
+    if(chamber == "queen") {
+      start = start[which(location == 1)] 
+    }else {
+      start = start[which(location == 4)]
+    }
+  }
+  
   start <- sort(start)
   int.num <- length(start)
   maxtime <- hours * 60 * 60
@@ -1494,7 +1537,7 @@ DT_pencov_mcmc <- function(penalty, covariate, starts_data, states, ant_file,
   }
   
   
-  list(X.est = X.est, lambda.est = lambda.est, 
+  list(X.est = X.est, st_rates_est = lambda.est, 
     P.est = c(P.11.est, P.12.est, P.21.est, P.22.est), MSPE = MSPE.1SA, accept = accept)
   
 }

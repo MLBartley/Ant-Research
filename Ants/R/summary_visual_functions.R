@@ -34,7 +34,7 @@
 
 sumvis_troph <- function(data, entrance = FALSE, hours, density = "high"){
   
-  
+
   if (entrance != F) {
     
     #Number of unique ants entering (foragers)
@@ -125,10 +125,10 @@ sumvis_troph <- function(data, entrance = FALSE, hours, density = "high"){
     
     # ## Separate Low Density by Location
     # 
-    # low.1 = data.change[which(data.change$Location == 1), ]
+    low.1 = data.change[which(data.change$Location == 1), ]
     # 
-    # low.4 = data.change[which(data.change$Location == 4), ]
-    # low.4 = low.4[order(low.4$start_time), ]
+     low.4 = data.change[which(data.change$Location == 4), ]
+     low.4 = low.4[order(low.4$start_time), ]
     # 
     
     plot(data.change$start_time, 1:nrow(data.change), main = "Low Density Trophallaxis",
@@ -229,66 +229,80 @@ accept = rep(0, length(compare))
 
 
 for(i in 1:length(compare)){
-  st_rate_low_est[i] =  results[[i]]$lambda.est[[1]]$est
+  st_rate_low_est[i] =  results[[i]]$st_rates_est[[1]]$est
 }
 
 
 for(i in 1:length(compare)){
-  st_rate_high_est[i] = results[[i]]$lambda.est[[2]]$est
+  st_rate_high_est[i] = results[[i]]$st_rates_est[[2]]$est
 }
 
 
-for(i in 1:length(compare)){
-  sw_rate_low_est[i] = results[[i]]$gamma.est[[1]]$est
-}
-
-
-for(i in 1:length(compare)){
-  sw_rate_high_est[i] = results[[i]]$gamma.est[[2]]$est
-}
-
-
-
-
-for(i in 1:length(compare)){
-  tpm_11_est[i] =  results[[i]]$P.est[[1]]$est
-}
-
-
-for(i in 1:length(compare)){
-  tpm_12_est[i] = results[[i]]$P.est[[2]]$est
-}
-
-
-for(i in 1:length(compare)){
-  tpm_21_est[i] =  results[[i]]$P.est[[3]]$est
-}
-
-
-for(i in 1:length(compare)){
-  tpm_22_est[i] = results[[i]]$P.est[[4]]$est
+if (model != "simple") {
+  
+  for(i in 1:length(compare)){
+    sw_rate_low_est[i] = results[[i]]$sw_rates_est[[1]]$est
+  }
+  
+  for(i in 1:length(compare)){
+    sw_rate_high_est[i] = results[[i]]$sw_rates_est[[2]]$est
+  }
 }
 
 
 
 for(i in 1:length(compare)){
-  MSPE_est[i] =  results[[i]]$MSPE
+  tpm_11_est[i] =  results[[i]]$st_ptm_est[[1]]$est
 }
-
 
 
 for(i in 1:length(compare)){
-  accept[i] = results[[i]]$accept
+  tpm_12_est[i] = results[[i]]$st_ptm_est[[2]]$est
+}
+
+
+for(i in 1:length(compare)){
+  tpm_21_est[i] =  results[[i]]$st_ptm_est[[3]]$est
+}
+
+
+for(i in 1:length(compare)){
+  tpm_22_est[i] = results[[i]]$st_ptm_est[[4]]$est
 }
 
 
 
 
 
-table = data.frame(compare, st_rate_low_est, st_rate_high_est, 
+
+if (model != "simple") {
+  #REMOVE THIS TO OUTSIDE IF STATEMENT ONCE ADD MSPE TO SIMPLE MODEL!!!
+  for(i in 1:length(compare)){
+   MSPE_est[i] =  results[[i]]$MSPE
+  }
+  
+  for(i in 1:length(compare)){
+    accept[i] = results[[i]]$accept
+  }
+}
+
+
+if (model == "simple"){
+  table = data.frame(compare, st_rate_low_est, st_rate_high_est, 
+                   tpm_11_est, tpm_12_est, tpm_21_est, tpm_22_est #, 
+                  # MSPE_est
+                   )
+}
+else{
+ table = data.frame(compare, st_rate_low_est, st_rate_high_est, 
                   sw_rate_low_est, sw_rate_high_est,
                   tpm_11_est, tpm_12_est, tpm_21_est, tpm_22_est, 
-                  MSPE_est, accept)
+                  MSPE_est, accept) 
+}
+
+
+
+
 
 plot(log(compare), MSPE_est, col=ifelse(accept<=1000,"red","black"), 
      ylim = c(min(MSPE_est) - 0.01, max(MSPE_est) + 0.01))
