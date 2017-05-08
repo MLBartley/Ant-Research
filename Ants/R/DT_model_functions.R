@@ -43,7 +43,7 @@
 #' theta = theta, states = 2, n_mcmc = 3000)
 
 
-DT_mcmc_troph <- function(starts_data, ant_file, title, a, b, c, d, theta, 
+DT_mcmc_troph <- function(starts_data, ant_file, chamber, title, a, b, c, d, theta, 
                           states = 2, n_mcmc, delta_t, hours, param_start,
                           fig_save = TRUE, fig_path, fig_name) {
   
@@ -59,6 +59,13 @@ DT_mcmc_troph <- function(starts_data, ant_file, title, a, b, c, d, theta,
   # needed for final graphic
   location <- ant_file$Location
   start <- ant_file$start_time
+  chamber <- chamber
+  
+  if (length(unique(location)) != 1){
+    start_1 = start[which(location == 1)]
+    start_4 = start[which(location == 4)]
+  }
+  
   start <- sort(start)
   int.num <- length(start)
   maxtime <- hours * 60 * 60
@@ -278,7 +285,7 @@ DT_mcmc_troph <- function(starts_data, ant_file, title, a, b, c, d, theta,
   col <- c("#120d08", "#bc5356", "#538bbc", "#53bc84")
   
   if (fig_save == TRUE) {
-    jpeg(file = paste(fig_path, fig_name, ".diagnostics" , ".jpg", sep = ""))
+    jpeg(file = paste(fig_path, fig_name, ".diagnostics" , theta[1], ".jpg", sep = ""))
     
   }
   
@@ -321,7 +328,7 @@ DT_mcmc_troph <- function(starts_data, ant_file, title, a, b, c, d, theta,
   }
   ######################################################### Fancy Plots with Background Colors
   if (fig_save == TRUE) {
-    jpeg(file = paste(fig_path, fig_name, ".states" , ".jpg", sep = ""))
+    jpeg(file = paste(fig_path, fig_name, ".states" , theta[1], ".jpg", sep = ""))
     
   }
   
@@ -351,6 +358,16 @@ DT_mcmc_troph <- function(starts_data, ant_file, title, a, b, c, d, theta,
       xlim = c(0, maxtime))
   } else {
     # Low Density - 4 Hours
+    
+    if (chamber == "queen") {
+      start <- start_1
+      int.num <- length(start)
+      
+    } else {
+      start <- start_4
+      int.num <- length(start)
+      
+    }
     
     plot(start, 1:int.num, main = "Low", xlab = "delta_t", ylab = "Cumulative 
       Interaction Count", 

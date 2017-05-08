@@ -62,14 +62,14 @@ col1.low4.30 = prep_troph_data(col1.low4, 30)
 
 
 col2.high4.5 = prep_troph_data(col2.high4, 5)
-col2.low4.5 = prep_troph_data(col2.low4, 5)
+col2_low4_5 = prep_troph_data(col2_low4, hours = 4, delta_t =  5)
 
 col2.high4.30 = prep_troph_data(col2.high4, 30)
 col2.low4.30 = prep_troph_data(col2.low4, 30)
 
 
 col3.high4.5 = prep_troph_data(col3.high4, 5)
-col3.low4.5 = prep_troph_data(col3.low4, 5)
+col3_low4_5 = prep_troph_data(col3_low4, hours = 4, 5)
 
 col3.high4.30 = prep_troph_data(col3.high4, 30)
 col3.low4.30 = prep_troph_data(col3.low4, 30)
@@ -99,7 +99,7 @@ registerDoMC(cores=5)
 
 #Ant Data - Simple Model 
 
-theta <- matrix(data = c(5000, 1, 1, 5000), nrow = 2, ncol = 2, byrow = T) 
+# theta <- matrix(data = c(5000, 1, 1, 5000), nrow = 2, ncol = 2, byrow = T) 
 
 
 P <- matrix(c(.997, .003, .003, .997), nrow = 2, byrow = T)
@@ -137,6 +137,37 @@ simple_col1lo4ebin1 <- DT_mcmc_troph(starts_data = col1_low4_5$entrance_start_pe
                                     n_mcmc = n_mcmc, delta_t = 1, hours = hours,
                                     param_start = param_start, fig_save = TRUE, 
                                     fig_path = path, fig_name = "simp_col1lo4ebin1") 
+
+
+simple_col2lo4qbin1 <- foreach (i = seq(15000, 25000, by =  1000) ,
+                                .errorhandling="remove") %dopar% 
+                                    DT_mcmc_troph(starts_data = col2_low4_5$queen_starts_persec, 
+                                                 ant_file = col2_low4_5$data, chamber = "queen", 
+                                                 title = "Test", 
+                                                 a = .005, b = .001, c = .005, d = .001, 
+                                                 theta = matrix(c(i, 1, 1, i), 2, 2), states = states, 
+                                                 n_mcmc = n_mcmc, delta_t = 1, hours = hours,
+                                                 param_start = param_start, fig_save = TRUE, 
+                                                 fig_path = path, fig_name = "simp_col2lo4qbin1") 
+
+sumtable_model(results = simple_col2lo4qbin1, compare = seq(5000, 15000, by =  1000), 
+               file_path = "./Comprehensive-Exam-Prep/output_tables/", 
+               file_name = "sim_col2lo4qbin1", model = "simple")
+
+
+simple_col3lo4ebin1 <- foreach (i = seq(5000, 5000, by =  1000) ,
+                                .errorhandling="remove") %dopar% DT_mcmc_troph(starts_data = col3_low4_5$entrance_start_persec, 
+                                                                               ant_file = col3_low4_5$data, title = "Test", 
+                                                                               a = .005, b = .001, c = .005, d = .001, 
+                                                                               theta = matrix(c(i, 1, 1, i), 2, 2), states = states, 
+                                                                               n_mcmc = n_mcmc, delta_t = 1, hours = hours,
+                                                                               param_start = param_start, fig_save = TRUE, 
+                                                                               fig_path = path, fig_name = "simp_col3lo4ebin1") 
+
+sumtable_model(results = simple_col3lo4ebin1, compare = seq(5000, 5000, by =  1000), 
+               file_path = "./Comprehensive-Exam-Prep/output_tables/", 
+               file_name = "sim_col3lo4ebin1", model = "simple")
+
 
 
 
