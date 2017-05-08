@@ -27,7 +27,7 @@
 col1_high4 <- read.csv("./Data/Colony1_trophallaxis_high_density_4hr.csv")
 col1_low4 <- read.csv("./Data/Colony1_trophallaxis_low_density_4hr.csv")
 
-col2.high4 <- read.csv("./Data/Colony2_trophallaxis_high_density_4hr.csv")
+col2_high4 <- read.csv("./Data/Colony2_trophallaxis_high_density_4hr.csv")
 col2_low4 <- read.csv("./Data/Colony2_trophallaxis_low_density_4hr.csv")
 
 col3.high4 <- read.csv("./Data/Colony3_trophallaxis_high_density_4hr.csv")
@@ -173,8 +173,8 @@ sumtable_model(results = simple_col3lo4ebin1, compare = seq(5000, 5000, by =  10
 
 #Ant Data - Penalized Model 
 penalty <- exp(seq(-25, 1, by =  3)) 
-tau <- matrix( c(.0001, 0, 
-    0, .0001), nrow = 2, ncol = 2)
+tau <- matrix( c(.00001, 0, 
+    0, .00001), nrow = 2, ncol = 2)
 gamma <- c(.005, .005)
 start <- list(X = X, lambda = lambda, gamma = gamma)
 delta_t <- 1
@@ -252,6 +252,39 @@ penalize_col1lo4ebin1 <- foreach (i = exp(seq(-25, -15, by =  .5)) ,
 sumtable_model(results = penalize_col1lo4ebin1, compare = exp(seq(-25, -15, by =  .5)), 
                file_path = "./Comprehensive-Exam-Prep/output_tables/", 
                file_name = "pen_col1lo4ebin1", model = "penalized")
+
+
+penalize_col2lo4qbin1 <- foreach (i = exp(seq(-25, -15, by =  1)) ,
+                                  .errorhandling="remove") %dopar% 
+  DT_pen_mcmc(penalty = i, starts_data = col2_low4_5$queen_starts_persec, 
+              states = states, ant_file = col2_low4_5$data, chamber = "queen",
+              hours = hours, 
+              a = .005, b = .001, c = .005, d = .001,
+              tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
+              delta_t = delta_t, start = start, fig_save = TRUE,
+              fig_path = path, 
+              fig_name = "pen_col2lo4qbin1_")
+
+sumtable_model(results = penalize_col2lo4qbin1, compare = exp(seq(-25, -15, by =  1)), 
+               file_path = "./Comprehensive-Exam-Prep/output_tables/", 
+               file_name = "pen_col2lo4qbin1", model = "penalized")
+
+#check exp(-19) over different tuning 
+penalize_col2lo4qbin1 <- foreach (i = (seq(.000001, .0001, by =  .00001)) ,
+                                  .errorhandling="remove") %dopar% 
+  DT_pen_mcmc(tau = matrix( c(i, 0, 
+                              0, i), nrow = 2, ncol = 2), penalty = exp(-19), starts_data = col2_low4_5$queen_starts_persec, 
+              states = states, ant_file = col2_low4_5$data, chamber = "queen",
+              hours = hours, 
+              a = .005, b = .001, c = .005, d = .001,
+              tau.pen = 0, n_mcmc = n_mcmc, 
+              delta_t = delta_t, start = start, fig_save = TRUE,
+              fig_path = path, 
+              fig_name = "pen_col2lo4qbin1_")
+
+sumtable_model(results = penalize_col2lo4qbin1, compare = seq(.000001, .0001, by =  .00001), 
+               file_path = "./Comprehensive-Exam-Prep/output_tables/", 
+               file_name = "pen_col2lo4qbin1", model = "penalized")
 
 
 

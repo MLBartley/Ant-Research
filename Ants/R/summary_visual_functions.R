@@ -241,11 +241,11 @@ for(i in 1:length(compare)){
 if (model != "simple") {
   
   for(i in 1:length(compare)){
-    sw_rate_low_est[i] = results[[i]]$gamma.est[[1]]$est
+    sw_rate_low_est[i] = results[[i]]$sw_rates_est[[1]]$est
   }
   
   for(i in 1:length(compare)){
-    sw_rate_high_est[i] = results[[i]]$gamma.est[[2]]$est
+    sw_rate_high_est[i] = results[[i]]$sw_rates_est[[2]]$est
   }
 }
 
