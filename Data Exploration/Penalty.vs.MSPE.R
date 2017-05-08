@@ -21,8 +21,13 @@ one.data = one.data[-which(one.data$c.0..penalty. == 0), ]
 
 one.data$penalty <- log(one.data$c.0..penalty.)
 
-plot(one.data$penalty, one.data$MSPE.est, col=ifelse(one.data$accept<=1000,"red","black"), ylim = c(.05, .075))
-lines(predict(lm(one.data$MSPE.est~one.data$penalty+I(one.data$penalty^2))))
+plot(one.data$penalty, one.data$MSPE.est, 
+  col = ifelse(one.data$accept<=1000,"red","black"), 
+  ylab = "MSPE",
+  xlab = "Penalty (exp{value})",
+  ylim = c(.055, .06))
+abline(v = -13, col = "blue")
+# lines(predict(lm(one.data$MSPE.est~one.data$penalty+I(one.data$penalty^2))))
 
 
 setwd("~/Google Drive/PSU/Projects/Ant-Research/")

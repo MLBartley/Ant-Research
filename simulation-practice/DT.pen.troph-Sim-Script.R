@@ -23,9 +23,10 @@ gamma = c(0.005, 0.005)
 
 pdf(file = paste("./output/", Sys.time(), ".pdf", sep = ""))
 
-sim = sim.DT.troph(tmax = 4 * 60 * 60, delta.t = 5, gamma = gamma, 
-                   start.state = 1, P = P30, lambda = lambda,
-                   num.locations = 1)
+sim = sim_DT_troph(time_max = 4 * 60 * 60, delta_t = 5, 
+                   switch_rate = gamma, 
+                   start_state = 1, state_tpm = P30, int_rate = lambda,
+                   num_locations = 1)
 
 dev.off()
 
