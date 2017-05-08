@@ -270,7 +270,7 @@ sumtable_model(results = penalize_col2lo4qbin1, compare = exp(seq(-25, -15, by =
                file_name = "pen_col2lo4qbin1", model = "penalized")
 
 #check exp(-19) over different tuning 
-penalize_col2lo4qbin1 <- foreach (i = (seq(.000001, .0001, by =  .00001)) ,
+penalize_col2lo4qbin1 <- foreach (i = (seq(.00000000001, .0000001, by =  .00000001)) ,
                                   .errorhandling="remove") %dopar% 
   DT_pen_mcmc(tau = matrix( c(i, 0, 
                               0, i), nrow = 2, ncol = 2), penalty = exp(-19), starts_data = col2_low4_5$queen_starts_persec, 
@@ -280,9 +280,9 @@ penalize_col2lo4qbin1 <- foreach (i = (seq(.000001, .0001, by =  .00001)) ,
               tau.pen = 0, n_mcmc = n_mcmc, 
               delta_t = delta_t, start = start, fig_save = TRUE,
               fig_path = path, 
-              fig_name = "pen_col2lo4qbin1_")
+              fig_name = paste("pen_col2lo4qbin1_", i))
 
-sumtable_model(results = penalize_col2lo4qbin1, compare = seq(.000001, .0001, by =  .00001), 
+sumtable_model(results = penalize_col2lo4qbin1, compare = seq(.00000000001, .0000001, by =  .00000001), 
                file_path = "./Comprehensive-Exam-Prep/output_tables/", 
                file_name = "pen_col2lo4qbin1", model = "penalized")
 
