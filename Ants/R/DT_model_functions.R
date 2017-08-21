@@ -45,7 +45,7 @@
 
 DT_mcmc_troph <- function(starts_data, ant_file, chamber, title, a, b, c, d, theta, 
                           states = 2, n_mcmc, delta_t, hours, param_start,
-                          fig_save = TRUE, fig_path, fig_name) {
+                          fig_save = TRUE, fig_path, fig_name, plot_title) {
   
   data <- starts_data
   Time <- length(data)
@@ -342,7 +342,7 @@ DT_mcmc_troph <- function(starts_data, ant_file, chamber, title, a, b, c, d, the
   if (length(unique(location)) == 1) {
     
     ## High Density - 4 Hours
-    plot(start, 1:int.num, main = "High", xlab = "delta_t", ylab = "Cumulative     
+    plot(start, 1:int.num, main = plot_title, xlab = "Seconds", ylab = "Cumulative     
       Interaction Count", 
       xlim = c(0, maxtime))
     states <- states_est  #from code above
@@ -351,13 +351,13 @@ DT_mcmc_troph <- function(starts_data, ant_file, chamber, title, a, b, c, d, the
     embedded.chain <- rr$values
     cs <- c(0, cumsum(rr$lengths)) * delta_t - delta_t
     cols <- c("#bc535644", "#538bbc44")
+    
     for (j in 1:length(embedded.chain)) {
       rect(cs[j], 0, cs[j + 1], int.num, col = cols[embedded.chain[j]], 
-        density = NA, border = NA)
-      
+        density = NA)
     }
     
-    points(start, 1:int.num, main = "Low", xlab = "delta_t", ylab = "Cumulative 
+    points(start, 1:int.num, main = plot_title, xlab = "Seconds", ylab = "Cumulative 
       Interaction Count", 
       xlim = c(0, maxtime))
   } else {
@@ -373,7 +373,7 @@ DT_mcmc_troph <- function(starts_data, ant_file, chamber, title, a, b, c, d, the
     #   
     # }
     
-    plot(start, 1:int.num, main = "Low", xlab = "delta_t", ylab = "Cumulative 
+    plot(start, 1:int.num, main = plot_title, xlab = "Seconds", ylab = "Cumulative 
       Interaction Count", 
       xlim = c(0, maxtime))
     states <- states_est
@@ -386,7 +386,7 @@ DT_mcmc_troph <- function(starts_data, ant_file, chamber, title, a, b, c, d, the
       rect(cs[j], 0, cs[j + 1], int.num, col = cols[embedded.chain[j]], 
         density = NA)
     }
-    points(start, 1:int.num, main = "Low", xlab = "delta_t", ylab = "Cumulative 
+    points(start, 1:int.num, main = plot_title, xlab = "Seconds", ylab = "Cumulative 
       Interaction Count", 
       xlim = c(0, maxtime))
     

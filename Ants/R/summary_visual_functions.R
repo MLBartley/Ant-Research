@@ -144,20 +144,20 @@ sumvis_troph <- function(data, entrance = FALSE, hours, density = "high"){
           points(cov$time, rep(0, nrow(cov)), pch = 8, col = "#53bc84")
    }
     
-    
-    par(mfrow = c(1, 2), oma = c(0, 0, 2, 0))
-    plot(low.1$start_time, 1:nrow(low.1), main = "Location 1",
+    par(mfrow = c(1, 1))
+    # par(mfrow = c(1, 2), oma = c(0, 0, 2, 0))
+    plot(low.1$start_time, 1:nrow(low.1), main = "Queen's Chamber",
       xlim = c(0, max(data.change$end_time)),
-      xlab = "Start Time", 
+      xlab = "Interaction Time (s)", 
       ylab = "Number of Interactions",
       col = "#120d08")
     if (entrance != F) {
           points(cov$time, rep(0, nrow(cov)), pch = 8, col = "#53bc84")
     }
     
-    plot(low.4$start_time, 1:nrow(low.4), main = "Location 4",
+    plot(low.4$start_time, 1:nrow(low.4), main = "Entrance Chamber",
       xlim = c(0, max(data.change$end_time)),
-      xlab = "Start Time", 
+      xlab = "Interaction Time (s)", 
       ylab = "Number of Interactions",
       col = "#538bbc", 
       pch = 2)
