@@ -141,9 +141,11 @@ prep_troph_data <- function(data, hours, delta_t) {
 
 prep_inout_data = function(data, delta_t, hours) {
   
+  data = data[which(data$Action == "Exit"), ]
   forager_arrivals = sort(data$time)
   forager_arrivals = forager_arrivals[which(duplicated(forager_arrivals) == 
       FALSE)]
+  
   forager_arrivals = c(forager_arrivals, 999999)
   
   ## Time since Arrivals

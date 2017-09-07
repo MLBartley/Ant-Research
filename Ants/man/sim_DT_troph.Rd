@@ -26,7 +26,7 @@ trophallaxis states (denoted by P in write-up).}
 \item{int_rate}{Rate of starting interactions. Denoted by lambda in 
 model write-up).}
 
-\item{num.location}{Number of chambers/locations in which ants are 
+\item{num_locations}{Number of chambers/locations in which ants are 
 found trophallaxis.}
 }
 \value{

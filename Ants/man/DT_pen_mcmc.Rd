@@ -4,8 +4,8 @@
 \alias{DT_pen_mcmc}
 \title{Penalized Discrete Time MCMC Estimation for Trophallaxis data}
 \usage{
-DT_pen_mcmc(penalty, starts_data, states, ant_file, hours, a, b, c, d, tau,
-  tau.pen, n_mcmc, delta_t, start, fig_save, fig_path, fig_name)
+DT_pen_mcmc(penalty, starts_data, states, ant_file, chamber, hours, a, b, c, d,
+  tau, tau.pen, n_mcmc, delta_t, start, fig_save, fig_path, fig_name)
 }
 \arguments{
 \item{penalty}{Penalty parameter for the switching rates 

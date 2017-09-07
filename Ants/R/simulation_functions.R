@@ -21,7 +21,7 @@
 #'   trophallaxis states (denoted by P in write-up). 
 #' @param int_rate Rate of starting interactions. Denoted by lambda in 
 #'   model write-up).
-#' @param num.location Number of chambers/locations in which ants are 
+#' @param num_locations Number of chambers/locations in which ants are 
 #'   found trophallaxis.
 #'   
 #' @return This function will return the following:
@@ -86,7 +86,7 @@ sim_DT_troph <- function(time_max, delta_t, start_state = 1,
         
         ## sample observed events (number of interactions started at time t)
         
-        interactions[t] <- rpois(1, int_rate = int_rate[state[t]] * 1)
+        interactions[t] <- rpois(1, lambda = int_rate[state[t]] * 1)
         # want to simulate data every second, but then bin by delta_t
         # aftwards
         
@@ -104,7 +104,7 @@ sim_DT_troph <- function(time_max, delta_t, start_state = 1,
     
     for (i in 1:length(bin_inters)) {
         
-        bin_inters[i] <- sum(y[tintv:(tintv + delta_t - 1)])
+        bin_inters[i] <- sum(interactions[tintv:(tintv + delta_t - 1)])
         tintv <- tintv + delta_t
     }
     
@@ -116,13 +116,13 @@ sim_DT_troph <- function(time_max, delta_t, start_state = 1,
     
   
     for (i in 1:length(bin_state)) {
-        bin_state[i] <- round(mean(x[tintv:(tintv + delta_t - 1)]))
+        bin_state[i] <- round(mean(state[tintv:(tintv + delta_t - 1)]))
         tintv <- tintv + delta_t
     }
     
     
     
-    start.time <- t[which(interactions >= 1)]
+    start_time <- t[which(interactions >= 1)]
     
     #Visualize simulated ant interaction data - POSSIBLY PULL INTO VISUAL FUNCTION LATER
     
@@ -130,30 +130,30 @@ sim_DT_troph <- function(time_max, delta_t, start_state = 1,
     
     plot(1:(length(cumsum(interactions))), cumsum(interactions), 
         type = "p", pch = ".", 
-        cex = 2, col = x, xlab = "Time", 
+        cex = 2, col = state, xlab = "Seconds", 
         ylab = "Cumulative Interactions", 
-        main = "Full Timeline")
+        main = "Simulated Data")
     
     plot(1:time_max, interactions, type = "l", cex = 2, col = state,
-        xlab = "Time", ylab = "Number of Interactions", 
-        main = "Full Timeline")
+        xlab = "Seconds", ylab = "Number of Interactions", 
+        main = "Simulated Data")
     
     #simulate location (1 = queen's chamber, 4 = entrance)
     
-    if (num.locations == 1) {
-        location <- rep(1, length(start.time))
+    if (num_locations == 1) {
+        location <- rep(1, length(start_time))
     } else {
-        location <- sample(c(1, 4), size = length(start.time), replace = T, 
+        location <- sample(c(1, 4), size = length(start_time), replace = T, 
             prob <- c(0.5, 0.5))
     }
     
     
     
-    list(inter_persec <- interactions, state <- state, 
-        cumu_inter <- cumsum(y),  
-        bin_inter <- bin_inters, 
-        bin_state <- bin_state, 
-        bin_sec <- (0:(T - 1)) * delta_t, 
-        start_time <- start_time, location <- location)
+    list(inter_persec = interactions, state = state, 
+        cumu_inter = cumsum(interactions),  
+        bin_inter = bin_inters, 
+        bin_state = bin_state, 
+        bin_sec = (0:(T - 1)) * delta_t, 
+        start_time = start_time, Location = location)
     
 }
