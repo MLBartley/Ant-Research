@@ -4,7 +4,10 @@
 #### February 2017
 ####
 
-
+library(openxlsx)
+library(dplyr)
+library(magrittr)
+library(mvtnorm)
 # *Wishful thinking; who am I kidding? 
 
 
@@ -90,7 +93,7 @@ col1_lo4_inout_5 <- prep_inout_data(data = inout_low4, delta_t = 5, hours = 4)
 
 path <- "./Comprehensive-Exam-Prep/output_images/"
 states <- 2
-n_mcmc <- 5000
+n_mcmc <- 10000
 hours <- 4
 X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
 lambda <- c(.01, .08)
@@ -139,7 +142,7 @@ simple_col1lo4ebin1 <- DT_mcmc_troph(starts_data = col1_low4_5$entrance_start_pe
                                     fig_path = path, fig_name = "simp_col1lo4ebin1") 
 
 
-simple_col2lo4qbin1 <- foreach (i = seq(15000, 25000, by =  1000) ,
+simple_col2lo4qbin1 <- foreach (i = seq(25000, 25000, by =  1000) ,
                                 .errorhandling="remove") %dopar% 
                                     DT_mcmc_troph(starts_data = col2_low4_5$queen_starts_persec, 
                                                  ant_file = col2_low4_5$data, chamber = "queen", 
@@ -150,7 +153,7 @@ simple_col2lo4qbin1 <- foreach (i = seq(15000, 25000, by =  1000) ,
                                                  param_start = param_start, fig_save = TRUE, 
                                                  fig_path = path, fig_name = "simp_col2lo4qbin1") 
 
-sumtable_model(results = simple_col2lo4qbin1, compare = seq(5000, 15000, by =  1000), 
+sumtable_model(results = simple_col2lo4qbin1, compare = seq(25000, 25000, by =  1000), 
                file_path = "./Comprehensive-Exam-Prep/output_tables/", 
                file_name = "sim_col2lo4qbin1", model = "simple")
 
@@ -173,8 +176,8 @@ sumtable_model(results = simple_col3lo4ebin1, compare = seq(5000, 5000, by =  10
 
 #Ant Data - Penalized Model 
 penalty <- exp(seq(-25, 1, by =  3)) 
-tau <- matrix( c(.00001, 0, 
-    0, .00001), nrow = 2, ncol = 2)
+tau <- matrix( c(.00000001, 0, 
+                 0, .00000001), nrow = 2, ncol = 2)
 gamma <- c(.005, .005)
 start <- list(X = X, lambda = lambda, gamma = gamma)
 delta_t <- 1
@@ -252,7 +255,7 @@ sumtable_model(results = penalize_col1lo4qbin1, compare = penalty,
 
 penalize_col1lo4ebin1 <- foreach (i = exp(seq(-25, -15, by =  .5)) ,
                                  .errorhandling="remove") %dopar% 
-                                DT_pen_mcmc(penalty = i, starts_data = col1_low4_5$entrance_start_persec, 
+                                DT_pen_mcmc(penalty = i, starts_data = col1_low4_5$entrance_start_persec, )
 
 
 
@@ -281,7 +284,7 @@ sumtable_model(results = penalize_col1lo4ebin1, compare = exp(seq(-25, -15, by =
                file_name = "pen_col1lo4ebin1", model = "penalized")
 
 
-penalize_col2lo4qbin1 <- foreach (i = exp(seq(-25, -15, by =  1)) ,
+penalize_col2lo4qbin1 <- foreach (i = exp(seq(-30, 10, by =  1)) ,
                                   .errorhandling="remove") %dopar% 
   DT_pen_mcmc(penalty = i, starts_data = col2_low4_5$queen_starts_persec, 
               states = states, ant_file = col2_low4_5$data, chamber = "queen",
@@ -292,7 +295,7 @@ penalize_col2lo4qbin1 <- foreach (i = exp(seq(-25, -15, by =  1)) ,
               fig_path = path, 
               fig_name = "pen_col2lo4qbin1_")
 
-sumtable_model(results = penalize_col2lo4qbin1, compare = exp(seq(-25, -15, by =  1)), 
+sumtable_model(results = penalize_col2lo4qbin1, compare = exp(seq(-30, 10, by =  1)), 
                file_path = "./Comprehensive-Exam-Prep/output_tables/", 
                file_name = "pen_col2lo4qbin1", model = "penalized")
 

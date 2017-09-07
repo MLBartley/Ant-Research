@@ -342,7 +342,7 @@ DT_mcmc_troph <- function(starts_data, ant_file, chamber, title, a, b, c, d, the
   if (length(unique(location)) == 1) {
     
     ## High Density - 4 Hours
-    plot(start, 1:int.num, main = "High", xlab = "delta_t", ylab = "Cumulative     
+    plot(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative     
       Interaction Count", 
       xlim = c(0, maxtime))
     states <- states_est  #from code above
@@ -357,7 +357,7 @@ DT_mcmc_troph <- function(starts_data, ant_file, chamber, title, a, b, c, d, the
       
     }
     
-    points(start, 1:int.num, main = "Low", xlab = "delta_t", ylab = "Cumulative 
+    points(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative 
       Interaction Count", 
       xlim = c(0, maxtime))
   } else {
@@ -373,7 +373,7 @@ DT_mcmc_troph <- function(starts_data, ant_file, chamber, title, a, b, c, d, the
     #   
     # }
     
-    plot(start, 1:int.num, main = "Low", xlab = "delta_t", ylab = "Cumulative 
+    plot(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative 
       Interaction Count", 
       xlim = c(0, maxtime))
     states <- states_est
@@ -386,7 +386,7 @@ DT_mcmc_troph <- function(starts_data, ant_file, chamber, title, a, b, c, d, the
       rect(cs[j], 0, cs[j + 1], int.num, col = cols[embedded.chain[j]], 
         density = NA)
     }
-    points(start, 1:int.num, main = "Low", xlab = "delta_t", ylab = "Cumulative 
+    points(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative 
       Interaction Count", 
       xlim = c(0, maxtime))
     
@@ -592,9 +592,9 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
     # MH updates - want to propose/accept/reject gammaLH and gammaHL
     
     # adaptive tuning parameter 
-    if (l < n_mcmc/2 & l %% 100 == 0) { 
-      sigma <- c(sigma,  (2.38^2 / 2) * var(log(t(switch_rate_param[, 1:(l - 1)]))))
-      tau <- matrix(tail(sigma, n=4), 2, 2) }
+    # if (l < n_mcmc/2 & l %% 100 == 0) { 
+    #   sigma <- c(sigma,  (2.38^2 / 2) * var(log(t(switch_rate_param[, 1:(l - 1)]))))
+    #   tau <- matrix(tail(sigma, n=4), 2, 2) }
     
     #propose switch rates for LH and HL (gamma_LH, gamma_HL)
     proposal <- rmvnorm(n = 1, mean = log(switch_rate_param[, l - 1]), sigma = tau)
