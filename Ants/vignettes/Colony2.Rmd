@@ -1,0 +1,128 @@
+---
+title: "Ant Trophallaxis Modeling - Colony 2"
+author: Meridith L. Bartley
+output: html_notebook
+---
+
+The purpose of this notebook is to document the analysis and visualisation of Colony 2. 
+
+```{r}
+library(magrittr)
+library(ggplot2)
+library(dplyr)
+```
+
+
+
+```{r call in data, include=FALSE}
+
+#data directory
+dat.dir <- "../data-raw/"
+
+#output directory
+out.dir <- "../output/"
+
+
+#column names - helps when only pulling in those columns, no extra
+
+col_names <- c("Location", "Ant_ID", "Ant_ID_partner", "start_time", "end_time")
+
+
+col2_high4 <- read.csv("../data-raw/Colony2_trophallaxis_high_density_4hr.csv")
+col2_low4 <- read.csv("../data-raw/Colony2_trophallaxis_low_density_4hr.csv")
+
+#removes any extra columns, rows, and adds column names - depends on col_names being correct length
+col2_high4 <- col2_high4[, 1:length(col_names)]
+col2_high4 <- col2_high4 %>% 
+            tidyr::drop_na()
+colnames(col2_high4) <- col_names
+
+col2_low4 <- col2_low4[, 1:length(col_names)]
+col2_low4 <- col2_low4 %>% 
+            tidyr::drop_na()
+colnames(col2_low4) <- col_names
+
+#check for correct class for data (numberic, etc)
+
+
+```
+
+#Exploratory Data Analysis
+
+An important basis for this model is the 'pulses' of interactions seen over time. We want to explore each chamber where interactions take place. 
+
+
+```{r data visualization, include=FALSE}
+
+
+sumvis_high <- sumvis_troph(data = col2_high4, entrance = F, hours = 4, density = "high")
+
+
+sumvis_low <- sumvis_troph(data = col2_low4, entrance = F, hours = 4, density = "low")
+
+
+```
+
+We can see from these graphs for the high density colony data that on average for a four hour span of time ants engage in `r round(mean(sumvis_high$all.ID), 1)` interactions per ant for `r sumvis_high$allants` ants. In total, `r sum(sumvis_high$all.ID)/2 ` interactions occured within the single chamber. 
+
+For the low density colony data, there was an average of `r round(mean(sumvis_low$all.ID), 1)` interactions per ant overall for all four chambers. In total, `r sum(sumvis_low$all.ID)/2 ` interactions occured within all chambers between `r sumvis_high$allants`.  
+
+
+
+
+```{r prep interaction data, include=FALSE}
+
+col2_high4_5 <- prep_troph_data(col2_high4, hours = 4, delta_t = 5)
+col2_low4_5 <- prep_troph_data(col2_low4, hours = 4, delta_t =  5)
+```
+
+
+# Simple Model 
+
+In order to showcase the improvements our Penalized Hidden Markov Model for colony level trophallaxis rates makes over other models, we first would like to run a simpler/less penelized version of our model on the ant data. This should serve to nicely exemplify the problem of overfitting our stochastic process. 
+
+```{r all models}
+# Variables needed for all 
+
+path <- "./Comprehensive-Exam-Prep/output_images/"
+states <- 2
+n_mcmc <- 10000
+hours <- 4
+X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
+lambda <- c(.01, .08)
+registerDoMC(cores = 5) 
+```
+
+We will run all models as 2-state HMM models, as determined by previous work. 
+
+```{r simple model }
+#parameters specific to simple model - no penalization
+theta <- matrix(data = c(5000, 1, 1, 5000), nrow = 2, ncol = 2, byrow = T) 
+P <- matrix(c(.997, .003, .003, .997), nrow = 2, byrow = T)
+param_start <- list(X = X, lambda = lambda, P = P)
+
+#high density - one chamber
+
+
+#low density - both chambers
+
+#low density - queen's chamber -- USED FOR PAPER
+
+simple_col2lo4qbin1 <- foreach (i = seq(5000, 25000, by =  1000) ,
+                                .errorhandling="remove") %dopar% 
+                                    DT_mcmc_troph(starts_data = col2_low4_5$queen_starts_persec, 
+                                                 ant_file = col2_low4_5$data, chamber = "queen", 
+                                                 title = "Test", 
+                                                 a = .005, b = .001, c = .005, d = .001, 
+                                                 theta = matrix(c(i, 1, 1, i), 2, 2), states = states, 
+                                                 n_mcmc = n_mcmc, delta_t = 1, hours = hours,
+                                                 param_start = param_start, fig_save = TRUE, 
+                                                 fig_path = path, fig_name = "simp_col2lo4qbin1") 
+
+#low density - entrance chamber
+
+
+```
+
+
+

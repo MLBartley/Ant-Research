@@ -1,4 +1,4 @@
-#' Discrete Time MCMC Estimation for Trophallaxis data
+ #' Discrete Time MCMC Estimation for Trophallaxis data
 #' 
 #' The purpose of this function is to find MCMC generated 
 #' estimates of (1) - the state (X_t = high/low troph rates) of 
