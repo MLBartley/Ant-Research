@@ -35,18 +35,18 @@
 
 sumvis_troph <- function(data, entrance = FALSE, hours, density = "high"){
   
-
+  
   if (entrance != F) {
     
     #Number of unique ants entering (foragers)
-  num.inout = unique(entrance$Ant_ID)
-  total.inout = length(num.inout) #to be returned at end
-  
-  for.ids = table(entrance$Ant_ID) #to be returned at end
-  
-     # only entrance times
-  cov = entrance[which(entrance$Action == "enter" | entrance$Action == "Enter"), ]
-  
+    num.inout = unique(entrance$Ant_ID)
+    total.inout = length(num.inout) #to be returned at end
+    
+    for.ids = table(entrance$Ant_ID) #to be returned at end
+    
+    # only entrance times
+    cov = entrance[which(entrance$Action == "enter" | entrance$Action == "Enter"), ]
+    
   }
   
   
@@ -60,18 +60,18 @@ sumvis_troph <- function(data, entrance = FALSE, hours, density = "high"){
   #histogram of interactions per ant
   par(mfrow = c(1, 1))
   hist.combined <<- qplot(as.numeric(table(data$Ant_ID)), 
-             geom = "histogram",
-             main = "Interactions per Ant", 
-             bins = 20,
-             xlab = "Number of Interactions",
-             xlim = c(0, max(50, max(table(data$Ant_ID))))) +
+                          geom = "histogram",
+                          main = "Interactions per Ant", 
+                          bins = 20,
+                          xlab = "Number of Interactions",
+                          xlim = c(0, max(50, max(table(data$Ant_ID))))) +
     geom_vline(xintercept = mean(as.numeric(table(data$Ant_ID))),
-      color = "#bc5356", size = 3)
+               color = "#bc5356", size = 3)
   
   
-print(hist.combined)
+  print(hist.combined)
   
-# hist(table(data$Ant_ID), xlab = "Count",
+  # hist(table(data$Ant_ID), xlab = "Count",
   #   main = "Interactions per Ant", 
   #   breaks = 20, 
   #   xlim = c(0, max(50, max(table(data$Ant_ID)))) )
@@ -93,33 +93,33 @@ print(hist.combined)
     inter.num4 = table(data$Ant_ID[which(data$Location == 4)])
     inter.num4
     
-     xlim = max(inter.num1, inter.num4) #useful so both histograms are on same xlim scale
+    xlim = max(inter.num1, inter.num4) #useful so both histograms are on same xlim scale
     
- hist.lowqueen <<- qplot(as.numeric(table(data$Ant_ID[which(data$Location == 1)])),
-              xlab = "Number of Interactions",
-      # main = "",
-      main = "Interactions per Ant - Queen's Chamber",
-      bins = 20, 
-     # fill = I("#120d08"),
-      xlim = c(0, xlim)) +
-   geom_vline(xintercept = mean(as.numeric(table(data$Ant_ID[which(data$Location == 1)]))),
-     color = "#bc5356", size = 3)
+    hist.lowqueen <<- qplot(as.numeric(table(data$Ant_ID[which(data$Location == 1)])),
+                            xlab = "Number of Interactions",
+                            # main = "",
+                            main = "Interactions per Ant - Queen's Chamber",
+                            bins = 20, 
+                            # fill = I("#120d08"),
+                            xlim = c(0, xlim)) +
+      geom_vline(xintercept = mean(as.numeric(table(data$Ant_ID[which(data$Location == 1)]))),
+                 color = "#bc5356", size = 3)
     
- hist.lowenter <<- qplot(as.numeric(table(data$Ant_ID[which(data$Location == 4)])),
-   xlab = "Number of Interactions",
-      main = "Interactions per Ant - Entrance Chamber",
-      # main = "",
-      bins = 15, 
-      # fill = "#538bbc", 
-      xlim = c(0, xlim)) +
-   geom_vline(xintercept = mean(as.numeric(table(data$Ant_ID[which(data$Location == 4)]))),
-     color = "#bc5356", size = 3)
+    hist.lowenter <<- qplot(as.numeric(table(data$Ant_ID[which(data$Location == 4)])),
+                            xlab = "Number of Interactions",
+                            main = "Interactions per Ant - Entrance Chamber",
+                            # main = "",
+                            bins = 15, 
+                            # fill = "#538bbc", 
+                            xlim = c(0, xlim)) +
+      geom_vline(xintercept = mean(as.numeric(table(data$Ant_ID[which(data$Location == 4)]))),
+                 color = "#bc5356", size = 3)
     
     # mtext("Interaction per Ant, by Location", outer = TRUE, cex=1.5)
- 
- print(hist.lowenter)
- print(hist.lowqueen)
-    }
+    
+    print(hist.lowenter)
+    print(hist.lowqueen)
+  }
   
   # #########################################################
   # ##
@@ -128,7 +128,7 @@ print(hist.combined)
   # ##
   # #########################################################
   # 
-   data.change = data[seq(1, nrow(data), by = 2), ]
+  data.change = data[seq(1, nrow(data), by = 2), ]
   # 
   # #########################################################
   # ##
@@ -137,18 +137,18 @@ print(hist.combined)
   # #########################################################
   # 
   # #order data frame by start time so plot works better
-   data.change = data.change[order(data.change$start_time), ]
+  data.change = data.change[order(data.change$start_time), ]
   # 
   par(mfrow = c(1, 1))
   
   if(density == "high"){
     
- cumul.h <<- ggplot(data = data.change, 
-           aes(data.change$start_time, 1:nrow(data.change))) +
-           ggtitle("Single Chamber Trophallaxis") +
-           xlab("Start Time (seconds)") +
-           ylab("Cumulative Number of Interactions") +
-           geom_point(shape = 2, color = "#120d08", fill = "white")
+    cumul.h <<- ggplot(data = data.change, 
+                       aes(data.change$start_time, 1:nrow(data.change))) +
+      ggtitle("Single Chamber Trophallaxis") +
+      xlab("Start Time (seconds)") +
+      ylab("Cumulative Number of Interactions") +
+      geom_point(shape = 2, color = "#120d08", fill = "white")
     
     # plot(data.change$start_time,
     #   1:nrow(data.change),
@@ -157,11 +157,11 @@ print(hist.combined)
     #   ylab = "Number of Interactions", 
     #   col = "#120d08")
     if (entrance != F) {
-cumul.h <<- cumul.h + 
-  geom_point(cov$time, rep(0, nrow(cov)), shape = 8, col =	"#53bc84")
+      cumul.h <<- cumul.h + 
+        geom_point(cov$time, rep(0, nrow(cov)), shape = 8, col =	"#53bc84")
     }
- 
- print(cumul.h)
+    
+    print(cumul.h)
   }
   else{
     
@@ -169,34 +169,34 @@ cumul.h <<- cumul.h +
     # 
     low.1 = data.change[which(data.change$Location == 1), ]
     # 
-     low.4 = data.change[which(data.change$Location == 4), ]
-     low.4 = low.4[order(low.4$start_time), ]
+    low.4 = data.change[which(data.change$Location == 4), ]
+    low.4 = low.4[order(low.4$start_time), ]
     # 
     
-     cumul.l <<- ggplot(data = data.change, 
-       aes(data.change$start_time, 1:nrow(data.change))) +
-       ggtitle("Combined Chambers Trophallaxis") +
-       xlab("Start Time (seconds)") +
-       ylab("Cumulative Number of Interactions") +
-       geom_point(shape = 2, aes(color = factor(Location)), fill = "white") +
-       labs(color = "Location")
-     
-     
-     cumul.lowqueen <<- ggplot(data = low.1, 
-                          aes(low.1$start_time, 1:nrow(low.1))) +
-                          ggtitle("Queen's Chamber Trophallaxis") +
-                          xlab("Start Time (seconds)") +
-                          ylab("Cumulative Number of Interactions") +
-                          geom_point(shape = 2, color = "#120d08", fill = "white")
-
-     cumul.lowenter <<- ggplot(data = low.4, 
-       aes(low.4$start_time, 1:nrow(low.4))) +
-       ggtitle("Entrance Chamber Trophallaxis") +
-       xlab("Start Time (seconds)") +
-       ylab("Cumulative Number of Interactions") +
-       geom_point(shape = 2, color = "#538bbc", fill = "white")
-     
-         # plot(data.change$start_time, 1:nrow(data.change), main = "Low Density Trophallaxis",
+    cumul.l <<- ggplot(data = data.change, 
+                       aes(data.change$start_time, 1:nrow(data.change))) +
+      ggtitle("Combined Chambers Trophallaxis") +
+      xlab("Start Time (seconds)") +
+      ylab("Cumulative Number of Interactions") +
+      geom_point(shape = 2, aes(color = factor(Location)), fill = "white") +
+      labs(color = "Location")
+    
+    
+    cumul.lowqueen <<- ggplot(data = low.1, 
+                              aes(low.1$start_time, 1:nrow(low.1))) +
+      ggtitle("Queen's Chamber Trophallaxis") +
+      xlab("Start Time (seconds)") +
+      ylab("Cumulative Number of Interactions") +
+      geom_point(shape = 2, color = "#120d08", fill = "white")
+    
+    cumul.lowenter <<- ggplot(data = low.4, 
+                              aes(low.4$start_time, 1:nrow(low.4))) +
+      ggtitle("Entrance Chamber Trophallaxis") +
+      xlab("Start Time (seconds)") +
+      ylab("Cumulative Number of Interactions") +
+      geom_point(shape = 2, color = "#538bbc", fill = "white")
+    
+    # plot(data.change$start_time, 1:nrow(data.change), main = "Low Density Trophallaxis",
     #   xlab = "Start Time", 
     #   ylab = "Number of Interactions", 
     #   col = c("#120d08", "#538bbc"), 
@@ -205,13 +205,13 @@ cumul.h <<- cumul.h +
     #   pch = c(1,2), 
     #   col = c("#120d08", "#538bbc"),
     #   text.width = 1200)
-   if (entrance != F) {
-       cumul.l <<- cumul.l +
-                  geom_point(cov$time, rep(0, nrow(cov)), shape = 8, col = "#53bc84")
-   }
-     print(cumul.l)
-     print(cumul.lowenter)
-     print(cumul.lowqueen)
+    if (entrance != F) {
+      cumul.l <<- cumul.l +
+        geom_point(cov$time, rep(0, nrow(cov)), shape = 8, col = "#53bc84")
+    }
+    print(cumul.l)
+    print(cumul.lowenter)
+    print(cumul.lowqueen)
     # par(mfrow = c(1, 1))
     # # par(mfrow = c(1, 2), oma = c(0, 0, 2, 0))
     # plot(low.1$start_time, 1:nrow(low.1), main = "Queen's Chamber",
@@ -238,7 +238,7 @@ cumul.h <<- cumul.h +
   }
   
   return(list(allants = total.all, all.ID = all.ids))
-
+  
   if (entrance != F) {
     return(forager = total.inout, forager.ID = for.ids)
   }
@@ -249,139 +249,146 @@ cumul.h <<- cumul.h +
 
 
 
-#' #' Title
-#' #'
-#' #' @param results
-#' #' @param compare
-#' #' @param file_path
-#' #' @param file_name
-#' #'
-#' #' @return
-#' #' @export
-#' #'
-#' #' @examples
-#' #'
+#' Post MCMC Summary Table and Visuals
+#'
+#' @param results
+#' @param compare
+#' @param file_path
+#' @param file_name
+#'
+#' @return
+#' @export
 #'
 #'
-#' sumtable_model <- function(results, compare, file_path, file_name, model){
-#'
-#'
-#' #Simple Model:  start rates (high, low), and PTM (P)
-#' #Penalized Model:  start rates (high, low), and switch rate (gamma)
-#' #Penalized/Covariate Model: start rates (high, low), switch rate parameters (alpha, betas)
-#'
-#'   #note that states over time (X_t) are summerized already with figure
-#'
-#'
-#'
-#' #Create Homes for vectors
-#'
-#' st_rate_low_est = rep(0, length(compare))
-#' st_rate_high_est = rep(0, length(compare))
-#'
-#' tpm_11_est = rep(0, length(compare))
-#' tpm_12_est = rep(0, length(compare))
-#' tpm_21_est = rep(0, length(compare))
-#' tpm_22_est = rep(0, length(compare))
-#'
-#' if (model == "penalized") {
-#' sw_rate_low_est =  rep(0, length(compare))
-#' sw_rate_high_est = rep(0, length(compare))
-#' }
-#'
-#' if (model == "covariate"){
-#'
-#' }
-#'
-#'
-#' MSPE_est = rep(0, length(compare))
-#'
-#' accept = rep(0, length(compare))
-#'
-#'
-#'
-#' for(i in 1:length(compare)){
-#'   st_rate_low_est[i] =  results[[i]]$st_rates_est[[1]]$est
-#' }
-#'
-#'
-#' for(i in 1:length(compare)){
-#'   st_rate_high_est[i] = results[[i]]$st_rates_est[[2]]$est
-#' }
-#'
-#'
-#' if (model != "simple") {
-#'
-#'   for(i in 1:length(compare)){
-#'     sw_rate_low_est[i] = results[[i]]$sw_rates_est[[1]]$est
-#'   }
-#'
-#'   for(i in 1:length(compare)){
-#'     sw_rate_high_est[i] = results[[i]]$sw_rates_est[[2]]$est
-#'   }
-# }
-#
-#
-#
-# for(i in 1:length(compare)){
-#   tpm_11_est[i] =  results[[i]]$st_ptm_est[[1]]$est
-# }
-#
-#
-# for(i in 1:length(compare)){
-#   tpm_12_est[i] = results[[i]]$st_ptm_est[[2]]$est
-# }
-#
-#
-# for(i in 1:length(compare)){
-#   tpm_21_est[i] =  results[[i]]$st_ptm_est[[3]]$est
-# }
-#
-#
-# for(i in 1:length(compare)){
-#   tpm_22_est[i] = results[[i]]$st_ptm_est[[4]]$est
-# }
-#
-#
-#
-#
-#
-#
-# if (model != "simple") {
-#   #REMOVE THIS TO OUTSIDE IF STATEMENT ONCE ADD MSPE TO SIMPLE MODEL!!!
-#   for(i in 1:length(compare)){
-#    MSPE_est[i] =  results[[i]]$MSPE
-#   }
-#
-#   for(i in 1:length(compare)){
-#     accept[i] = results[[i]]$accept
-#   }
-# }
-#
-#
-# if (model == "simple"){
-#   table = data.frame(compare, st_rate_low_est, st_rate_high_est,
-#                    tpm_11_est, tpm_12_est, tpm_21_est, tpm_22_est #,
-#                   # MSPE_est
-#                    )
-# }
-# else{
-#  table = data.frame(compare, st_rate_low_est, st_rate_high_est,
-#                   sw_rate_low_est, sw_rate_high_est,
-#                   tpm_11_est, tpm_12_est, tpm_21_est, tpm_22_est,
-#                   MSPE_est, accept)
-# }
-#
-#
-#
-#
-#
-# plot(log(compare), MSPE_est, col=ifelse(accept<=1000,"red","black"),
-#      ylim = c(min(MSPE_est) - 0.01, max(MSPE_est) + 0.01))
-# # lines(predict(lm(one.data$MSPE.est~one.data$penalty+I(one.data$penalty^2))))
-#
-#
-#
-# write.csv(x = table, file = paste(file_path, file_name, ".csv", sep = "") )
-#
-# }
+
+
+sumtable_model <- function(results, compare, file_path, file_name, model){
+  
+  
+  #Simple Model:  start rates (high, low), and PTM (P)
+  #Penalized Model:  start rates (high, low), and switch rate (gamma)
+  #Penalized/Covariate Model: start rates (high, low), switch rate parameters (alpha, betas)
+  
+  #note that states over time (X_t) are summerized already with figure
+  
+  
+  
+  #Create Homes for vectors
+  
+  st_rate_low_est = rep(0, length(compare))
+  st_rate_high_est = rep(0, length(compare))
+  
+  tpm_11_est = rep(0, length(compare))
+  tpm_12_est = rep(0, length(compare))
+  tpm_21_est = rep(0, length(compare))
+  tpm_22_est = rep(0, length(compare))
+  
+  if (model == "penalized") {
+    sw_rate_low_est =  rep(0, length(compare))
+    sw_rate_high_est = rep(0, length(compare))
+  }
+  
+  if (model == "covariate"){
+    
+  }
+  
+  
+  MSPE_est = rep(0, length(compare))
+  
+  accept = rep(0, length(compare))
+  
+  
+  
+  for(i in 1:length(compare)){
+    st_rate_low_est[i] =  results[[i]]$st_rates_est[[1]]$est
+  }
+  
+  
+  for(i in 1:length(compare)){
+    st_rate_high_est[i] = results[[i]]$st_rates_est[[2]]$est
+  }
+  
+  
+  if (model != "simple") {
+    
+    for(i in 1:length(compare)){
+      sw_rate_low_est[i] = results[[i]]$sw_rates_est[[1]]$est
+    }
+    
+    for(i in 1:length(compare)){
+      sw_rate_high_est[i] = results[[i]]$sw_rates_est[[2]]$est
+    }
+  }
+  
+  
+  
+  for(i in 1:length(compare)){
+    tpm_11_est[i] =  results[[i]]$st_ptm_est[[1]]$est
+  }
+  
+  
+  for(i in 1:length(compare)){
+    tpm_12_est[i] = results[[i]]$st_ptm_est[[2]]$est
+  }
+  
+  
+  for(i in 1:length(compare)){
+    tpm_21_est[i] =  results[[i]]$st_ptm_est[[3]]$est
+  }
+  
+  
+  for(i in 1:length(compare)){
+    tpm_22_est[i] = results[[i]]$st_ptm_est[[4]]$est
+  }
+  #
+  #
+  #
+  for(i in 1:length(compare)){
+    MSPE_est[i] =  results[[i]]$MSPE
+  }
+  #
+  #
+  if (model != "simple") {
+    
+    
+    for(i in 1:length(compare)){
+      accept[i] = results[[i]]$accept
+    }
+  }
+  
+  
+  if (model == "simple"){
+    table = data.frame(compare, st_rate_low_est, st_rate_high_est,
+                       tpm_11_est, tpm_12_est, tpm_21_est, tpm_22_est #,
+                       # MSPE_est
+    )
+  }
+  else{
+    table = data.frame(compare, st_rate_low_est, st_rate_high_est,
+                       sw_rate_low_est, sw_rate_high_est,
+                       tpm_11_est, tpm_12_est, tpm_21_est, tpm_22_est,
+                       MSPE_est, accept)
+  }
+  #
+  #
+  #
+  #
+  #
+  # plot(log(compare), MSPE_est, col = ifelse(accept<=1000,"red","black"),
+  #      ylim = c(min(MSPE_est) - 2*sd(MSPE_est), max(MSPE_est) + 2 * sd(MSPE_est)))
+  
+  if (model == "simple"){
+    compare_plot <<- ggplot(data = table, aes((compare), MSPE_est)) +
+      geom_point() +
+      ylim(min(MSPE_est) - 2*sd(MSPE_est), max(MSPE_est) + 2 * sd(MSPE_est))
+  }
+  
+  else{
+    compare_plot <<- ggplot(data = table, aes(log(compare), MSPE_est)) +
+      geom_point(aes( x = accept, colour = accept <= 1000))
+  }
+  
+  
+  write.csv(x = table, file = paste(file_path, file_name, ".csv", sep = "") )
+  #
+}
