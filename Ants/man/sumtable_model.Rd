@@ -2,20 +2,13 @@
 % Please edit documentation in R/summary_visual_functions.R
 \name{sumtable_model}
 \alias{sumtable_model}
-\title{Title}
+\title{Post MCMC Summary Table and Visuals}
 \usage{
 sumtable_model(results, compare, file_path, file_name, model)
 }
 \arguments{
-\item{compare}{}
-
-\item{file_path}{}
-
 \item{file_name}{}
 }
 \description{
-Title
-}
-\examples{
-
+Post MCMC Summary Table and Visuals
 }
