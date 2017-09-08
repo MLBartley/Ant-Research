@@ -50,6 +50,8 @@ parameters.}
 \item{fig_path}{Path needed to send plot figures to folder.}
 
 \item{fig_name}{Base name of plot files to be saved.}
+
+\item{plot_title}{Name of final plot.}
 }
 \value{
 (1) - estimates of X, lambda, P (2) - 2x2 visual of 

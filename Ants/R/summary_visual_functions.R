@@ -249,139 +249,146 @@ cumul.h <<- cumul.h +
 
 
 
-#' #' Title
-#' #'
-#' #' @param results
-#' #' @param compare
-#' #' @param file_path
-#' #' @param file_name
-#' #'
-#' #' @return
-#' #' @export
-#' #'
-#' #' @examples
-#' #'
+#' Post MCMC Summary Table and Visuals
+#'
+#' @param results
+#' @param compare
+#' @param file_path
+#' @param file_name
+#'
+#' @return
+#' @export
 #'
 #'
-#' sumtable_model <- function(results, compare, file_path, file_name, model){
-#'
-#'
-#' #Simple Model:  start rates (high, low), and PTM (P)
-#' #Penalized Model:  start rates (high, low), and switch rate (gamma)
-#' #Penalized/Covariate Model: start rates (high, low), switch rate parameters (alpha, betas)
-#'
-#'   #note that states over time (X_t) are summerized already with figure
-#'
-#'
-#'
-#' #Create Homes for vectors
-#'
-#' st_rate_low_est = rep(0, length(compare))
-#' st_rate_high_est = rep(0, length(compare))
-#'
-#' tpm_11_est = rep(0, length(compare))
-#' tpm_12_est = rep(0, length(compare))
-#' tpm_21_est = rep(0, length(compare))
-#' tpm_22_est = rep(0, length(compare))
-#'
-#' if (model == "penalized") {
-#' sw_rate_low_est =  rep(0, length(compare))
-#' sw_rate_high_est = rep(0, length(compare))
-#' }
-#'
-#' if (model == "covariate"){
-#'
-#' }
-#'
-#'
-#' MSPE_est = rep(0, length(compare))
-#'
-#' accept = rep(0, length(compare))
-#'
-#'
-#'
-#' for(i in 1:length(compare)){
-#'   st_rate_low_est[i] =  results[[i]]$st_rates_est[[1]]$est
-#' }
-#'
-#'
-#' for(i in 1:length(compare)){
-#'   st_rate_high_est[i] = results[[i]]$st_rates_est[[2]]$est
-#' }
-#'
-#'
-#' if (model != "simple") {
-#'
-#'   for(i in 1:length(compare)){
-#'     sw_rate_low_est[i] = results[[i]]$sw_rates_est[[1]]$est
-#'   }
-#'
-#'   for(i in 1:length(compare)){
-#'     sw_rate_high_est[i] = results[[i]]$sw_rates_est[[2]]$est
-#'   }
-# }
+
+
+sumtable_model <- function(results, compare, file_path, file_name, model){
+
+
+#Simple Model:  start rates (high, low), and PTM (P)
+#Penalized Model:  start rates (high, low), and switch rate (gamma)
+#Penalized/Covariate Model: start rates (high, low), switch rate parameters (alpha, betas)
+
+  #note that states over time (X_t) are summerized already with figure
+
+
+
+#Create Homes for vectors
+
+st_rate_low_est = rep(0, length(compare))
+st_rate_high_est = rep(0, length(compare))
+
+tpm_11_est = rep(0, length(compare))
+tpm_12_est = rep(0, length(compare))
+tpm_21_est = rep(0, length(compare))
+tpm_22_est = rep(0, length(compare))
+
+if (model == "penalized") {
+sw_rate_low_est =  rep(0, length(compare))
+sw_rate_high_est = rep(0, length(compare))
+}
+
+if (model == "covariate"){
+
+}
+
+
+MSPE_est = rep(0, length(compare))
+
+accept = rep(0, length(compare))
+
+
+
+for(i in 1:length(compare)){
+  st_rate_low_est[i] =  results[[i]]$st_rates_est[[1]]$est
+}
+
+
+for(i in 1:length(compare)){
+  st_rate_high_est[i] = results[[i]]$st_rates_est[[2]]$est
+}
+
+
+if (model != "simple") {
+
+  for(i in 1:length(compare)){
+    sw_rate_low_est[i] = results[[i]]$sw_rates_est[[1]]$est
+  }
+
+  for(i in 1:length(compare)){
+    sw_rate_high_est[i] = results[[i]]$sw_rates_est[[2]]$est
+  }
+}
+
+
+
+for(i in 1:length(compare)){
+  tpm_11_est[i] =  results[[i]]$st_ptm_est[[1]]$est
+}
+
+
+for(i in 1:length(compare)){
+  tpm_12_est[i] = results[[i]]$st_ptm_est[[2]]$est
+}
+
+
+for(i in 1:length(compare)){
+  tpm_21_est[i] =  results[[i]]$st_ptm_est[[3]]$est
+}
+
+
+for(i in 1:length(compare)){
+  tpm_22_est[i] = results[[i]]$st_ptm_est[[4]]$est
+}
 #
 #
 #
-# for(i in 1:length(compare)){
-#   tpm_11_est[i] =  results[[i]]$st_ptm_est[[1]]$est
-# }
+  for(i in 1:length(compare)){
+   MSPE_est[i] =  results[[i]]$MSPE
+  }
 #
 #
-# for(i in 1:length(compare)){
-#   tpm_12_est[i] = results[[i]]$st_ptm_est[[2]]$est
-# }
-#
-#
-# for(i in 1:length(compare)){
-#   tpm_21_est[i] =  results[[i]]$st_ptm_est[[3]]$est
-# }
-#
-#
-# for(i in 1:length(compare)){
-#   tpm_22_est[i] = results[[i]]$st_ptm_est[[4]]$est
-# }
-#
-#
-#
-#
-#
-#
-# if (model != "simple") {
-#   #REMOVE THIS TO OUTSIDE IF STATEMENT ONCE ADD MSPE TO SIMPLE MODEL!!!
-#   for(i in 1:length(compare)){
-#    MSPE_est[i] =  results[[i]]$MSPE
-#   }
-#
-#   for(i in 1:length(compare)){
-#     accept[i] = results[[i]]$accept
-#   }
-# }
-#
-#
-# if (model == "simple"){
-#   table = data.frame(compare, st_rate_low_est, st_rate_high_est,
-#                    tpm_11_est, tpm_12_est, tpm_21_est, tpm_22_est #,
-#                   # MSPE_est
-#                    )
-# }
-# else{
-#  table = data.frame(compare, st_rate_low_est, st_rate_high_est,
-#                   sw_rate_low_est, sw_rate_high_est,
-#                   tpm_11_est, tpm_12_est, tpm_21_est, tpm_22_est,
-#                   MSPE_est, accept)
-# }
+if (model != "simple") {
+ 
+
+  for(i in 1:length(compare)){
+    accept[i] = results[[i]]$accept
+  }
+}
+
+
+if (model == "simple"){
+  table = data.frame(compare, st_rate_low_est, st_rate_high_est,
+                   tpm_11_est, tpm_12_est, tpm_21_est, tpm_22_est #,
+                  # MSPE_est
+                   )
+}
+else{
+ table = data.frame(compare, st_rate_low_est, st_rate_high_est,
+                  sw_rate_low_est, sw_rate_high_est,
+                  tpm_11_est, tpm_12_est, tpm_21_est, tpm_22_est,
+                  MSPE_est, accept)
+}
 #
 #
 #
 #
 #
-# plot(log(compare), MSPE_est, col=ifelse(accept<=1000,"red","black"),
-#      ylim = c(min(MSPE_est) - 0.01, max(MSPE_est) + 0.01))
-# # lines(predict(lm(one.data$MSPE.est~one.data$penalty+I(one.data$penalty^2))))
+# plot(log(compare), MSPE_est, col = ifelse(accept<=1000,"red","black"),
+#      ylim = c(min(MSPE_est) - 2*sd(MSPE_est), max(MSPE_est) + 2 * sd(MSPE_est)))
+
+if (model == "simple"){
+  compare_plot <<- ggplot(data = table, aes((compare), MSPE_est)) +
+    geom_point() +
+    ylim(min(MSPE_est) - 2*sd(MSPE_est), max(MSPE_est) + 2 * sd(MSPE_est))
+}
+
+else{
+  compare_plot <<- ggplot(data = table, aes(log(compare), MSPE_est)) +
+            geom_point(aes( x = accept, colour = accept <= 1000))
+}
+
+
+write.csv(x = table, file = paste(file_path, file_name, ".csv", sep = "") )
 #
-#
-#
-# write.csv(x = table, file = paste(file_path, file_name, ".csv", sep = "") )
-#
-# }
+ }
