@@ -97,7 +97,7 @@ We will run all models as 2-state HMM models, as determined by previous work.
 
 ```{r simple model }
 #parameters specific to simple model - no penalization
-theta <- matrix(data = c(5000, 1, 1, 5000), nrow = 2, ncol = 2, byrow = T) 
+# theta <- matrix(data = c(5000, 1, 1, 5000), nrow = 2, ncol = 2, byrow = T) 
 P <- matrix(c(.997, .003, .003, .997), nrow = 2, byrow = T)
 param_start <- list(X = X, lambda = lambda, P = P)
 
@@ -109,15 +109,15 @@ param_start <- list(X = X, lambda = lambda, P = P)
 #low density - queen's chamber -- USED FOR PAPER
 
 simple_col2lo4qbin1 <- foreach (i = seq(5000, 25000, by =  1000) ,
-                                .errorhandling="remove") %dopar% 
-                                    DT_mcmc_troph(starts_data = col2_low4_5$queen_starts_persec, 
-                                                 ant_file = col2_low4_5$data, chamber = "queen", 
-                                                 title = "Test", 
-                                                 a = .005, b = .001, c = .005, d = .001, 
-                                                 theta = matrix(c(i, 1, 1, i), 2, 2), states = states, 
-                                                 n_mcmc = n_mcmc, delta_t = 1, hours = hours,
-                                                 param_start = param_start, fig_save = TRUE, 
-                                                 fig_path = path, fig_name = "simp_col2lo4qbin1") 
+                                .errorhandling="remove") %dopar%
+                      DT_mcmc_troph(starts_data = col2_low4_5$queen_starts_persec,
+                                    ant_file = col2_low4_5$data, chamber = "queen",
+                                    title = "Test",
+                                    a = .005, b = .001, c = .005, d = .001,
+                                    theta = matrix(c(i, 1, 1, i), 2, 2), states = states,
+                                    n_mcmc = n_mcmc, delta_t = 1, hours = hours,
+                                    param_start = param_start, fig_save = TRUE,
+                                    fig_path = path, fig_name = "simp_col2lo4qbin1")
 
 #low density - entrance chamber
 
