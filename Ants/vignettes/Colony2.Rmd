@@ -140,3 +140,67 @@ sumtable_model(results = simple_col2lo4qbin1, compare = seq(23000, 25000, by =  
 
 
 
+```{r penalized model}
+
+tau <- matrix( c(.00000001, 0, 
+                 0, .00000001), nrow = 2, ncol = 2)
+gamma <- c(.005, .005)
+start <- list(X = X, lambda = lambda, gamma = gamma)
+delta_t <- 1
+
+# high density - one chamber
+
+#low density - both chambers
+
+#low densith - queen's chamber USED FOR PAPER
+
+##THIS ONE FOR JSM
+range <- exp(seq(-25, -15, by =  5))
+
+penalize_col2lo4qbin1 <- foreach(i = range,
+                                  .errorhandling = "remove") %dopar% 
+  DT_pen_mcmc(penalty = i, starts_data = col2_low4_5$queen_starts_persec, 
+              states = states, ant_file = col2_low4_5$data, chamber = "queen",
+              hours = hours, 
+              a = .005, b = .001, c = .005, d = .001,
+              tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
+              delta_t = delta_t, start = start, data_out = paste("../data/", "pen_MCMC", round(i, 11),
+    ".RData",
+    sep = ""))
+
+
+#low density - entrance chamber
+```
+
+```{r penalized diagnoses}
+
+results <- list()
+
+for (r in 1:length(range)) {
+  
+  load(paste("../data/", "pen_MCMC", round(range[r], 11),
+    ".RData",
+    sep = ""))
+}
+
+pen_diag_col2l04qbin1 <- penalty_diagnosis(results, Time = hours * 60 * 60)
+```
+
+
+
+```{r compare penalized }
+sumtable_model(results = penalize_col2lo4qbin1, compare = exp(seq(-30, 10, by =  1)), 
+               file_path = path_table, 
+               file_name = "pen_col2lo4qbin1", model = "penalized")
+```
+
+```{r}
+fig_save = ,
+              fig_path = path, 
+              fig_name = "pen_col2lo4qbin1_"
+```
+
+
+
+
+
