@@ -437,11 +437,8 @@ DT_mcmc_troph <- function(starts_data, ant_file, chamber, title, a, b, c, d, the
 #' @param n_mcmc Number of MCMC iteractions.
 #' @param delta_t Time segemnts the start data is binned into.
 #' @param start Starting values for the chains.
-#' @param fig_save If "TRUE", plots will saved in path proved as
-#'   .jpeg files
-#' @param fig_path Path needed to sent plot figures to folder. 
-#' @param fig_name Base name of plot files to be saved. 
-#'   
+#' @param data_out Name out file name for saving mcmc chains
+#'
 #' @return  (1) - estimates of X, lambda, gamma, P (2) - 2x2 
 #'   visual of estimates over time (runs) (3) - color block state
 #'   switching graph
@@ -454,7 +451,7 @@ DT_mcmc_troph <- function(starts_data, ant_file, chamber, title, a, b, c, d, the
 
 
 DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours, 
-  a, b, c, d, tau, tau.pen, n_mcmc, delta_t, start, fig_save, fig_path, fig_name) {
+  a, b, c, d, tau, tau.pen, n_mcmc, delta_t, start, data_out) {
   
   # starting values - mostly to keep this all in one place to easily
   # check
@@ -758,149 +755,159 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
       l] == 2)]) + c, rate = sum(m[2, ]) + d)
   
   }
+ 
+  # save all the things
   
+  results <- rbind(st_rates_param, 
+                   switch_rate_param, 
+                   st_ptm_param, 
+                  states_param)
   
-  # estimation
-  source("http://www.stat.psu.edu/~mharan/batchmeans.R")
+  outfile = data_out
   
-  st_rate_high <- st_rates_param[1, ] + st_rates_param[2, ]
-  
-  lambda.est <- apply(rbind(st_rates_param[1, ], st_rate_high), 1, bm)
-  lambda.var <- apply(st_rates_param, 1, quantile, probs = c(0.025, 0.975), 
-    na.rm = TRUE)
-  
-  gamma.est <- apply(switch_rate_param, 1, bm)
-  gamma.var <- apply(switch_rate_param, 1, quantile, probs = c(0.025, 0.975), 
-    na.rm = TRUE)
-  
-  
-  P.est <- apply(st_ptm_param, 1, bm)
-  P.var <- apply(st_ptm_param, 1, quantile, probs = c(0.025, 0.975, na.rm = T))
-  
-  
-  X.est <- matrix(NA, Time, 1, T)
-  
-  for (t in 1:Time) {
-    X.est[t, 1] <- mean(states_param[t, ])
-  }
-  
+  save(as.dataframe(results), file = outfile)
+  # 
+  # # estimation
+  # source("http://www.stat.psu.edu/~mharan/batchmeans.R")
+  # 
+  # st_rate_high <- st_rates_param[1, ] + st_rates_param[2, ]
+  # 
+  # lambda.est <- apply(rbind(st_rates_param[1, ], st_rate_high), 1, bm)
+  # lambda.var <- apply(st_rates_param, 1, quantile, probs = c(0.025, 0.975), 
+  #   na.rm = TRUE)
+  # 
+  # gamma.est <- apply(switch_rate_param, 1, bm)
+  # gamma.var <- apply(switch_rate_param, 1, quantile, probs = c(0.025, 0.975), 
+  #   na.rm = TRUE)
+  # 
+  # 
+  # P.est <- apply(st_ptm_param, 1, bm)
+  # P.var <- apply(st_ptm_param, 1, quantile, probs = c(0.025, 0.975, na.rm = T))
+  # 
+  # 
+  # X.est <- matrix(NA, Time, 1, T)
+  # 
+  # for (t in 1:Time) {
+  #   X.est[t, 1] <- mean(states_param[t, ])
+  # }
+  # 
   sum.it <- 0
-  
+
   for (i in 1:n_mcmc) {
     for (t in 1:Time) {
       sum.it <- sum.it + (osa_param[t, i] - data[t])^2
     }
   }
-  
+
   MSPE.1SA <- 1/n_mcmc * 1/Time * sum.it
-  
-  
-  
-  
-  # visualization
-  if (fig_save == TRUE) {
-    jpeg( file = paste(fig_path, fig_name, round(penalty, 11), ".diagnostics", ".jpg", sep = ""))
-  }
-  
-  # plot the estimation runs.
-  
-  col <- c("#120d08", "#bc5356", "#538bbc", "#53bc84")
-  
 
   
-  par(mfrow = c(2, 2), oma = c(0, 0, 2, 0) + 1, mar = c(1, 1, 1, 1) + 
-      3)
+  list(MSPE = MSPE.1SA, accept = accept)
   
+#   # visualization
+#   if (fig_save == TRUE) {
+#     jpeg( file = paste(fig_path, fig_name, round(penalty, 11), ".diagnostics", ".jpg", sep = ""))
+#   }
+#   
+#   # plot the estimation runs.
+#   
+#   col <- c("#120d08", "#bc5356", "#538bbc", "#53bc84")
+#   
+# 
+#   
+#   par(mfrow = c(2, 2), oma = c(0, 0, 2, 0) + 1, mar = c(1, 1, 1, 1) + 
+#       3)
+#   
+#   
+#   # Rate Parameters
+#   plot(0, 0, xlab = "MCMC Runs", ylab = "Rates (per second)", ylim = c(0, 
+#     max(switch_rate_param, st_rates_param[1:2, ])/delta_t), xlim = c(0, n_mcmc), 
+#     type = "n", cex.lab = 1)
+#   lines(1:n_mcmc, (st_rates_param[1, ] + st_rates_param[2, ])/delta_t, 
+#     col = col[1])
+#   lines(1:n_mcmc, st_rates_param[1, ], col = col[2])
+#   
+#   lines(1:n_mcmc, switch_rate_param[1, ], col = col[3])
+#   lines(1:n_mcmc, switch_rate_param[2, ], col = col[4])
+#   
+#   # X params
+#   
+#   # P
+#   plot(0, 0, xlab = "MCMC Runs", ylab = "Probability Matrix for State Switching", 
+#     ylim = c(0, max(st_ptm_param)), xlim = c(0, n_mcmc), type = "n", cex.lab = 1)
+#   for (i in 1:(4)) {
+#     lines(1:n_mcmc, st_ptm_param[i, ], col = col[i])
+#   }
+#   
+#   # Single X
+#   X <- states_param[sample(1:Time, 1), ]
+#   
+#   plot(0, 0, xlab = "MCMC Runs", ylab = "Single X", ylim = c(0, max(X)), 
+#     xlim = c(0, n_mcmc), type = "n", cex.lab = 1)
+#   lines(1:n_mcmc, X, col = col[4])
+#   
+#   # States over time plot(X.est, type = 'l')
+#   plot(round(X.est), type = "l")
+#   
+#   
+#   title(main = "Diagnostic Plots", outer = T)
+#   
+#   if (fig_save == TRUE) {
+#    dev.off()
+#   }
+#   
+# ###### Fancy Plots with Background Colors
+#   if (fig_save == TRUE) {
+#     jpeg( file = paste(fig_path, fig_name, round(penalty, 11), ".states", ".jpg", sep = ""))
+#   }
+#   
+#   par(mfrow = c(1, 1))
+#   
+#   
+#   if (length(unique(location)) == 1) {
+#     
+#     ## High Density - 4 Hours
+#     plot(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative Interaction Count", 
+#       xlim = c(0, maxtime))
+#     states <- X.est  #from code above
+#     rr <- rle(states[, 1])
+#     rr$values <- round(rr$values, digits = 0)
+#     embedded.chain <- rr$values
+#     cs <- c(0, cumsum(rr$lengths)) * delta_t - delta_t
+#     cols <- c("#bc535644", "#538bbc44")
+#     for (j in 1:length(embedded.chain)) {
+#       rect(cs[j], 0, cs[j + 1], int.num, col = cols[embedded.chain[j]], 
+#         density = NA)
+#       
+#     }
+#     points(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative Interaction Count", 
+#       xlim = c(0, maxtime))
+#   } else {
+#     # Low Density - 4 Hours
+#     
+#     plot(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative Interaction Count", 
+#       xlim = c(0, maxtime))
+#     states <- X.est
+#     rr <- rle(states[, 1])
+#     rr$values <- round(rr$values, digits = 0)
+#     embedded.chain <- rr$values
+#     cs <- c(0, cumsum(rr$lengths)) * delta_t - delta_t
+#     cols <- c("#bc535644", "#538bbc44")
+#     for (j in 1:length(embedded.chain)) {
+#       rect(cs[j], 0, cs[j + 1], int.num, col = cols[embedded.chain[j]], 
+#         density = NA)
+#     }
+#     points(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative Interaction Count", 
+#       xlim = c(0, maxtime))
+#   }
+#   
+#   if (fig_save == TRUE) {
+#     dev.off()
+#   }
   
-  # Rate Parameters
-  plot(0, 0, xlab = "MCMC Runs", ylab = "Rates (per second)", ylim = c(0, 
-    max(switch_rate_param, st_rates_param[1:2, ])/delta_t), xlim = c(0, n_mcmc), 
-    type = "n", cex.lab = 1)
-  lines(1:n_mcmc, (st_rates_param[1, ] + st_rates_param[2, ])/delta_t, 
-    col = col[1])
-  lines(1:n_mcmc, st_rates_param[1, ], col = col[2])
-  
-  lines(1:n_mcmc, switch_rate_param[1, ], col = col[3])
-  lines(1:n_mcmc, switch_rate_param[2, ], col = col[4])
-  
-  # X params
-  
-  # P
-  plot(0, 0, xlab = "MCMC Runs", ylab = "Probability Matrix for State Switching", 
-    ylim = c(0, max(st_ptm_param)), xlim = c(0, n_mcmc), type = "n", cex.lab = 1)
-  for (i in 1:(4)) {
-    lines(1:n_mcmc, st_ptm_param[i, ], col = col[i])
-  }
-  
-  # Single X
-  X <- states_param[sample(1:Time, 1), ]
-  
-  plot(0, 0, xlab = "MCMC Runs", ylab = "Single X", ylim = c(0, max(X)), 
-    xlim = c(0, n_mcmc), type = "n", cex.lab = 1)
-  lines(1:n_mcmc, X, col = col[4])
-  
-  # States over time plot(X.est, type = 'l')
-  plot(round(X.est), type = "l")
-  
-  
-  title(main = "Diagnostic Plots", outer = T)
-  
-  if (fig_save == TRUE) {
-   dev.off()
-  }
-  
-  ######################################################### Fancy Plots with Background Colors
-  if (fig_save == TRUE) {
-    jpeg( file = paste(fig_path, fig_name, round(penalty, 11), ".states", ".jpg", sep = ""))
-  }
-  
-  par(mfrow = c(1, 1))
-  
-  
-  if (length(unique(location)) == 1) {
-    
-    ## High Density - 4 Hours
-    plot(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative Interaction Count", 
-      xlim = c(0, maxtime))
-    states <- X.est  #from code above
-    rr <- rle(states[, 1])
-    rr$values <- round(rr$values, digits = 0)
-    embedded.chain <- rr$values
-    cs <- c(0, cumsum(rr$lengths)) * delta_t - delta_t
-    cols <- c("#bc535644", "#538bbc44")
-    for (j in 1:length(embedded.chain)) {
-      rect(cs[j], 0, cs[j + 1], int.num, col = cols[embedded.chain[j]], 
-        density = NA)
-      
-    }
-    points(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative Interaction Count", 
-      xlim = c(0, maxtime))
-  } else {
-    # Low Density - 4 Hours
-    
-    plot(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative Interaction Count", 
-      xlim = c(0, maxtime))
-    states <- X.est
-    rr <- rle(states[, 1])
-    rr$values <- round(rr$values, digits = 0)
-    embedded.chain <- rr$values
-    cs <- c(0, cumsum(rr$lengths)) * delta_t - delta_t
-    cols <- c("#bc535644", "#538bbc44")
-    for (j in 1:length(embedded.chain)) {
-      rect(cs[j], 0, cs[j + 1], int.num, col = cols[embedded.chain[j]], 
-        density = NA)
-    }
-    points(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative Interaction Count", 
-      xlim = c(0, maxtime))
-  }
-  
-  if (fig_save == TRUE) {
-    dev.off()
-  }
-  
-  
-  list(X.est = X.est, st_rates_est = lambda.est, sw_rates_est = gamma.est, 
-    st_ptm_est = P.est, P.run = st_ptm_param, MSPE = MSPE.1SA, accept = accept, sigma = sigma)
+  # 
+  # list(X.est = X.est, st_rates_est = lambda.est, sw_rates_est = gamma.est, 
+  #   st_ptm_est = P.est, P.run = st_ptm_param, MSPE = MSPE.1SA, accept = accept, sigma = sigma)
   
 }
 

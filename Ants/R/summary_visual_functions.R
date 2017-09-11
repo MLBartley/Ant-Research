@@ -359,8 +359,8 @@ sumtable_model <- function(results, compare, file_path, file_name, model){
   
   if (model == "simple"){
     table = data.frame(compare, st_rate_low_est, st_rate_high_est,
-                       tpm_11_est, tpm_12_est, tpm_21_est, tpm_22_est #,
-                       # MSPE_est
+                       tpm_11_est, tpm_12_est, tpm_21_est, tpm_22_est,
+                       MSPE_est
     )
   }
   else{
@@ -391,4 +391,68 @@ sumtable_model <- function(results, compare, file_path, file_name, model){
   
   write.csv(x = table, file = paste(file_path, file_name, ".csv", sep = "") )
   #
+}
+
+
+#' Pst MCMC State Switching Visualization
+#'
+#' @param mcmc_matrix 
+#' @param fig_path Path needed to sent plot figures to folder.
+#' @param fig_name Base name of plot files to be saved.
+#'
+#' @return
+#' @export
+#'
+#' @examples
+plot_states  <- function(mcmc_matrix, fig_path, fig_name){
+
+  
+  ###### Fancy Plots with Background Colors
+
+    jpeg( file = paste(fig_path, fig_name, round(penalty, 11), ".states", ".jpg", sep = ""))
+  
+  
+  par(mfrow = c(1, 1))
+  
+  
+  if (length(unique(location)) == 1) {
+    
+    ## High Density - 4 Hours
+    plot(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative Interaction Count", 
+      xlim = c(0, maxtime))
+    states <- X.est  #from code above
+    rr <- rle(states[, 1])
+    rr$values <- round(rr$values, digits = 0)
+    embedded.chain <- rr$values
+    cs <- c(0, cumsum(rr$lengths)) * delta_t - delta_t
+    cols <- c("#bc535644", "#538bbc44")
+    for (j in 1:length(embedded.chain)) {
+      rect(cs[j], 0, cs[j + 1], int.num, col = cols[embedded.chain[j]], 
+        density = NA)
+      
+    }
+    points(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative Interaction Count", 
+      xlim = c(0, maxtime))
+  } else {
+    # Low Density - 4 Hours
+    
+    plot(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative Interaction Count", 
+      xlim = c(0, maxtime))
+    states <- X.est
+    rr <- rle(states[, 1])
+    rr$values <- round(rr$values, digits = 0)
+    embedded.chain <- rr$values
+    cs <- c(0, cumsum(rr$lengths)) * delta_t - delta_t
+    cols <- c("#bc535644", "#538bbc44")
+    for (j in 1:length(embedded.chain)) {
+      rect(cs[j], 0, cs[j + 1], int.num, col = cols[embedded.chain[j]], 
+        density = NA)
+    }
+    points(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative Interaction Count", 
+      xlim = c(0, maxtime))
+  }
+
+  
+    dev.off()
+  
 }
