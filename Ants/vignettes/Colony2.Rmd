@@ -137,6 +137,10 @@ sumtable_model(results = simple_col2lo4qbin1, compare = seq(5000, 35000, by =  1
 
 ```
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> e29f70281663d7747eaf91397ae51c45da412672
 ```{r penalized model}
 
 tau <- matrix( c(.00000001, 0, 
@@ -161,9 +165,15 @@ penalize_col2lo4qbin1 <- foreach(i = range,
               hours = hours, 
               a = .005, b = .001, c = .005, d = .001,
               tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
+<<<<<<< HEAD
               delta_t = delta_t, start = start, 
               data_out = paste("../data/", "pen_MCMC", 
                                round(i, 11), n_mcmc, ".RData", sep = ""))
+=======
+              delta_t = delta_t, start = start, data_out = paste("../data/", "pen_MCMC", round(i, 11),
+    ".csv",
+    sep = ""))
+>>>>>>> e29f70281663d7747eaf91397ae51c45da412672
 
 
 #low density - entrance chamber
@@ -171,16 +181,20 @@ penalize_col2lo4qbin1 <- foreach(i = range,
 
 ```{r penalized diagnoses}
 
-results <- list()
+pen_results <- list()
 
 for (r in 1:length(range)) {
   
-  load(paste("../data/", "pen_MCMC", round(range[r], 11), n_mcmc,
-    ".RData",
-    sep = ""))
+
+temp_results <-  read.csv(paste("../data/", "pen_MCMC", round(range[r], 11),
+    ".csv",
+    sep = "")))
+
+pen_results[[r]] <- penalty_diagnosis(temp_results, Time = hours * 60 * 60, fig_path = path,
+                                fig_name = "test", penalty = range[r])
 }
 
-pen_diag_col2l04qbin1 <- penalty_diagnosis(results, Time = hours * 60 * 60)
+
 ```
 
 
