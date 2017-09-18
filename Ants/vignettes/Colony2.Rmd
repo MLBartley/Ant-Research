@@ -140,46 +140,6 @@ sumtable_model(results = simple_col2lo4qbin1, compare = seq(5000, 35000, by =  1
 
 ```{r penalized model}
 
-# penalty <- exp(seq(-25, 1, by =  3)) 
-tau <- matrix( c(.00000001, 0, 
-                 0, .00000001), nrow = 2, ncol = 2)
-gamma <- c(.005, .005)
-start <- list(X = X, lambda = lambda, gamma = gamma)
-delta_t <- 1
-
-# high density - one chamber
-
-#low density - both chambers
-
-#low densith - queen's chamber USED FOR PAPER
-
-##THIS ONE FOR JSM
-penalize_col2lo4qbin1 <- foreach (i = exp(seq(-65, 30, by =  5)) ,
-                                  .errorhandling="remove") %dopar% 
-  DT_pen_mcmc(penalty = i, starts_data = col2_low4_5$queen_starts_persec, 
-              states = states, ant_file = col2_low4_5$data, chamber = "queen",
-              hours = hours, 
-              a = .005, b = .001, c = .005, d = .001,
-              tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
-              delta_t = delta_t, start = start, fig_save = F,
-              fig_path = path, 
-              fig_name = "pen_col2lo4qbin1_")
-
-
-#low density - entrance chamber
-```
-
-
-
-```{r compare penalized }
-sumtable_model(results = penalize_col2lo4qbin1, compare = exp(seq(-30, 10, by =  1)), 
-               file_path = path_table, 
-               file_name = "pen_col2lo4qbin1", model = "penalized")
-```
-
-
-```{r penalized model}
-
 tau <- matrix( c(.00000001, 0, 
                  0, .00000001), nrow = 2, ncol = 2)
 gamma <- c(.005, .005)
