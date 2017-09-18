@@ -277,75 +277,75 @@ sumtable_model <- function(results, compare, file_path, file_name, model){
   
   st_rate_low_est = rep(0, length(compare))
   st_rate_high_est = rep(0, length(compare))
-  
+
   tpm_11_est = rep(0, length(compare))
   tpm_12_est = rep(0, length(compare))
   tpm_21_est = rep(0, length(compare))
   tpm_22_est = rep(0, length(compare))
-  
+
   if (model == "penalized") {
     sw_rate_low_est =  rep(0, length(compare))
     sw_rate_high_est = rep(0, length(compare))
   }
-  
+
   if (model == "covariate"){
-    
+
   }
-  
+
   
   MSPE_est = rep(0, length(compare))
   
   accept = rep(0, length(compare))
   
-  
-  
-  for(i in 1:length(compare)){
-    st_rate_low_est[i] =  results[[i]]$st_rates_est[[1]]$est
-  }
-  
-  
-  for(i in 1:length(compare)){
-    st_rate_high_est[i] = results[[i]]$st_rates_est[[2]]$est
-  }
-  
-  
-  if (model != "simple") {
+  # 
+  # 
+  # for(i in 1:length(compare)){
+  #   st_rate_low_est[i] =  results[[i]]$st_rates_est[[1]]$est
+  # }
+  # 
+  # 
+  # for(i in 1:length(compare)){
+  #   st_rate_high_est[i] = results[[i]]$st_rates_est[[2]]$est
+  # }
+  # 
+  # 
+  # if (model != "simple") {
     
+  #   for(i in 1:length(compare)){
+  #     sw_rate_low_est[i] = results[[i]]$sw_rates_est[[1]]$est
+  #   }
+  #   
+  #   for(i in 1:length(compare)){
+  #     sw_rate_high_est[i] = results[[i]]$sw_rates_est[[2]]$est
+  #   }
+  # }
+  # 
+  # 
+  # 
+  # for(i in 1:length(compare)){
+  #   tpm_11_est[i] =  results[[i]]$st_ptm_est[[1]]$est
+  # }
+  # 
+  # 
+  # for(i in 1:length(compare)){
+  #   tpm_12_est[i] = results[[i]]$st_ptm_est[[2]]$est
+  # }
+  # 
+  # 
+  # for(i in 1:length(compare)){
+  #   tpm_21_est[i] =  results[[i]]$st_ptm_est[[3]]$est
+  # }
+  # 
+  # 
+  # for(i in 1:length(compare)){
+  #   tpm_22_est[i] = results[[i]]$st_ptm_est[[4]]$est
+  # }
+  # #
+  # #
+  # #
     for(i in 1:length(compare)){
-      sw_rate_low_est[i] = results[[i]]$sw_rates_est[[1]]$est
+      MSPE_est[i] =  results[[i]]$MSPE
     }
-    
-    for(i in 1:length(compare)){
-      sw_rate_high_est[i] = results[[i]]$sw_rates_est[[2]]$est
-    }
-  }
-  
-  
-  
-  for(i in 1:length(compare)){
-    tpm_11_est[i] =  results[[i]]$st_ptm_est[[1]]$est
-  }
-  
-  
-  for(i in 1:length(compare)){
-    tpm_12_est[i] = results[[i]]$st_ptm_est[[2]]$est
-  }
-  
-  
-  for(i in 1:length(compare)){
-    tpm_21_est[i] =  results[[i]]$st_ptm_est[[3]]$est
-  }
-  
-  
-  for(i in 1:length(compare)){
-    tpm_22_est[i] = results[[i]]$st_ptm_est[[4]]$est
-  }
-  #
-  #
-  #
-  for(i in 1:length(compare)){
-    MSPE_est[i] =  results[[i]]$MSPE
-  }
   #
   #
   if (model != "simple") {
@@ -385,7 +385,7 @@ sumtable_model <- function(results, compare, file_path, file_name, model){
   
   else{
     compare_plot <<- ggplot(data = table, aes(log(compare), MSPE_est)) +
-      geom_point(aes( x = accept, colour = accept <= 1000))
+      geom_point(aes( x = log(compare), colour = accept <= 1000))
   }
   
   

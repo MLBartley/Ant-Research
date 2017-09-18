@@ -765,7 +765,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
   
   outfile = data_out
   
-  save(as.dataframe(results), file = outfile)
+  save(results, file = outfile)
   # 
   # # estimation
   # source("http://www.stat.psu.edu/~mharan/batchmeans.R")
