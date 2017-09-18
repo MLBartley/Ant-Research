@@ -165,7 +165,7 @@ penalize_col2lo4qbin1 <- foreach(i = range,
               a = .005, b = .001, c = .005, d = .001,
               tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
               delta_t = delta_t, start = start, data_out = paste("../data/", "pen_MCMC", round(i, 11),
-    ".RData",
+    ".csv",
     sep = ""))
 
 
@@ -174,16 +174,19 @@ penalize_col2lo4qbin1 <- foreach(i = range,
 
 ```{r penalized diagnoses}
 
-results <- list()
+pen_results <- list()
 
 for (r in 1:length(range)) {
   
-  load(paste("../data/", "pen_MCMC", round(range[r], 11),
-    ".RData",
-    sep = ""))
+temp_results <-  read.csv(paste("../data/", "pen_MCMC", round(range[r], 11),
+    ".csv",
+    sep = "")))
+
+pen_results[[r]] <- penalty_diagnosis(temp_results, Time = hours * 60 * 60, fig_path = path,
+                                fig_name = "test", penalty = range[r])
 }
 
-pen_diag_col2l04qbin1 <- penalty_diagnosis(results, Time = hours * 60 * 60)
+
 ```
 
 
