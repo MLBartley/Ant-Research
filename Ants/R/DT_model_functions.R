@@ -490,31 +490,31 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
   ## Build Homes for X(1:T), lambda(1:n) vector , and P(nXn), 
   ## gamma (nxn) matrices
   
-  states_param <- matrix(data = rep(NA, Time * 1000), nrow = Time, ncol = 1000, 
+  states_param <- matrix(data = rep(NA, Time * 1001), nrow = Time, ncol = 1001, 
     byrow = T)
   row.names(states_param) <- rep("State at Random Time", nrow(states_param))
 
   osa_param <- matrix(NA, Time, n_mcmc, T)
   
-  st_rates_param <- matrix(data = NA, nrow = n + 1, ncol = 1000, 
+  st_rates_param <- matrix(data = NA, nrow = n + 1, ncol = 1001, 
     byrow = T)
   row.names(st_rates_param) <- c("trop.rate.low", "trop.rate.change", 
     "trop.rate.high")
   
-  st_ptm_param <- matrix(data = NA, nrow = n * n, ncol = 1000, 
+  st_ptm_param <- matrix(data = NA, nrow = n * n, ncol = 1001, 
     byrow = T)
   row.names(st_ptm_param) <- c("LL", "LH", "HL", "HH")
   
   
   # note that we're just collecting the off diagonal (non zero) values, needed to calculate P
-  switch_rate_param <- matrix(NA, nrow = n, ncol = 1000, byrow = T)
+  switch_rate_param <- matrix(NA, nrow = n, ncol = 1001, byrow = T)
   row.names(switch_rate_param) <- c("switch.rate.LH", "switch.rate.HL")
   
   # probability home for generating states_param,
   gam <- matrix(NA, nrow = Time, ncol = n, byrow = T)
   
-  starts_low <- matrix(NA, nrow = Time, ncol = 1000)
-  starts_high <- matrix(NA, nrow = Time, ncol = 1000)
+  starts_low <- matrix(NA, nrow = Time, ncol = 1001)
+  starts_high <- matrix(NA, nrow = Time, ncol = 1001)
   
   # penalty.param = matrix(NA, 1, n_mcmc, T)
   
@@ -592,7 +592,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
     st_ptm_param, 
     states_param)
   
-  write.csv(cbind(rownames(results), results[, 1]), file = data_out, row.names = F)
+  write.csv(t(results[, 1]), file = data_out)
   
   for (l in 2:n_mcmc) {
     
@@ -770,6 +770,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
     #move iteration forward
     l.1000 <- l.1000 + 1
     ###################################### Every 1000 iterations
+    
     if (l %% 1000 == 0) {
       # print out every 100 iterations completed
       cat(paste("iteration", l, "complete\n"))
@@ -782,8 +783,8 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
         states_param)
       
       
-      write.csv(results[2:1000, ], file = data_out, append = T)
-      
+      write.table(t(results[, 2:1000 ]), file = data_out, 
+        append = T, col.names = F, sep = ',')      
       #reset chain home
       #save most recent
       
