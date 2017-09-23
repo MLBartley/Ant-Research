@@ -15,6 +15,8 @@
 
 penalty_diagnosis <- function(mcmc_matrix, Time, fig_path, fig_name, penalty){
   
+  source("http://www.stat.psu.edu/~mharan/batchmeans.R")
+  
   #batch means (mean, s.error)
   bmeans <- bmmat(t(mcmc_matrix))
   
