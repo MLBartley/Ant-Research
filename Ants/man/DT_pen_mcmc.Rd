@@ -5,7 +5,7 @@
 \title{Penalized Discrete Time MCMC Estimation for Trophallaxis data}
 \usage{
 DT_pen_mcmc(penalty, starts_data, states, ant_file, chamber, hours, a, b, c, d,
-  tau, tau.pen, n_mcmc, delta_t, start, fig_save, fig_path, fig_name)
+  tau, tau.pen, n_mcmc, delta_t, start, data_out)
 }
 \arguments{
 \item{penalty}{Penalty parameter for the switching rates 
@@ -42,12 +42,7 @@ including Location and start times.}
 
 \item{start}{Starting values for the chains.}
 
-\item{fig_save}{If "TRUE", plots will saved in path proved as
-.jpeg files}
-
-\item{fig_path}{Path needed to sent plot figures to folder.}
-
-\item{fig_name}{Base name of plot files to be saved.}
+\item{data_out}{Name out file name for saving mcmc chains}
 
 \item{title}{Title of diagnositic plots used to check model 
 results}

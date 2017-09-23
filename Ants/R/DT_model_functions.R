@@ -667,6 +667,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
     
     # gibbs updates
     
+    
     ## X Values over time
     
     ## X Parameters
@@ -678,72 +679,104 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
     rownames(m) <- c("low", "high")
     colnames(m) <- c("low", "high")
     # number states going from i to j, refreshes every run
-    
+  
     st_rate_low <- st_rates_param[1, l.1000 - 1]
     st_rate_high <- st_rate_low + st_rates_param[2, l.1000 - 1]
     
-    ## X Parameters
     
-    gam[1, 1] <- st_rate_low^data[1] * exp(-st_rate_low) * delta[1] * 
-      ptm_matrix[1, states_param[2, l.1000 - 1]]
+    #alpha values - needed to do black of backward X updates a la Zuchinni et al
     
-    gam[1, 2] <- st_rate_high^data[1] * exp(-st_rate_high) * delta[1] * 
-      ptm_matrix[1, states_param[2, l.1000 - 1]]
+    alpha_step <- matrix(NA, Time, 2)
     
+    diag_P <- matrix(c(dpois(data[1], st_rate_low),0, 
+                0, dpois(data[1], st_rate_high)), 2, 2) 
     
+    alpha_step[1, ] <- delta %*% diag_P
     
-    states_param[1, l.1000] <- sample(x = (1:n), size = 1, prob = gam[1, ])
-    
-    ################## states_param[1, l] = X.start[1]
-    
-    m[states_param[1, l.1000], states_param[1, l.1000]] <- m[states_param[1, l.1000], states_param[1, 
-      l.1000]] + 1
-    
-    #note that we are keeping ALL n_mcmc iteractions of osa_param, not juch 1000 at time
-    osa_param[1, l] <- st_rate_low * ptm_matrix[states_param[1, l.1000], 1] + 
-      st_rate_high * ptm_matrix[states_param[1, l.1000], 2]
-    
-    for (t in 2:(Time - 1)) {
-      
-      gam[t, 1] <- st_rate_low^data[t] * exp(-st_rate_low) * ptm_matrix[states_param[t - 
-          1, l.1000 - 1], 1] * ptm_matrix[1, states_param[t + 1, l.1000 - 1]]
-      
-      gam[t, 2] <- st_rate_high^data[t] * exp(-st_rate_high) * ptm_matrix[states_param[t - 
-          1, l.1000 - 1], 2] * ptm_matrix[2, states_param[t + 1, l.1000 - 1]]
-      
-      
-      
-      states_param[t, l.1000] <- sample(x = (1:n), 1, prob = gam[t, ])
-      
-      ################## states_param[t, l] = X.start[t]
-      
-      m[states_param[t - 1, l.1000], states_param[t, l.1000]] <- m[states_param[t - 1, l.1000], 
-        states_param[t, l.1000]] + 1
-      
-      osa_param[t, l] <- st_rate_low * ptm_matrix[states_param[t, l.1000], 
-        1] + st_rate_high * ptm_matrix[states_param[t, l.1000], 2]
-      
+    for (t in 2:Time) {
+      alpha_step[t, ] <- alpha_step[1, ] %*% ptm_matrix %*% diag_P
     }
     
-    gam[Time, 1] <- st_rate_low^data[Time] * exp(-st_rate_low) *
-      ptm_matrix[states_param[Time - 1, l.1000 - 1], 1]
+    #backwards stochastic process block update
     
-    gam[Time, 2] <- st_rate_high^data[Time] * exp(-st_rate_high) * 
-      ptm_matrix[states_param[Time - 1, l.1000 - 1], 2]
+    states_param[Time, l.1000] <- sample(x = (1:n), 1, prob = alpha_step[Time, ])
     
-    
-    states_param[Time, l.1000] <- sample(x = 1:n, 1, prob = gam[Time, ])
-    
-    ################## states_param[Time, l] = X.start[Time]
-    
-    m[states_param[Time - 1, l.1000], states_param[Time, l.1000]] <- m[states_param[Time - 
-        1, l.1000], states_param[Time, l.1000]] + 1
-   
     osa_param[Time, l] <- st_rate_low * ptm_matrix[states_param[Time, l.1000], 
       1] + st_rate_high * ptm_matrix[states_param[Time, l.1000], 2]
     
-   
-   # Data augmentation step - split data into "low" and "high" (N_t <- N_Lt + N_Ht I{X_t = H})
+    for (t in (Time - 1):1) {
+      states_param[t, l.1000] <- sample(x = (1:n), 1, prob = c(alpha_step[t, 1] %*% ptm_matrix[1, states_param[t + 1, l.1000]], alpha_step[t, 2] %*% ptm_matrix[2, states_param[t + 1, l.1000]]))
+    
+      
+        m[states_param[t, l.1000], states_param[t + 1, l.1000]] <- m[states_param[t, l.1000],
+          states_param[t + 1, l.1000]] + 1
+        
+        osa_param[t, l] <- st_rate_low * ptm_matrix[states_param[t, l.1000], 
+              1] + st_rate_high * ptm_matrix[states_param[t, l.1000], 2]
+      }
+    
+    # ## X Parameters
+    # 
+    # gam[1, 1] <- st_rate_low^data[1] * exp(-st_rate_low) * delta[1] * 
+    #   ptm_matrix[1, states_param[2, l.1000 - 1]]
+    # 
+    # gam[1, 2] <- st_rate_high^data[1] * exp(-st_rate_high) * delta[1] * 
+    #   ptm_matrix[1, states_param[2, l.1000 - 1]]
+    # 
+    # 
+    # 
+    # states_param[1, l.1000] <- sample(x = (1:n), size = 1, prob = gam[1, ])
+    # 
+    # ################## states_param[1, l] = X.start[1]
+    # 
+    # m[states_param[1, l.1000], states_param[1, l.1000]] <- m[states_param[1, l.1000], states_param[1, 
+    #   l.1000]] + 1
+    # 
+    # #note that we are keeping ALL n_mcmc iteractions of osa_param, not juch 1000 at time
+    # osa_param[1, l] <- st_rate_low * ptm_matrix[states_param[1, l.1000], 1] + 
+    #   st_rate_high * ptm_matrix[states_param[1, l.1000], 2]
+    # 
+    # for (t in 2:(Time - 1)) {
+    #   
+    #   gam[t, 1] <- st_rate_low^data[t] * exp(-st_rate_low) * ptm_matrix[states_param[t - 
+    #       1, l.1000 - 1], 1] * ptm_matrix[1, states_param[t + 1, l.1000 - 1]]
+    #   
+    #   gam[t, 2] <- st_rate_high^data[t] * exp(-st_rate_high) * ptm_matrix[states_param[t - 
+    #       1, l.1000 - 1], 2] * ptm_matrix[2, states_param[t + 1, l.1000 - 1]]
+    #   
+    #   
+    #   
+    #   states_param[t, l.1000] <- sample(x = (1:n), 1, prob = gam[t, ])
+    #   
+    #   ################## states_param[t, l] = X.start[t]
+    #   
+    #   m[states_param[t - 1, l.1000], states_param[t, l.1000]] <- m[states_param[t - 1, l.1000], 
+    #     states_param[t, l.1000]] + 1
+    #   
+    #   osa_param[t, l] <- st_rate_low * ptm_matrix[states_param[t, l.1000], 
+    #     1] + st_rate_high * ptm_matrix[states_param[t, l.1000], 2]
+    #   
+    # }
+    # 
+    # gam[Time, 1] <- st_rate_low^data[Time] * exp(-st_rate_low) *
+    #   ptm_matrix[states_param[Time - 1, l.1000 - 1], 1]
+    # 
+    # gam[Time, 2] <- st_rate_high^data[Time] * exp(-st_rate_high) * 
+    #   ptm_matrix[states_param[Time - 1, l.1000 - 1], 2]
+    # 
+    # 
+    # states_param[Time, l.1000] <- sample(x = 1:n, 1, prob = gam[Time, ])
+    # 
+    # ################## states_param[Time, l] = X.start[Time]
+    # 
+    # m[states_param[Time - 1, l.1000], states_param[Time, l.1000]] <- m[states_param[Time - 
+    #     1, l.1000], states_param[Time, l.1000]] + 1
+    # 
+    # osa_param[Time, l] <- st_rate_low * ptm_matrix[states_param[Time, l.1000], 
+    #   1] + st_rate_high * ptm_matrix[states_param[Time, l.1000], 2]
+
+    
+    # Data augmentation step - split data into "low" and "high" (N_t <- N_Lt + N_Ht I{X_t = H})
     
     for (t in 1:Time) {
       if (states_param[t, l.1000] == 1) {
@@ -755,18 +788,17 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
         starts_low[t, l.1000] <- split[1]
         starts_high[t, l.1000] <- split[2]
       }
-  
+      
       
     }
     
-   ## Lambda Parameters
+    ## Lambda Parameters
     
     st_rates_param[1, l.1000] <- rgamma(n = 1, shape = sum(starts_low[, 
       l.1000]) + a, rate = Time + b)
     
     st_rates_param[2, l.1000] <- rgamma(n = 1, shape = sum(starts_high[which(states_param[, 
-      l.1000] == 2)]) + c, rate = sum(m[2, ]) + d)
-  
+      l.1000] == 2)]) + c, rate = sum(m[2, ]) + d)    
     #move iteration forward
     l.1000 <- l.1000 + 1
     ###################################### Every 1000 iterations

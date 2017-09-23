@@ -138,8 +138,6 @@ sumtable_model(results = simple_col2lo4qbin1, compare = seq(5000, 35000, by =  1
 ```
 
 
-<<<<<<< HEAD
-
 ```{r penalized model, eval=FALSE, include=FALSE}
 
 tau <- matrix( c(.000001, 0, 
