@@ -91,13 +91,13 @@ states <- 2
 n_mcmc <- 10000
 hours <- 4
 X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
-lambda <- c(.01, .08)
+lambda <- c(.005, .015)
 registerDoMC(cores = 5) 
 ```
 
 We will run all models as 2-state HMM models, as determined by previous work. 
 
-```{r simple model }
+```{r simple model, eval=FALSE, include=FALSE}
 #parameters specific to simple model - no penalization
 # theta <- matrix(data = c(5000, 1, 1, 5000), nrow = 2, ncol = 2, byrow = T) 
 P <- matrix(c(.997, .003, .003, .997), nrow = 2, byrow = T)
@@ -138,7 +138,9 @@ sumtable_model(results = simple_col2lo4qbin1, compare = seq(5000, 35000, by =  1
 ```
 
 
-```{r penalized model}
+<<<<<<< HEAD
+
+```{r penalized model, eval=FALSE, include=FALSE}
 
 tau <- matrix( c(.000001, 0, 
                  0, .000001), nrow = 2, ncol = 2)
@@ -153,7 +155,7 @@ delta_t <- 1
 #low densith - queen's chamber USED FOR PAPER
 
 ##THIS ONE FOR JSM
-range <- exp(seq(-25, -15, by =  5))
+range <- exp(seq(-65, 30, by =  5))
 
 penalize_col2lo4qbin1 <- foreach(i = range,
                                   .errorhandling = "remove") %dopar% 
@@ -171,16 +173,23 @@ penalize_col2lo4qbin1 <- foreach(i = range,
 #low density - entrance chamber
 ```
 
-```{r penalized diagnoses}
+
+```{r compare penalized, eval=FALSE, include=FALSE}
+sumtable_model(results = penalize_col2lo4qbin1, compare = range, 
+               file_path = path_table, 
+               file_name = "pen_col2lo4qbin1", model = "penalized")
+```
+
+```{r penalized diagnoses, eval=FALSE, include=FALSE}
 
 pen_results <- list()
 
 for (r in 1:length(range)) {
   
 
-temp_results <-  read.csv(paste("../data/", "pen_MCMC", round(range[r], 11),
-    ".csv",
-    sep = ""))
+temp_results <-  load.csv(paste("../data/pen_MCMC-",
+                                log(range[i]), "-", n_mcmc,  
+                                ".csv", sep = "")))
 
 pen_results[[r]] <- penalty_diagnosis(temp_results, Time = hours * 60 * 60, fig_path = path,
                                 fig_name = "test", penalty = range[r])
@@ -191,13 +200,8 @@ pen_results[[r]] <- penalty_diagnosis(temp_results, Time = hours * 60 * 60, fig_
 
 
 
-```{r compare penalized }
-sumtable_model(results = penalize_col2lo4qbin1, compare = range, 
-               file_path = path_table, 
-               file_name = "pen_col2lo4qbin1", model = "penalized")
-```
 
-```{r}
+```{r, eval=FALSE, include=FALSE}
 fig_save = ,
               fig_path = path, 
               fig_name = "pen_col2lo4qbin1_"

@@ -485,24 +485,22 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
   
   # build homes for chains
   
-  
-  
   ## Build Homes for X(1:T), lambda(1:n) vector , and P(nXn), 
   ## gamma (nxn) matrices
   
   states_param <- matrix(data = rep(NA, Time * 1001), nrow = Time, ncol = 1001, 
-    byrow = T)
+                         byrow = T)
   row.names(states_param) <- rep("State at Random Time", nrow(states_param))
-
+  
   osa_param <- matrix(NA, Time, n_mcmc, T)
   
   st_rates_param <- matrix(data = NA, nrow = n + 1, ncol = 1001, 
-    byrow = T)
+                           byrow = T)
   row.names(st_rates_param) <- c("trop.rate.low", "trop.rate.change", 
-    "trop.rate.high")
+                                 "trop.rate.high")
   
   st_ptm_param <- matrix(data = NA, nrow = n * n, ncol = 1001, 
-    byrow = T)
+                         byrow = T)
   row.names(st_ptm_param) <- c("LL", "LH", "HL", "HH")
   
   
@@ -535,11 +533,13 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
   ptm_matrix <- matrix(NA, nrow = n, ncol = n, byrow = T)
   
   
-  ptm_matrix[1, 2] <- switch_rate_param[1, 1] * exp(-switch_rate_param[1, 1] * delta_t) #not normalized because within this context will not be greater than one!
+  ptm_matrix[1, 2] <- switch_rate_param[1, 1] * exp(-switch_rate_param[1, 1] * delta_t) / 
+                      (exp(1) / (exp(1) - 1)^2)#not normalized because within this context will not be greater than one!
   
   ptm_matrix[1, 1] <- 1 - ptm_matrix[1, 2]
   
-  ptm_matrix[2, 1] <- switch_rate_param[2, 1] * exp(-switch_rate_param[2, 1] * delta_t) 
+  ptm_matrix[2, 1] <- switch_rate_param[2, 1] * exp(-switch_rate_param[2, 1] * delta_t) /
+    (exp(1) / (exp(1) - 1)^2)
   
   ptm_matrix[2, 2] <- 1 - ptm_matrix[1, 2]
   
@@ -552,16 +552,16 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
       starts_high[t, 1] <- 0
     } else {
       split <- rmultinom(1, size = data[t], prob = c(st_rates_param[1, 
-        1], st_rates_param[2, 1]))
+                                                                    1], st_rates_param[2, 1]))
       starts_low[t, 1] <- split[1]
       starts_high[t, 1] <- split[2]
     }
     
   }
-
+  
   # penalty.param[1, 1] = penalty
-
-    # log likelihood
+  
+  # log likelihood
   
   log.fullcond <- function(st_ptm_param, params, states_param, penalty) {
     
@@ -572,7 +572,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
     for (t in 2:length(data)) {
       
       sumX <- sumX + log(ptm_matrix[states_param[t - 1, l.1000 - 1], states_param[t, 
-        l.1000 - 1]])
+                                                                                  l.1000 - 1]])
     }
     
     loglike <- sumX - # log(penalty) -
@@ -588,9 +588,9 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
   #start excel save file and save names and first column
   
   results <- rbind(st_rates_param, 
-    switch_rate_param, 
-    st_ptm_param, 
-    states_param)
+                   switch_rate_param, 
+                   st_ptm_param, 
+                   states_param)
   
   write.csv(t(results[, 1]), file = data_out)
   
@@ -620,11 +620,11 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
     ## Need to take the gamma values we've proposed and caluate the P
     ## matrix for probability of 'jumping' between states
     
-    ptm_matrix[1, 2] <- theta.star[1] * exp(-theta.star[1] * delta_t)
+    ptm_matrix[1, 2] <- theta.star[1] * exp(-theta.star[1] * delta_t) / (exp(1) /(exp(1) - 1)^2)
     
     ptm_matrix[1, 1] <- 1 - ptm_matrix[1, 2]
     
-    ptm_matrix[2, 1] <- theta.star[2] * exp(-theta.star[2] * delta_t)
+    ptm_matrix[2, 1] <- theta.star[2] * exp(-theta.star[2] * delta_t) / (exp(1) /(exp(1) - 1)^2)
     
     ptm_matrix[2, 2] <- 1 - ptm_matrix[2, 1]
     
@@ -784,7 +784,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
       
       
       write.table(t(results[, 2:1000 ]), file = data_out, 
-        append = T, col.names = F, sep = ',')      
+                  append = T, col.names = F, sep = ',')        
       #reset chain home
       #save most recent
       
