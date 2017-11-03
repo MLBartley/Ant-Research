@@ -5,3 +5,7 @@ packrat/lib*/
 simulation-practice/
 output/
 Comprehensive-Exam-Prep/
+
+*.jpg
+
+Comprehensive-Exam-Prep/Project1_AntTrophallaxisModels_Code.R

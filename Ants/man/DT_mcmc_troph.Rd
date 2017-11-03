@@ -4,8 +4,9 @@
 \alias{DT_mcmc_troph}
 \title{Discrete Time MCMC Estimation for Trophallaxis data}
 \usage{
-DT_mcmc_troph(starts_data, ant_file, title, a, b, c, d, theta, states = 2,
-  n_mcmc, delta_t, hours, param_start, fig_save = TRUE, fig_path, fig_name)
+DT_mcmc_troph(starts_data, ant_file, chamber, title, a, b, c, d, theta,
+  states = 2, n_mcmc, delta_t, hours, param_start, fig_save = TRUE,
+  fig_path, fig_name, plot_title)
 }
 \arguments{
 \item{starts_data}{Data file of number of trophallaxis 
@@ -49,6 +50,8 @@ parameters.}
 \item{fig_path}{Path needed to send plot figures to folder.}
 
 \item{fig_name}{Base name of plot files to be saved.}
+
+\item{plot_title}{Name of final plot.}
 }
 \value{
 (1) - estimates of X, lambda, P (2) - 2x2 visual of 

@@ -15,4 +15,4 @@ document()
 install_github("MLBartley/Ant-Research", subdir = "Ants", force = T)
 library(Ants)
 
-setwd("~/Google Drive/PSU/Projects/Ant-Research")
+setwd("~/Google Drive/PSU/Projects/Ant-Research") 

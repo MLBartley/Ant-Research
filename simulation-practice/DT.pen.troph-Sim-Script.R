@@ -16,18 +16,18 @@ install_github("mlbartley/Ant-Research", subdir = "Ants")
 # setwd("~/Google Drive/PSU/Projects/Ant-Research/simulation-practice")
 # run above if running code on personal computer
 
-lambda = c(.01, .12)
+lambda = c(.01, .08)
 
-P30 = matrix(c(.995, .005, .005, .995), nrow = 2, byrow = T)
+P30 = matrix(c(.997, .003, .003, .997), nrow = 2, byrow = T)
 gamma = c(0.005, 0.005)
 
 pdf(file = paste("./output/", Sys.time(), ".pdf", sep = ""))
 
-sim = sim.DT.troph(tmax = 4 * 60 * 60, delta.t = 5, gamma = gamma, 
-                   start.state = 1, P = P30, lambda = lambda,
-                   num.locations = 1)
+sim = sim_DT_troph(time_max = 1 * 60 * 60, delta_t = 5, 
+                   switch_rate = gamma, 
+                   start_state = 1, state_tpm = P30, int_rate = lambda,
+                   num_locations = 1)
 
-dev.off()
 
 
 #function parameters
@@ -36,7 +36,7 @@ tau = matrix( c(.001, 0,
                 0, .001), nrow = 2, ncol = 2)
 penalty = exp(seq(-5, 5, by =  1)) 
 
-penalty = exp(seq(-25, -5, by = .5))
+penalty = exp(seq(-20, -10, by = 1))
 # penalty = exp(c(-20, -14, 7))
 
 # penalty = .00001
@@ -52,9 +52,17 @@ start = list(X = X, lambda = lambda, gamma = gamma)
 n.mcmc = 5000
 seconds = 1
 
-# results = lapply(penalty, FUN = DT.pen.mcmc.troph, y.data = sim$inter.persec, states = 2,
+results = lapply(penalty, FUN = DT_pen_mcmc, starts_data = sim$inter_persec, states = 2, ant_file = sim, hours = 1, a = .08, b = .005, c = .08, d = .005, tau = tau, tau.pen = 0, n_mcmc = n.mcmc, delta_t = 1, start = start, fig_save = T, fig_path = "./Comprehensive-Exam-Prep/output_images/", fig_name = "simu_penalty")
+
+sumtable_model(results = results, compare = penalty, 
+  file_path = "./Comprehensive-Exam-Prep/output_tables/", 
+  file_name = "sim_penalty", model = "penalized")
+
+
+
+# , y.data = sim$inter.persec, states = 2,
 #                  ant.file = sim, hours = 4, tau = tau, tau.pen = .01,
-#                  a = .08, b = .005, c = .08, d = .005,  
+#                  a = .08, b = .005, c = .08, d = .005,
 #                  n.mcmc = n.mcmc, seconds = 1, fig.save = T, start = start)
 
 results.exp = lapply(penalty, FUN = DT.pen.mcmc.troph.expprior, y.data = sim$inter.persec, states = 2,
