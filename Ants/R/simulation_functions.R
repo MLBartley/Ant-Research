@@ -64,9 +64,11 @@ sim_DT_troph <- function(time_max, delta_t, start_state = 1,
    if (switch_rate[1] == 0) {
         state_tpm <- state_tpm
     } else {
-        state_tpm[1, 2] <- switch_rate[1] * exp(-switch_rate[1] * 1)/(switch_rate[1]/(-1 + exp(switch_rate[1])))
+        state_tpm[1, 2] <- switch_rate[1] * exp(-switch_rate[1] * 1) / 
+          (exp(1) / (exp(1) - 1)^2)
         state_tpm[1, 1] <- 1 - state_tpm[1, 2]
-        state_tpm[2, 1] <- switch_rate[2] * exp(-switch_rate[2] * 1)/(switch_rate[2]/(-1 + exp(switch_rate[2])))
+        state_tpm[2, 1] <- switch_rate[2] * exp(-switch_rate[2] * 1) / 
+          (exp(1) / (exp(1) - 1)^2)
         state_tpm[2, 2] <- 1 - state_tpm[1, 2]
     }
     
@@ -130,13 +132,13 @@ sim_DT_troph <- function(time_max, delta_t, start_state = 1,
     
     plot(1:(length(cumsum(interactions))), cumsum(interactions), 
         type = "p", pch = ".", 
-        cex = 2, col = state, xlab = "Time", 
+        cex = 2, col = state, xlab = "Seconds", 
         ylab = "Cumulative Interactions", 
-        main = "Full Timeline")
+        main = "Simulated Data")
     
     plot(1:time_max, interactions, type = "l", cex = 2, col = state,
-        xlab = "Time", ylab = "Number of Interactions", 
-        main = "Full Timeline")
+        xlab = "Seconds", ylab = "Number of Interactions", 
+        main = "Simulated Data")
     
     #simulate location (1 = queen's chamber, 4 = entrance)
     
@@ -154,6 +156,6 @@ sim_DT_troph <- function(time_max, delta_t, start_state = 1,
         bin_inter = bin_inters, 
         bin_state = bin_state, 
         bin_sec = (0:(T - 1)) * delta_t, 
-        start_time = start_time, location = location)
+        start_time = start_time, Location = location)
     
 }

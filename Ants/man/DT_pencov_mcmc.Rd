@@ -5,8 +5,9 @@
 \title{Penalized Discrete Time MCMC Estimation function for 
 Trophallaxis data with Covariates}
 \usage{
-DT_pencov_mcmc(penalty, covariate, starts_data, states, ant_file, hours, title,
-  a, b, c, d, tau, n_mcmc, delta_t, fig_save, fig_path, fig_name, start)
+DT_pencov_mcmc(penalty, covariate, starts_data, states, ant_file, chamber,
+  hours, title, a, b, c, d, tau, n_mcmc, delta_t, fig_save, fig_path, fig_name,
+  start)
 }
 \arguments{
 \item{penalty}{Penalty parameter for the switching rates 

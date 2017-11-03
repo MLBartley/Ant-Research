@@ -16,6 +16,7 @@ LazyData: true
 License: mine
 RoxygenNote: 6.0.1
 Imports:
+    coda,
     ctmcmove,
     ggplot2,
     gtools,
@@ -23,4 +24,7 @@ Imports:
     Matrix,
     mvtnorm,
     sp,
-Suggests: testthat
+Suggests: testthat,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
