@@ -2,6 +2,9 @@
 .Rhistory
 .RData
 packrat/lib*/
+output/
+Comprehensive-Exam-Prep/
+simulation-practice
 
 *.jpg
 
