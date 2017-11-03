@@ -13,6 +13,7 @@
 #' @export
 #'
 
+
 penalty_diagnosis <- function(mcmc_matrix, Time, fig_path, fig_name, penalty){
   
   source("http://www.stat.psu.edu/~mharan/batchmeans.R")
@@ -65,7 +66,7 @@ pdf( file = paste(fig_path, fig_name, round(penalty, 11), ".diagnostics", ".pdf"
   plot(coda::mcmc(t(mcmc_matrix[6:9, ])))
   
   #random time for state chain
-  plot(coda::mcmc(t(mcmc_matrix[sample_x, ])))
+  # plot(coda::mcmc(t(mcmc_matrix[sample_x, ])))
     
 
   #   # jpeg( file = paste(fig_path, fig_name, round(penalty, 11), ".diagnostics", ".jpg", sep = ""))
@@ -116,6 +117,6 @@ pdf( file = paste(fig_path, fig_name, round(penalty, 11), ".diagnostics", ".pdf"
   
     dev.off()
   
-  list(bmeans)
+  return(bmeans)
 
 }

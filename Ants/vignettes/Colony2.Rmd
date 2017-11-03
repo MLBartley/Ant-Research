@@ -11,6 +11,8 @@ library(magrittr)
 library(ggplot2)
 library(dplyr)
 library(doMC)
+
+options(error = recover)
 ```
 
 
@@ -140,10 +142,10 @@ sumtable_model(results = simple_col2lo4qbin1, compare = seq(5000, 35000, by =  1
 
 ```{r penalized model, eval=FALSE, include=FALSE}
 
-tau <- matrix( c(.000001, 0, 
-                 0, .000001), nrow = 2, ncol = 2)
+tau <- matrix( c(.1, 0, 
+                 0, .1), nrow = 2, ncol = 2)
 gamma <- c(.005, .005)
-start <- list(X = X, lambda = lambda, gamma = gamma)
+start <- list(X = X, lambda = lambda, gamma = gamma) 
 delta_t <- 1
 
 # high density - one chamber
@@ -153,14 +155,14 @@ delta_t <- 1
 #low densith - queen's chamber USED FOR PAPER
 
 ##THIS ONE FOR JSM
-range <- exp(seq(-65, 30, by =  5))
+range <- exp(seq(-20, -10, by =  3))
 
 penalize_col2lo4qbin1 <- foreach(i = range,
                                   .errorhandling = "remove") %dopar% 
   DT_pen_mcmc(penalty = i, starts_data = col2_low4_5$queen_starts_persec, 
               states = states, ant_file = col2_low4_5$data, chamber = "queen",
-              hours = hours, 
-              a = .005, b = .001, c = .005, d = .001,
+              hours = 4,
+              a = 1, b = 1, c = 1, d = 1,
               tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
               delta_t = delta_t, start = start, 
               data_out = paste("../data/", "pen_MCMC", "-", 
@@ -185,11 +187,11 @@ pen_results <- list()
 for (r in 1:length(range)) {
   
 
-temp_results <-  load.csv(paste("../data/pen_MCMC-",
+temp_results <-  read.csv(paste("../data/pen_MCMC-",
                                 log(range[i]), "-", n_mcmc,  
-                                ".csv", sep = "")))
+                                ".csv", sep = ""))
 
-pen_results[[r]] <- penalty_diagnosis(temp_results, Time = hours * 60 * 60, fig_path = path,
+pen_results[[r]] <- penalty_diagnosis(t(temp_results)[-1, ], Time = hours * 60 * 60, fig_path = path,
                                 fig_name = "test", penalty = range[r])
 }
 

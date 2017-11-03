@@ -64,9 +64,11 @@ sim_DT_troph <- function(time_max, delta_t, start_state = 1,
    if (switch_rate[1] == 0) {
         state_tpm <- state_tpm
     } else {
-        state_tpm[1, 2] <- switch_rate[1] * exp(-switch_rate[1] * 1)/(switch_rate[1]/(-1 + exp(switch_rate[1])))
+        state_tpm[1, 2] <- switch_rate[1] * exp(-switch_rate[1] * 1) / 
+          (exp(1) / (exp(1) - 1)^2)
         state_tpm[1, 1] <- 1 - state_tpm[1, 2]
-        state_tpm[2, 1] <- switch_rate[2] * exp(-switch_rate[2] * 1)/(switch_rate[2]/(-1 + exp(switch_rate[2])))
+        state_tpm[2, 1] <- switch_rate[2] * exp(-switch_rate[2] * 1) / 
+          (exp(1) / (exp(1) - 1)^2)
         state_tpm[2, 2] <- 1 - state_tpm[1, 2]
     }
     
