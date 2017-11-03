@@ -2,3 +2,5 @@
 .Rhistory
 .RData
 packrat/lib*/
+simulation-practice/
+output/
