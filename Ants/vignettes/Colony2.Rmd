@@ -90,7 +90,7 @@ In order to showcase the improvements our Penalized Hidden Markov Model for colo
 path <- out.dir
 path_table <- "../output/tables/" 
 states <- 2
-n_mcmc <- 10000
+n_mcmc <- 3000
 hours <- 4
 X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
 lambda <- c(.005, .015)
@@ -159,15 +159,7 @@ range <- exp(seq(-20, -10, by =  3))
 
 penalize_col2lo4qbin1 <- foreach(i = range,
                                   .errorhandling = "remove") %dopar% 
-  DT_pen_mcmc(penalty = i, starts_data = col2_low4_5$queen_starts_persec, 
-              states = states, ant_file = col2_low4_5$data, chamber = "queen",
-              hours = 4,
-              a = 1, b = 1, c = 1, d = 1,
-              tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
-              delta_t = delta_t, start = start, 
-              data_out = paste("../data/", "pen_MCMC", "-", 
-                               log(i), "-", n_mcmc, ".csv", sep = ""))
-
+ pe
 
 
 #low density - entrance chamber
@@ -188,11 +180,11 @@ for (r in 1:length(range)) {
   
 
 temp_results <-  read.csv(paste("../data/pen_MCMC-",
-                                log(range[i]), "-", n_mcmc,  
+                                log(range[r]), "-", n_mcmc,  
                                 ".csv", sep = ""))
 
 pen_results[[r]] <- penalty_diagnosis(t(temp_results)[-1, ], Time = hours * 60 * 60, fig_path = path,
-                                fig_name = "test", penalty = range[r])
+                                fig_name = "ant_test", penalty = range[r])
 }
 
 

@@ -36,7 +36,7 @@ tau = matrix( c(.001, 0,
                 0, .001), nrow = 2, ncol = 2)
 penalty = exp(seq(-5, 5, by =  1)) 
 
-penalty = exp(seq(-20, -10, by = 1))
+penalty = exp(seq(-17, -11, by = 1))
 # penalty = exp(c(-20, -14, 7))
 
 # penalty = .00001
@@ -52,13 +52,19 @@ start = list(X = X, lambda = lambda, gamma = gamma)
 n.mcmc = 5000
 seconds = 1
 
-results = lapply(penalty, FUN = DT_pen_mcmc, starts_data = sim$inter_persec, states = 2, ant_file = sim, hours = 1, a = .08, b = .005, c = .08, d = .005, tau = tau, tau.pen = 0, n_mcmc = n.mcmc, delta_t = 1, start = start, fig_save = T, fig_path = "./Comprehensive-Exam-Prep/output_images/", fig_name = "simu_penalty")
+results = lapply(penalty, FUN = DT_pen_mcmc, starts_data = sim$inter_persec, states = 2, ant_file = sim, hours = 1, a = .08, b = .005, c = .08, d = .005, chamber = "none", tau = tau, tau.pen = 0, n_mcmc = n.mcmc, delta_t = 1, start = start, fig_save = T, fig_path = "./Comprehensive-Exam-Prep/output_images/", fig_name = "simu_penalty")
 
 sumtable_model(results = results, compare = penalty, 
   file_path = "./Comprehensive-Exam-Prep/output_tables/", 
   file_name = "sim_penalty", model = "penalized")
 
+theta <- matrix(data = c(1000, 1, 1, 1000), nrow = 2, ncol = 2, byrow = T) 
+P <- matrix(c(.997, .003, .003, .997), nrow = 2, byrow = T)
 
+start <- list(X = X, lambda = lambda, P = P)
+  
+simple <- DT_mcmc_troph(starts_data = sim$inter_persec, ant_file = sim, chamber = "none", title = "test", a = .08, b = .005, c = .08, d = .005, theta = theta, states = 2, n_mcmc = n.mcmc, delta_t = 1, hours = 1, param_start = start, fig_save = T, fig_path = "./Comprehensive-Exam-Prep/output_images/", 
+  fig_name = "sim_simple", plot_title = "Unpenalized HMM")
 
 # , y.data = sim$inter.persec, states = 2,
 #                  ant.file = sim, hours = 4, tau = tau, tau.pen = .01,
