@@ -16,10 +16,14 @@
 
 penalty_diagnosis <- function(mcmc_matrix, Time, fig_path, fig_name, penalty){
   
+  
+  
+  
+  
   source("http://www.stat.psu.edu/~mharan/batchmeans.R")
   
   #batch means (mean, s.error)
-  bmeans <- bmmat(t(mcmc_matrix))
+  bmeans <- bmmat(t(mcmc_matrix[-(Time+10:nrow(mcmc_matrix))]))
   
 pdf( file = paste(fig_path, fig_name, round(penalty, 11), ".diagnostics", ".pdf", sep = ""))  
   #estimates vs sample size
@@ -65,55 +69,29 @@ pdf( file = paste(fig_path, fig_name, round(penalty, 11), ".diagnostics", ".pdf"
   #ptm 
   plot(coda::mcmc(t(mcmc_matrix[6:9, ])))
   
-  #random time for state chain
-  # plot(coda::mcmc(t(mcmc_matrix[sample_x, ])))
+  #rounded estimates over time for sto process
+  
+   plot(round(bmeans[10:(10+Time),1 ]), type = "l")
     
 
-  #   # jpeg( file = paste(fig_path, fig_name, round(penalty, 11), ".diagnostics", ".jpg", sep = ""))
-  # 
-  # 
-  # # plot the estimation runs.
-  # 
-  # col <- c("#120d08", "#bc5356", "#538bbc", "#53bc84")
-  # 
-  # 
-  # 
-  # par(mfrow = c(2, 2), oma = c(0, 0, 2, 0) + 1, mar = c(1, 1, 1, 1) + 
-  #     3)
-  # 
-  # 
-  # # Rate Parameters
-  # plot(0, 0, xlab = "MCMC Runs", ylab = "Rates (per second)", ylim = c(0, 
-  #   max(switch_rate_param, st_rates_param[1:2, ])/delta_t), xlim = c(0, n_mcmc), 
-  #   type = "n", cex.lab = 1)
-  # lines(1:n_mcmc, (st_rates_param[1, ] + st_rates_param[2, ])/delta_t, 
-  #   col = col[1])
-  # lines(1:n_mcmc, st_rates_param[1, ], col = col[2])
-  # 
-  # lines(1:n_mcmc, switch_rate_param[1, ], col = col[3])
-  # lines(1:n_mcmc, switch_rate_param[2, ], col = col[4])
-  # 
-  # # X params
-  # 
-  # # P
-  # plot(0, 0, xlab = "MCMC Runs", ylab = "Probability Matrix for State Switching", 
-  #   ylim = c(0, max(st_ptm_param)), xlim = c(0, n_mcmc), type = "n", cex.lab = 1)
-  # for (i in 1:(4)) {
-  #   lines(1:n_mcmc, st_ptm_param[i, ], col = col[i])
-  # }
-  # 
-  # # Single X
-  # X <- states_param[sample(1:Time, 1), ]
-  # 
-  # plot(0, 0, xlab = "MCMC Runs", ylab = "Single X", ylim = c(0, max(X)), 
-  #   xlim = c(0, n_mcmc), type = "n", cex.lab = 1)
-  # lines(1:n_mcmc, X, col = col[4])
-  # 
-  # # States over time plot(X.est, type = 'l')
-  # plot(round(X.est), type = "l")
-  # 
-  # 
-  # title(main = "Diagnostic Plots", outer = T)
+   #fancy plot
+   par(mfrow = c(1, 1))
+   
+  
+     ## High Density - 4 Hours
+     plot(start, 1:Time, xlab = "Seconds", ylab = "Cumulative Interaction Count", 
+          xlim = c(0, Time))
+     states <- bmeans[-(1:9), 1]  #from code above
+     rr <- rle(states[, 1])
+     rr$values <- round(rr$values, digits = 0)
+     embedded.chain <- rr$values
+     cs <- c(0, cumsum(rr$lengths)) * delta_t - delta_t
+     cols <- c("#bc535644", "#538bbc44")
+     for (j in 1:length(embedded.chain)) {
+       rect(cs[j], 0, cs[j + 1], int.num, col = cols[embedded.chain[j]], 
+            density = NA)
+       
+     }
   
     dev.off()
   

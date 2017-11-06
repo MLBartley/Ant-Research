@@ -899,8 +899,8 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
       results <- rbind(st_rates_param, 
         switch_rate_param, 
         st_ptm_param, 
-        states_param 
-        # ,osa_param
+        states_param,
+        osa_param
         )
       
       
@@ -913,7 +913,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
       switch_rate_param[ , 1] <- switch_rate_param[ , 1000]
       st_ptm_param[ , 1] <- st_ptm_param[ , 1000]
       states_param[ , 1] <- states_param[ , 1000]
-      # osa_param[, 1] <- osa_param[ , 1000]
+      osa_param[, 1] <- osa_param[ , 1000]
       
       starts_low[ , 1] <- starts_low[ , 1000]
       starts_high[ , 1] <- starts_high[ , 1000]
