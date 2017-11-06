@@ -159,7 +159,16 @@ range <- exp(seq(-20, -10, by =  3))
 
 penalize_col2lo4qbin1 <- foreach(i = range,
                                   .errorhandling = "remove") %dopar% 
- pe
+
+  DT_pen_mcmc(penalty = i, starts_data = col2_low4_5$queen_starts_persec, 
+              states = states, ant_file = col2_low4_5$data, chamber = "queen",
+              hours = 4,
+              a = 1, b = 1, c = 1, d = 1,
+              tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
+              delta_t = delta_t, start = start, 
+              data_out = paste("../data/", "pen_MCMC", "-", 
+                               log(i), "-", n_mcmc, ".csv", sep = ""))
+
 
 
 #low density - entrance chamber
