@@ -166,7 +166,9 @@ penalize_col2lo4qbin1 <- foreach(i = range,
               tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
               delta_t = delta_t, start = start, 
               data_out = paste("../data/", "pen_MCMC", "-", 
-                               log(i), "-", n_mcmc, ".csv", sep = ""))
+                               log(i), "-", n_mcmc, ".csv", sep = ""), 
+              osa_out = paste("../data/", "pen_OSA", "-", 
+                               log(i), "-", n_mcmc, ".csv", sep = "")
 
 
 
@@ -184,22 +186,19 @@ MSPE_results <- matrix(NA, ncol = 2, nrow = length(range))
   for (r in 1:length(range)) {
   
 
-temp_results <-  readr::read_csv(paste("../data/pen_MCMC-",
+osa_param <-  readr::read_csv(paste("../data/pen_OSA-",
                                 log(range[r]), "-", n_mcmc,  
                                 ".csv", sep = ""))
 
-osa_param <- temp_results[, (11 + hours*60*60):(ncol(temp_results))]
+
 data <- col2_low4_5$queen_starts_persec
 
-  # sum.it <- 0
-  # 
-  # for (i in 2:(nrow(osa_param)/2)) { #i = 1 is starting values, meh ##CHANGE BACK TO ALL ROWS
-  #   for (t in 1:(hours * 60 * 60)) {
-  #     sum.it <- sum.it + (osa_param[i, t] - data[t])^2
-  #   }
-  # }
+data_mat <- matrix(rep(data, nrows(osa_param)), byrow = T)
+
+subtract <- osa_param - data_mat
+square <- subtract^2
+sum.it <- sum(square)
   
-  #MATRIX FORM AGAIN!! 
 
   MSPE.1SA <- 1/n_mcmc * 1/Time * sum.it
 
@@ -232,7 +231,7 @@ r <- 1
   
 
 temp_results <-  readr::read_csv(paste("../data/pen_MCMC-",
-                                log(range), "-", n_mcmc,  
+                                log(range[r]), "-", n_mcmc,  
                                 ".csv", sep = ""))
 
 pen_results[[r]] <- penalty_diagnosis(t(temp_results)[-1, ], Time = hours * 60 * 60, fig_path = path,

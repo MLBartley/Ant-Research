@@ -438,6 +438,7 @@ DT_mcmc_troph <- function(starts_data, ant_file, chamber, title, a, b, c, d, the
 #' @param delta_t Time segemnts the start data is binned into.
 #' @param start Starting values for the chains.
 #' @param data_out Name out file name for saving mcmc chains
+#' @param osa_out Name of out file for saving osa values
 #'
 #' @return  (1) - estimates of X, lambda, gamma, P (2) - 2x2 
 #'   visual of estimates over time (runs) (3) - color block state
@@ -451,7 +452,7 @@ DT_mcmc_troph <- function(starts_data, ant_file, chamber, title, a, b, c, d, the
 
 
 DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours, 
-  a, b, c, d, tau, tau.pen, n_mcmc, delta_t, start, data_out) {
+  a, b, c, d, tau, tau.pen, n_mcmc, delta_t, start, data_out, osa_out) {
   
 
   # starting values - mostly to keep this all in one place to easily
@@ -588,7 +589,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
     loglike <- sumX - # log(penalty) -
      ((1/(2 * penalty)) * ((params[1])^2 + (params[2])^2)) +
      log(params[1]) + log(params[2]) #H Norm prior
-       # ((1/(penalty)) * (log(params[1]) + log(params[2]))) +
+       # ((1/(penalty)) * ((params[1]) + (params[2]))) +
        # log(params[1]) + log(params[2]) #Exp prior
     return(loglike)
   }
@@ -603,10 +604,13 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
   results <- rbind(st_rates_param, 
     switch_rate_param, 
     st_ptm_param, 
-    states_param, 
-    osa_param)
+    states_param)
+  
+  osa_results <- osa_param
   
   write.csv(t(results[, 1]), file = data_out)
+  write.csv(t(osa_results), file = osa_out)
+  
   
   #shaby's adaptive tuning alg
   update.var <- function(cur.var, acpt.rt, opt.rt, gamma2){
@@ -900,13 +904,19 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
       results <- rbind(st_rates_param, 
         switch_rate_param, 
         st_ptm_param, 
-        states_param,
-        osa_param
-        )
+        states_param)
+      
+      osa_results <- osa_param
+        
       
       
       write.table(t(results[, 2:1000 ]), file = data_out, 
-        append = T, col.names = F, sep = ',')        
+        append = T, col.names = F, sep = ',')     
+      
+      write.table(t(osa_results[, 2:1000]), file = osa_out, 
+        append = T, col.names = F, sep = ',')
+      
+      
       #reset chain home
       #save most recent
       
