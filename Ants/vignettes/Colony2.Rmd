@@ -90,7 +90,7 @@ In order to showcase the improvements our Penalized Hidden Markov Model for colo
 path <- out.dir
 path_table <- "../output/tables/" 
 states <- 2
-n_mcmc <- 5000
+n_mcmc <- 10000
 hours <- 4
 X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
 lambda <- c(.005, .015)
@@ -155,7 +155,7 @@ delta_t <- 1
 #low densith - queen's chamber USED FOR PAPER
 
 ##THIS ONE FOR JSM
-range <- exp(seq(-20, -10, by =  3))
+range <- exp(seq(-19, -10, by =  1))
 
 penalize_col2lo4qbin1 <- foreach(i = range,
                                   .errorhandling = "remove") %dopar% 
@@ -178,68 +178,68 @@ penalize_col2lo4qbin1 <- foreach(i = range,
 
 Time = hours *60 *60
 
-MSPE_results <- t(data.frame(row.names = c("penalty", "MSPE", "accept")))
+MSPE_results <- matrix(NA, ncol = 2, nrow = length(range))
+  colnames(MSPE_results) = c("penalty", "MSPE")
 
-for (r in 1:length(range)) {
+  for (r in 1:length(range)) {
   
 
-temp_results <-  read.csv(paste("../data/pen_MCMC-",
+temp_results <-  readr::read_csv(paste("../data/pen_MCMC-",
                                 log(range[r]), "-", n_mcmc,  
                                 ".csv", sep = ""))
 
-osa_param <- temp_results[, (9 + hours*60*60):(ncol(temp_results))]
+osa_param <- temp_results[, (11 + hours*60*60):(ncol(temp_results))]
 data <- col2_low4_5$queen_starts_persec
 
-  sum.it <- 0
-
-  for (i in 1:n_mcmc) {
-    for (t in 1:(hours * 60 * 60)) {
-      sum.it <- sum.it + (osa_param[t, i] - data[t])^2
-    }
-  }
+  # sum.it <- 0
+  # 
+  # for (i in 2:(nrow(osa_param)/2)) { #i = 1 is starting values, meh ##CHANGE BACK TO ALL ROWS
+  #   for (t in 1:(hours * 60 * 60)) {
+  #     sum.it <- sum.it + (osa_param[i, t] - data[t])^2
+  #   }
+  # }
+  
+  #MATRIX FORM AGAIN!! 
 
   MSPE.1SA <- 1/n_mcmc * 1/Time * sum.it
 
 
 MSPE_results[r, 1] <- log(range[r])
 MSPE_results[r, 2] <- MSPE.1SA
-MSPE_results[r, 3] <- penalize_col2lo4qbin1[[r]]$accept
-}
+# MSPE_results[r, 3] <- penalize_col2lo4qbin1[[r]]$accept
+  }
+  
+MSPE_results <- as.data.frame(MSPE_results)
+  
+compare_plot <- ggplot(data = MSPE_results, aes(x = penalty, y = MSPE)) +
+                  geom_point(aes(x = penalty)) 
 
-compare_plot <- ggplot(data = MSPE, aes(log(penalty), MSPE)) +
-      geom_point(aes( x = log(penalty), colour = accept <= 1000))
 
-minMSPE <- MSPE_results[min(MSPE_results$MSPE), ]
+minMSPE <- MSPE_results[which.min(MSPE_results$MSPE), ]
+
+
+print(compare_plot)
+print(compare_plot + ylim(.0177, .018)) #limits chosen via observation of first plot
 ```
 
 ```{r penalized diagnoses, eval=FALSE, include=FALSE}
 
 pen_results <- list()
 
-range <- minMSPE[1] #if only want one penalty that has been optimized
-
-for (r in 1:length(range)) {
+range <- exp(minMSPE[1]) #if only want one penalty that has been optimized
+r <- 1
+# for (r in 1:length(range)) {
   
 
-temp_results <-  read.csv(paste("../data/pen_MCMC-",
-                                log(range[i]), "-", n_mcmc,  
+temp_results <-  readr::read_csv(paste("../data/pen_MCMC-",
+                                log(range), "-", n_mcmc,  
                                 ".csv", sep = ""))
 
 pen_results[[r]] <- penalty_diagnosis(t(temp_results)[-1, ], Time = hours * 60 * 60, fig_path = path,
                                 fig_name = "test", penalty = range[r])
-}
+# }
 
 
 ```
-
-
-
-
-```{r, eval=FALSE, include=FALSE}
-
-```
-
-
-
 
 

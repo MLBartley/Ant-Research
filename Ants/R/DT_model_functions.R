@@ -603,7 +603,8 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
   results <- rbind(st_rates_param, 
     switch_rate_param, 
     st_ptm_param, 
-    states_param)
+    states_param, 
+    osa_param)
   
   write.csv(t(results[, 1]), file = data_out)
   
