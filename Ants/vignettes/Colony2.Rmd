@@ -94,7 +94,7 @@ n_mcmc <- 10000
 hours <- 4
 X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
 lambda <- c(.005, .015)
-registerDoMC(cores = 5) 
+registerDoMC(cores = 10) 
 ```
 
 We will run all models as 2-state HMM models, as determined by previous work. 
@@ -155,7 +155,7 @@ delta_t <- 1
 #low densith - queen's chamber USED FOR PAPER
 
 ##THIS ONE FOR JSM
-range <- exp(seq(-19, -10, by =  1))
+range <- exp(seq(-19, -0, by =  1))
 
 penalize_col2lo4qbin1 <- foreach(i = range,
                                   .errorhandling = "remove") %dopar% 
@@ -168,7 +168,7 @@ penalize_col2lo4qbin1 <- foreach(i = range,
               data_out = paste("../data/", "pen_MCMC", "-", 
                                log(i), "-", n_mcmc, ".csv", sep = ""), 
               osa_out = paste("../data/", "pen_OSA", "-", 
-                               log(i), "-", n_mcmc, ".csv", sep = "")
+                               log(i), "-", n_mcmc, ".csv", sep = ""))
 
 
 
@@ -178,26 +178,29 @@ penalize_col2lo4qbin1 <- foreach(i = range,
 
 ```{r compare penalized, eval=FALSE, include=FALSE}
 
+#previous results - don't want to save over!
+
+# old_MSPE_results <- as.data.frame(MSPE_results)
+
 Time = hours *60 *60
 
 MSPE_results <- matrix(NA, ncol = 2, nrow = length(range))
   colnames(MSPE_results) = c("penalty", "MSPE")
 
-  for (r in 1:length(range)) {
+for (r in 1:length(range)) {
+
+  osa_param <-  readr::read_csv(paste("../data/pen_OSA-",
+                                  log(range[r]), "-", n_mcmc,  
+                                  ".csv", sep = ""))
   
-
-osa_param <-  readr::read_csv(paste("../data/pen_OSA-",
-                                log(range[r]), "-", n_mcmc,  
-                                ".csv", sep = ""))
-
-
-data <- col2_low4_5$queen_starts_persec
-
-data_mat <- matrix(rep(data, nrows(osa_param)), byrow = T)
-
-subtract <- osa_param - data_mat
-square <- subtract^2
-sum.it <- sum(square)
+  
+  data <- col2_low4_5$queen_starts_persec
+  
+  data_mat <- matrix(rep(data, nrow(osa_param)), byrow = T)
+  
+  subtract <- osa_param[, -1] - data_mat
+  square <- subtract^2
+  sum.it <- sum(square)
   
 
   MSPE.1SA <- 1/n_mcmc * 1/Time * sum.it
@@ -207,6 +210,10 @@ MSPE_results[r, 1] <- log(range[r])
 MSPE_results[r, 2] <- MSPE.1SA
 # MSPE_results[r, 3] <- penalize_col2lo4qbin1[[r]]$accept
   }
+  
+#combine with old data
+  
+  MSPE_results <- rbind(old_MSPE_results[, 1:2], MSPE_results)
   
 MSPE_results <- as.data.frame(MSPE_results)
   
@@ -218,7 +225,7 @@ minMSPE <- MSPE_results[which.min(MSPE_results$MSPE), ]
 
 
 print(compare_plot)
-print(compare_plot + ylim(.0177, .018)) #limits chosen via observation of first plot
+print(compare_plot + ylim(.0177, .019)) #limits chosen via observation of first plot
 ```
 
 ```{r penalized diagnoses, eval=FALSE, include=FALSE}

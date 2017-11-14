@@ -609,7 +609,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
   osa_results <- osa_param
   
   write.csv(t(results[, 1]), file = data_out)
-  write.csv(t(osa_results), file = osa_out)
+  write.csv(t(osa_results[, 1]), file = osa_out)
   
   
   #shaby's adaptive tuning alg
