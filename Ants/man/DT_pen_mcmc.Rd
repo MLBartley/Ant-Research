@@ -5,7 +5,7 @@
 \title{Penalized Discrete Time MCMC Estimation for Trophallaxis data}
 \usage{
 DT_pen_mcmc(penalty, starts_data, states, ant_file, chamber, hours, a, b, c, d,
-  tau, tau.pen, n_mcmc, delta_t, start, data_out)
+  tau, tau.pen, n_mcmc, delta_t, start, data_out, osa_out)
 }
 \arguments{
 \item{penalty}{Penalty parameter for the switching rates 
@@ -43,6 +43,8 @@ including Location and start times.}
 \item{start}{Starting values for the chains.}
 
 \item{data_out}{Name out file name for saving mcmc chains}
+
+\item{osa_out}{Name of out file for saving osa values}
 
 \item{title}{Title of diagnositic plots used to check model 
 results}

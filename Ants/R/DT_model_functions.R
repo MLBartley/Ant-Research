@@ -507,22 +507,38 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
   
   st_rates_param <- matrix(data = NA, nrow = n + 1, ncol = 1001, 
     byrow = T)
+  if (n == 2) {
   row.names(st_rates_param) <- c("trop.rate.low", "trop.rate.change", 
     "trop.rate.high")
+  }else{
+    row.names(st_rates_param) <- c("troph.rate.low", "troph.rate.changeLM", 
+                                       "troph.rate.changeMH", "troph.rate.high")
+    }
+  
   
   st_ptm_param <- matrix(data = NA, nrow = n * n, ncol = 1001, 
     byrow = T)
-  row.names(st_ptm_param) <- c("LL", "LH", "HL", "HH")
+  if (n == 2) {
+      row.names(st_ptm_param) <- c("LL", "LH", "HL", "HH")
+  }else{
+    row.names(st_ptm_param) <- c("LL", "LM", "LH", "ML", "MM", "MH", "HL", "HM", "HH")
+    }
   
   
   # note that we're just collecting the off diagonal (non zero) values, needed to calculate P
-  switch_rate_param <- matrix(NA, nrow = n, ncol = 1001, byrow = T)
-  row.names(switch_rate_param) <- c("switch.rate.LH", "switch.rate.HL")
+  switch_rate_param <- matrix(NA, nrow = (n * n - n), ncol = 1001, byrow = T)
+  if (n == 2) {
+      row.names(switch_rate_param) <- c("switch.rate.LH", "switch.rate.HL")
+  }else{
+    row.names(switch_rate_param) <- c("switch.rate.LH", "switch.rate.HL", "switch.rate.ML", 
+                                      "switch.rate.MH", "switch.rate.LM", "switch.rate.HM")
+  }
   
   # probability home for generating states_param,
-  gam <- matrix(NA, nrow = Time, ncol = n, byrow = T)
+  # gam <- matrix(NA, nrow = Time, ncol = n, byrow = T)
   
   starts_low <- matrix(NA, nrow = Time, ncol = 1001)
+  if (n == 3) {starts_med <- matrix(NA, nrow = Time, ncol = 1001)}
   starts_high <- matrix(NA, nrow = Time, ncol = 1001)
   
   # penalty.param = matrix(NA, 1, n_mcmc, T)
@@ -533,18 +549,34 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
   
   osa_param[, 1] <- data
   
-  st_rates_param[1, 1] <- lambda.start[1]  #lambda low
-  st_rates_param[2, 1] <- lambda.start[2] - lambda.start[1]  #change in lambda
+  if (n == 2) {
+    st_rates_param[1, 1] <- lambda.start[1]  #lambda low
+    st_rates_param[2, 1] <- lambda.start[2] - lambda.start[1]  #change in lambda LH
+    st_rates_param[3, 1] <- st_rates_param[1, 1] + st_rates_param[2, 1]  #lambda high, not needed, just a reminder  
+    
+    switch_rate_param[1, 1] <- gamma.start[1]  #LH
+    switch_rate_param[2, 1] <- gamma.start[2]  #HL 
+    
+  }else{
+    st_rates_param[1, 1] <- lambda.start[1]  #lambda low
+    st_rates_param[2, 1] <- lambda.start[2] - lambda.start[1]  #change in lambda LM
+    st_rates_param[3, 1] <- lambda.start[3] - lambda.start[1]  #change in lambda MH
+    st_rates_param[4, 1] <- lambda.start[4] #lambda high - not really needed
+    
+    switch_rate_param[1, 1] <- gamma.start[1]  #LH
+    switch_rate_param[2, 1] <- gamma.start[2]  #HL 
+    switch_rate_param[3, 1] <- gamma.start[3]  #ML
+    switch_rate_param[4, 1] <- gamma.start[4]  #MH 
+    switch_rate_param[5, 1] <- gamma.start[5]  #LM
+    switch_rate_param[6, 1] <- gamma.start[6]  #HM 
+  }
   
-  st_rates_param[3, 1] <- st_rates_param[1, 1] + st_rates_param[2, 1]  #lambda high, not needed, just a reminder  
-  
-  switch_rate_param[1, 1] <- gamma.start[1]  #LH
-  switch_rate_param[2, 1] <- gamma.start[2]  #HL 
+
   
   ptm_matrix <- matrix(NA, nrow = n, ncol = n, byrow = T)
   
-  
-  ptm_matrix[1, 2] <- switch_rate_param[1, 1] * exp(-switch_rate_param[1, 1] * delta_t) / 
+  if (n == 2) {
+    ptm_matrix[1, 2] <- switch_rate_param[1, 1] * exp(-switch_rate_param[1, 1] * delta_t) / 
     (exp(1) / (exp(1) - 1)^2)
   
   ptm_matrix[1, 1] <- 1 - ptm_matrix[1, 2]
@@ -552,12 +584,40 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
   ptm_matrix[2, 1] <- switch_rate_param[2, 1] * exp(-switch_rate_param[2, 1] * delta_t) /
     (exp(1) / (exp(1) - 1)^2)
   
-  ptm_matrix[2, 2] <- 1 - ptm_matrix[1, 2]
+  ptm_matrix[2, 2] <- 1 - ptm_matrix[2, 1]
+  }else{
+    ptm_matrix[1, 2] <- switch_rate_param[5, 1] * exp(-switch_rate_param[5, 1] * delta_t) / 
+      (exp(1) / (exp(1) - 1)^2) #LM
+    
+    ptm_matrix[1, 3] <- switch_rate_param[2, 1] * exp(-switch_rate_param[2, 1] * delta_t) / 
+      (exp(1) / (exp(1) - 1)^2) #LH
+    
+    ptm_matrix[1, 1] <- 1 - ptm_matrix[1, 2] - ptm_matrix[1, 3] #LL
+    
+    ptm_matrix[2, 1] <- switch_rate_param[3, 1] * exp(-switch_rate_param[3, 1] * delta_t) /
+      (exp(1) / (exp(1) - 1)^2) #ML
+    
+    ptm_matrix[2, 3] <- switch_rate_param[4, 1] * exp(-switch_rate_param[4, 1] * delta_t) /
+      (exp(1) / (exp(1) - 1)^2) #MH
+    
+    ptm_matrix[2, 2] <- 1 - ptm_matrix[2, 1] - ptm_matrix[2, 3] #MM
+    
+    ptm_matrix[3, 1] <- switch_rate_param[2, 1] * exp(-switch_rate_param[2, 1] * delta_t) /
+      (exp(1) / (exp(1) - 1)^2) #HL
+    
+    ptm_matrix[3, 2] <- switch_rate_param[6, 1] * exp(-switch_rate_param[6, 1] * delta_t) /
+      (exp(1) / (exp(1) - 1)^2) #HM
+    
+    ptm_matrix[3, 3] - 1 - ptm_matrix[3, 1] - ptm_matrix[3, 2] #HH
+    
+  }
+  
   
   st_ptm_param[, 1] <- as.vector(t(ptm_matrix))
   
   
-  for (t in 1:Time) {
+ if (n == 2) { 
+   for (t in 1:Time) {
     if (states_param[t, 1] == 1) {
       starts_low[t, 1] <- data[t]
       starts_high[t, 1] <- 0
@@ -566,9 +626,24 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
         1], st_rates_param[2, 1]))
       starts_low[t, 1] <- split[1]
       starts_high[t, 1] <- split[2]
+      }
+   }
+ }else{
+   for (t in 1:Time) {
+     if (states_param[t, 1] == 1) {
+       starts_low[t, 1] <- data[t]
+       starts_med[t, 1] <- 0
+       starts_high[t, 1] <- 0
+     } else {
+       split <- rmultinom(1, size = data[t], prob = c(st_rates_param[1, 
+         1], st_rates_param[2, 1], st_rates_param[3, 1]))
+       starts_low[t, 1] <- split[1]
+       starts_med[t, 1] <- split[2]
+       starts_high[t, 1] <- split[3]
+       }
     }
-    
-  }
+}
+  
   
   # penalty.param[1, 1] = penalty
   
@@ -586,11 +661,26 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
         l.1000 - 1]])
     }
     
-    loglike <- sumX - # log(penalty) -
+    if (n == 2) {
+      loglike <- sumX - # log(penalty) -
      ((1/(2 * penalty)) * ((params[1])^2 + (params[2])^2)) +
      log(params[1]) + log(params[2]) #H Norm prior
-       # ((1/(penalty)) * ((params[1]) + (params[2]))) +
+     
+      # ((1/(penalty)) * ((params[1]) + (params[2]))) +
        # log(params[1]) + log(params[2]) #Exp prior
+    }else{
+      loglike <- sumX - # log(penalty) -
+        ((1/(2 * penalty)) * ((params[1])^2 + (params[2])^2 + 
+              params[3]^2 + params[4]^2 + params[5]^2 + params[6]^2)) + 
+              log(params[1]) + log(params[2]) + log(params[3]) + 
+              log(params[4]) + log(params[5]) + log(params[6])
+      
+      # ((1/(penalty)) * ((params[1]) + (params[2]) + 
+      #     params[3] + params[4] + params[5] + params[6])) + 
+      #   log(params[1]) + log(params[2]) + log(params[3]) + 
+      #   log(params[4]) + log(params[5]) + log(params[6]) #EXP PRIOR
+    }
+    
     return(loglike)
   }
   
@@ -683,8 +773,8 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
 
     ## Need to take the gamma values we've proposed and caluate the P
     ## matrix for probability of 'jumping' between states
-    
-    ptm_matrix[1, 2] <- theta.star[1] * exp(-theta.star[1] * delta_t) / 
+    if (n == 2) {
+      ptm_matrix[1, 2] <- theta.star[1] * exp(-theta.star[1] * delta_t) / 
                         (exp(1) / (exp(1) - 1)^2)
     
     ptm_matrix[1, 1] <- 1 - ptm_matrix[1, 2]
@@ -693,6 +783,32 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
                         (exp(1) / (exp(1) - 1)^2)
     
     ptm_matrix[2, 2] <- 1 - ptm_matrix[2, 1]
+    }else{ 
+      ptm_matrix[1, 2] <- theta.star[5] * exp(-theta.star[5] * delta_t) / 
+        (exp(1) / (exp(1) - 1)^2) #LM
+      
+      ptm_matrix[1, 3] <- theta.star[2] * exp(-theta.star[2] * delta_t) / 
+        (exp(1) / (exp(1) - 1)^2) #LH
+      
+      ptm_matrix[1, 1] <- 1 - ptm_matrix[1, 2] - ptm_matrix[1, 3] #LL
+      
+      ptm_matrix[2, 1] <- theta.star[3] * exp(-theta.star[3] * delta_t) /
+        (exp(1) / (exp(1) - 1)^2) #ML
+      
+      ptm_matrix[2, 3] <- theta.star[4] * exp(-theta.star[4] * delta_t) /
+        (exp(1) / (exp(1) - 1)^2) #MH
+      
+      ptm_matrix[2, 2] <- 1 - ptm_matrix[2, 1] - ptm_matrix[2, 3] #MM
+      
+      ptm_matrix[3, 1] <- theta.star[2] * exp(-theta.star[2] * delta_t) /
+        (exp(1) / (exp(1) - 1)^2) #HL
+      
+      ptm_matrix[3, 2] <- theta.star[6] * exp(-theta.star[6] * delta_t) /
+        (exp(1) / (exp(1) - 1)^2) #HM
+      
+      ptm_matrix[3, 3] - 1 - ptm_matrix[3, 1] - ptm_matrix[3, 2] #HH
+      }
+    
     
     P.star <- as.vector(t(ptm_matrix))
     
@@ -742,44 +858,81 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
     ptm_matrix <- matrix(data = c(st_ptm_param[, l.1000]), nrow = n, ncol = n,
        byrow = T)
     # 
-     m <- matrix(data = 0, nrow = 2, ncol = 2)
-     rownames(m) <- c("low", "high")
+     m <- matrix(data = 0, nrow = n, ncol = n)
+     if (n == 2){
+         rownames(m) <- c("low", "high")
      colnames(m) <- c("low", "high")
+     }else{
+       rownames(m) <- c("low", "med", "high")
+       colnames(m) <- c("low", "med", "high")
+     }
+   
     # # number states going from i to j, refreshes every run
     # 
      st_rate_low <- st_rates_param[1, l.1000 - 1]
      st_rate_high <- st_rate_low + st_rates_param[2, l.1000 - 1]
+     
+     if (n == 3) {
+       st_rate_med <- st_rate_param[2, l.1000 - 1]
+       st_rate_high <- st_rate_high + st_rates_param[3, l.1000 - 1]
+       }
     # 
     # 
     # #alpha values - needed to do black of backward X updates a la Zuchinni et al
     # 
-    alpha_step <- matrix(NA, Time, 2)
+    alpha_step <- matrix(NA, Time, n)
 #break alpha step calculations into 2 blocks
     
-    diag_P <- matrix(c(dpois(data[1], st_rate_low),0,
+    if (n == 2) {
+      diag_P <- matrix(c(dpois(data[1], st_rate_low),0,
       0, dpois(data[1], st_rate_high)), 2, 2)
-
+    }else{
+      diag_P <- matrix(c(dpois(data[1], st_rate_low), 0, 0, 
+        0, dpois(data[1], st_rate_med), 0, 
+        0, 0, dpois(data[1], st_rate_high)), 3, 3)
+    }
+    
 
     alpha_step[1, ] <- delta %*% diag_P
 
     for (t in 2:(Time/2)) {
+      if (n == 2) {
       diag_P <- matrix(c(dpois(data[t], st_rate_low),0,
         0, dpois(data[t], st_rate_high)), 2, 2)
+    }else{
+      diag_P <- matrix(c(dpois(data[t], st_rate_low), 0, 0, 
+        0, dpois(data[t], st_rate_med), 0, 
+        0, 0, dpois(data[t], st_rate_high)), 3, 3)
+    }
 
       alpha_step[t, ] <- alpha_step[(t - 1), ] %*% ptm_matrix %*% diag_P
     }
 
 #block 2
     
-    diag_P <- matrix(c(dpois(data[(Time/2) + 1], st_rate_low),0,
-      0, dpois(data[(Time/2) + 1], st_rate_high)), 2, 2)
+    if (n == 2) {
+      diag_P <- matrix(c(dpois(data[(Time/2) + 1], st_rate_low),0,
+        0, dpois(data[(Time/2) + 1], st_rate_high)), 2, 2)
+    }else{
+      diag_P <- matrix(c(dpois(data[Time/2 + 1], st_rate_low), 0, 0, 
+        0, dpois(data[Time/2 + 1], st_rate_med), 0, 
+        0, 0, dpois(data[Time/2 + 1], st_rate_high)), 3, 3)
+    }
+    
     
     
     alpha_step[(Time/2) + 1, ] <- delta %*% diag_P
     
     for (t in (Time/2 + 2):Time) {
-      diag_P <- matrix(c(dpois(data[t], st_rate_low),0,
-        0, dpois(data[t], st_rate_high)), 2, 2)
+      
+      if (n == 2) {
+        diag_P <- matrix(c(dpois(data[t], st_rate_low),0,
+          0, dpois(data[t], st_rate_high)), 2, 2)
+      }else{
+        diag_P <- matrix(c(dpois(data[t], st_rate_low), 0, 0, 
+          0, dpois(data[t], st_rate_med), 0, 
+          0, 0, dpois(data[t], st_rate_high)), 3, 3)
+      }
       
       alpha_step[t, ] <- alpha_step[(t - 1), ] %*% ptm_matrix %*% diag_P
     }
