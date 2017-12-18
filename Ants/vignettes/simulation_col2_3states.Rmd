@@ -1,0 +1,74 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(mvtnorm)
+
+set.seed(2017)
+simulated2 <- sim_DT_troph(states = 2, time_max = 4*60*60, delta_t = 1, start_state = 1, switch_rate = c(.005, .005), int_rate = c(.005, .02), num_locations = 1, state_tpm = matrix(c(.99, .01, .01, .99), nrow = 2, byrow = T))
+
+simulated3 <- sim_DT_troph(states = 3, time_max = 1*60*60, delta_t = 1, start_state = 1, switch_rate = rep(.002, 6), int_rate = c(0, .06, .18), num_locations = 1, state_tpm = matrix(NA, nrow = 3, ncol = 3, byrow = T))
+```
+
+```{r two state}
+n_mcmc <- 5000
+tau <- matrix( c(.1, 0, 
+                 0, .1), nrow = 2, ncol = 2)
+gamma <- c(.005, .005)
+X <- simulated$state
+lambda <- c(.005, .02)
+start <- list(X = X, lambda = lambda, gamma = gamma)
+i <- exp(-5)
+
+run_model <- DT_pen_mcmc(penalty = i, starts_data = simulated$inter_persec, 
+                        states = 2, ant_file = simulated, chamber = "queen", 
+                        hours = 4, a = 1, b = 1, c = 1, d = 1, 
+                        tau = tau, tau.pen = 0, n_mcmc = n_mcmc, delta_t = 1,
+                        start = start, data_out =  paste("../data/", "sim_pen_MCMC", "-", 
+                               log(i), "-", n_mcmc, ".csv", sep = ""))
+
+```
+
+
+```{r three state}
+n_mcmc <- 5000
+tau <- matrix( c(.1, 0, 
+                 0, .1), nrow = 2, ncol = 2)
+gamma <- rep(.002, 6)
+X <- simulated3$state
+lambda <- c(0, 0.06, .18)
+start <- list(X = X, lambda = lambda, gamma = gamma)
+i <- exp(-8)
+
+run_model_3 <- DT_pen_mcmc(penalty = i, starts_data = simulated3$inter_persec, 
+                        states = 3, ant_file = simulated3, chamber = "queen", 
+                        hours = 1, a = 1, b = 1, c = 1, d = 1, e = 1, f = 1, 
+                        tau = tau, tau.pen = 0, n_mcmc = n_mcmc, delta_t = 1,
+                        start = start, data_out =  paste("../data/", "sim_pen_MCMC", "-", 
+                               log(i), "-", n_mcmc, ".csv", sep = ""), 
+                        osa_out = paste("../data/", "pen_OSA", "-", 
+                               log(i), "-", n_mcmc, ".csv", sep = ""))
+
+```
+
+```{r}
+
+
+
+temp_results <- readr::read_csv("~/Google Drive/PSU/Projects/Ant-Research/Ants/data/sim_pen_MCMC--8-5000.csv")
+
+path <- "../output/"
+
+#read in data to temp_results
+
+delta_t <- 1
+sim_diag <-  penalty_diagnosis(t(temp_results)[-1, ], 
+                               ant_file = simulated3,
+                              chamber = "queen", states = 3, 
+                              Time = 1 * 60 * 60, fig_path = path,
+                                fig_name = "test", penalty = exp(-8))
+
+```
+
