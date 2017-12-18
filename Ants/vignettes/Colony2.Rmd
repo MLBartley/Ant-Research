@@ -90,6 +90,7 @@ In order to showcase the improvements our Penalized Hidden Markov Model for colo
 path <- out.dir
 path_table <- "../output/tables/" 
 states <- 2
+# states <- 3
 n_mcmc <- 10000
 hours <- 4
 X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
@@ -212,13 +213,13 @@ MSPE_results[r, 2] <- MSPE.1SA
 # MSPE_results[r, 3] <- penalize_col2lo4qbin1[[r]]$accept
 }
   
-#remove useless stuff
-  rm(data_mat)
-  # rm(final)
-  rm(osa_param)
-  # rm(square)
-  # rm(subtract)
+
   
+  #remove useless stuff
+  rm(data_mat)
+  rm(final)
+  rm(osa_param)
+
   
 #combine with old data
   MSPE_results <- rbind(old_MSPE_results[, 1:2], MSPE_results)
