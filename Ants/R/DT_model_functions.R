@@ -175,8 +175,8 @@ DT_mcmc_troph <- function(starts_data, ant_file, chamber, title, a, b, c, d, the
           1, l - 1], 1] * ptm_matrix[1, states_param[t + 1, l - 1]]
       
       gam[t, 2] <- st_rates_high^data[t] * exp(-st_rates_high) * 
-        ptm_matrix[states_param[t - 1, l.1000 - 1], 2] * ptm_matrix[2, states_param[t + 
-            1, l.1000 - 1]]
+        ptm_matrix[states_param[t - 1, l - 1], 2] * ptm_matrix[2, states_param[t + 
+            1, l - 1]]
       
       
       

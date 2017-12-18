@@ -94,7 +94,7 @@ n_mcmc <- 10000
 hours <- 4
 X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
 lambda <- c(.005, .015)
-registerDoMC(cores = 10) 
+registerDoMC(cores = 5) 
 ```
 
 We will run all models as 2-state HMM models, as determined by previous work. 
@@ -112,13 +112,14 @@ param_start <- list(X = X, lambda = lambda, P = P)
 
 #low density - queen's chamber -- USED FOR PAPER
 
+range_simple <- seq(20000, 35000, by =  1000)
 
-simple_col2lo4qbin1 <- foreach(i = seq(5000, 35000, by =  1000) ,
+simple_col2lo4qbin1 <- foreach(i = range_simple ,
                                 .errorhandling = "remove") %dopar% 
                         DT_mcmc_troph(starts_data = col2_low4_5$queen_starts_persec, 
                                      ant_file = col2_low4_5$data, chamber = "queen", 
                                      title = "Test", 
-                                     a = .005, b = .001, c = .005, d = .001, 
+                                     a = 1, b = 1, c = 1, d = 1, 
                                      theta = matrix(c(i, 1, 1, i), 2, 2), states = states, 
                                      n_mcmc = n_mcmc, delta_t = 1, hours = hours,
                                      param_start = param_start, fig_save = TRUE, 
@@ -130,8 +131,8 @@ simple_col2lo4qbin1 <- foreach(i = seq(5000, 35000, by =  1000) ,
 
 ```
 
-```{r compare simple}
-sumtable_model(results = simple_col2lo4qbin1, compare = seq(5000, 35000, by =  1000), 
+```{r compare simple, eval=FALSE, include=FALSE}
+sumtable_model(results = simple_col2lo4qbin1, compare = range_simple, 
                file_path = path_table, 
                file_name = "test", model = "simple")
 
@@ -155,7 +156,7 @@ delta_t <- 1
 #low densith - queen's chamber USED FOR PAPER
 
 ##THIS ONE FOR JSM
-range <- exp(seq(-19, -0, by =  1))
+range <- exp(seq(-40, -22, by =  2))
 
 penalize_col2lo4qbin1 <- foreach(i = range,
                                   .errorhandling = "remove") %dopar% 
@@ -180,7 +181,7 @@ penalize_col2lo4qbin1 <- foreach(i = range,
 
 #previous results - don't want to save over!
 
-# old_MSPE_results <- as.data.frame(MSPE_results)
+   old_MSPE_results <- as.data.frame(MSPE_results)
 
 Time = hours *60 *60
 
@@ -198,9 +199,9 @@ for (r in 1:length(range)) {
   
   data_mat <- matrix(rep(data, nrow(osa_param)), byrow = T)
   
-  subtract <- osa_param[, -1] - data_mat
-  square <- subtract^2
-  sum.it <- sum(square)
+  sum.it <- sum((osa_param[, -1] - data_mat)^2)
+  # square <- subtract^2
+  # sum.it <- sum(square)
   
 
   MSPE.1SA <- 1/n_mcmc * 1/Time * sum.it
@@ -209,10 +210,17 @@ for (r in 1:length(range)) {
 MSPE_results[r, 1] <- log(range[r])
 MSPE_results[r, 2] <- MSPE.1SA
 # MSPE_results[r, 3] <- penalize_col2lo4qbin1[[r]]$accept
-  }
+}
+  
+#remove useless stuff
+  rm(data_mat)
+  # rm(final)
+  rm(osa_param)
+  # rm(square)
+  # rm(subtract)
+  
   
 #combine with old data
-  
   MSPE_results <- rbind(old_MSPE_results[, 1:2], MSPE_results)
   
 MSPE_results <- as.data.frame(MSPE_results)
@@ -223,9 +231,14 @@ compare_plot <- ggplot(data = MSPE_results, aes(x = penalty, y = MSPE)) +
 
 minMSPE <- MSPE_results[which.min(MSPE_results$MSPE), ]
 
+#out of curiosity
+maxMSPE <- MSPE_results[which.max(MSPE_results$MSPE), ]
+
 
 print(compare_plot)
 print(compare_plot + ylim(.0177, .019)) #limits chosen via observation of first plot
+
+
 ```
 
 ```{r penalized diagnoses, eval=FALSE, include=FALSE}
@@ -233,18 +246,27 @@ print(compare_plot + ylim(.0177, .019)) #limits chosen via observation of first 
 pen_results <- list()
 
 range <- exp(minMSPE[1]) #if only want one penalty that has been optimized
-r <- 1
-# for (r in 1:length(range)) {
+ r <- 1
+
+range <- c(exp(minMSPE[1]), exp(maxMSPE[1]))
+range <- as.data.frame(range)
+
+ for (r in 1:length(range)) {
   
 
 temp_results <-  readr::read_csv(paste("../data/pen_MCMC-",
                                 log(range[r]), "-", n_mcmc,  
                                 ".csv", sep = ""))
 
-pen_results[[r]] <- penalty_diagnosis(t(temp_results)[-1, ], Time = hours * 60 * 60, fig_path = path,
-                                fig_name = "test", penalty = range[r])
-# }
+pen_results[[r]] <- penalty_diagnosis(t(temp_results)[-1, ], 
+                                      ant_file = col2_low4_5$data, 
+                                      chamber = "queen", 
+                                      Time = hours * 60 * 60, fig_path = path,
+                                fig_name = "optimizedMSPE", penalty = range[r])
+ }
 
+
+rm(temp_results)
 
 ```
 

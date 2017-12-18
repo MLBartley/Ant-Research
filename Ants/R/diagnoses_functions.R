@@ -2,6 +2,8 @@
 #' Diagnoses of Penalized HMM Model 
 #'
 #' @param mcmc_matrix 
+#' @param ant_file
+#' @param chamber
 #' @param Time
 #' @param fig_path
 #' @param fig_name
@@ -14,16 +16,13 @@
 #'
 
 
-penalty_diagnosis <- function(mcmc_matrix, Time, fig_path, fig_name, penalty){
-  
-  
-  
+penalty_diagnosis <- function(mcmc_matrix, ant_file, chamber, Time, fig_path, fig_name, penalty){
   
   
   source("http://www.stat.psu.edu/~mharan/batchmeans.R")
   
   #batch means (mean, s.error)
-  bmeans <- bmmat(t(mcmc_matrix[-(Time+10:nrow(mcmc_matrix))]))
+  bmeans <- bmmat(t(mcmc_matrix))
   
 pdf( file = paste(fig_path, fig_name, round(penalty, 11), ".diagnostics", ".pdf", sep = ""))  
   #estimates vs sample size
@@ -55,8 +54,8 @@ pdf( file = paste(fig_path, fig_name, round(penalty, 11), ".diagnostics", ".pdf"
     par(mfrow = c(1, 1))
     
     sample_x <- sample(x = 10:nrow(mcmc_matrix), 1)
-    estvssamp(samp = mcmc_matrix[sample_x, ], plotname = "Behavior State: Random Time Chain")
-    
+    # estvssamp(samp = mcmc_matrix[sample_x, ], plotname = "Behavior State: Random Time Chain")
+    # 
   
   # visualization
     
@@ -71,18 +70,38 @@ pdf( file = paste(fig_path, fig_name, round(penalty, 11), ".diagnostics", ".pdf"
   
   #rounded estimates over time for sto process
   
-   plot(round(bmeans[10:(10+Time),1 ]), type = "l")
+   plot(round(bmeans[-(1:9), 1 ]), type = "l")
     
 
    #fancy plot
+   
+   # needed for final graphic
+   location <- ant_file$Location
+   start <- ant_file$start_time
+   # chamber <- chamber
+   
+   if (length(unique(location)) != 1){
+     
+     if(chamber == "queen") {
+       start = start[which(location == 1)] 
+     }else {
+       start = start[which(location == 4)]
+     }
+   }
+   
+   start <- sort(start)
+   int.num <- length(start)
+   maxtime <- hours * 60 * 60
+   
+   
    par(mfrow = c(1, 1))
    
   
      ## High Density - 4 Hours
-     plot(start, 1:Time, xlab = "Seconds", ylab = "Cumulative Interaction Count", 
+     plot(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative Interaction Count", 
           xlim = c(0, Time))
      states <- bmeans[-(1:9), 1]  #from code above
-     rr <- rle(states[, 1])
+     rr <- rle(states)
      rr$values <- round(rr$values, digits = 0)
      embedded.chain <- rr$values
      cs <- c(0, cumsum(rr$lengths)) * delta_t - delta_t
@@ -92,6 +111,8 @@ pdf( file = paste(fig_path, fig_name, round(penalty, 11), ".diagnostics", ".pdf"
             density = NA)
        
      }
+     points(start, 1:int.num,
+            xlim = c(0, maxtime))
   
     dev.off()
   
