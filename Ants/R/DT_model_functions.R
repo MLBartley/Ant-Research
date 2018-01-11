@@ -1117,7 +1117,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
     ###################################### Every 1000 iterations
 
     if (l %% 1000 == 0) {
-      # print out every 100 iterations completed
+      # print out every 1000 iterations completed
       cat(paste("iteration", l, "complete\n"))
 
       #save off chunk of 1000 chains
