@@ -11,6 +11,7 @@ library(magrittr)
 library(ggplot2)
 library(dplyr)
 library(doMC)
+library(mvtnorm)
 
 options(error = recover)
 ```
@@ -96,7 +97,7 @@ hours <- 4
 X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
 X_3 <- sample(x = 1:3, size = hours * 60 * 60, replace = T)
 lambda <- c(.005, .015)
-registerDoMC(cores = 5) 
+# registerDoMC(cores = 5) 
 ```
 
 We will run all models as 2-state HMM models, as determined by previous work. 
@@ -323,7 +324,7 @@ MSPE_results_THREE <- matrix(NA, ncol = 2, nrow = length(range_3))
 for (r in 1:length(range_3)) {
 
   osa_param <-  readr::read_csv(paste("../data/pen3_OSA-",
-                                  log(range[r]), "-", n_mcmc,  
+                                  log(range_3[r]), "-", n_mcmc,  
                                   ".csv", sep = ""))
   
   
