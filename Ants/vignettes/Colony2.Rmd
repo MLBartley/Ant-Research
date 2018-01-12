@@ -89,8 +89,8 @@ In order to showcase the improvements our Penalized Hidden Markov Model for colo
 
 path <- out.dir
 path_table <- "../output/tables/" 
-states <- 2
-# states <- 3
+# states <- 2
+states <- 3
 n_mcmc <- 5000
 hours <- 4
 X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
