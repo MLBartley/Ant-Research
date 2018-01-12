@@ -262,6 +262,7 @@ temp_results <-  readr::read_csv(paste("../data/pen_MCMC-",
                                 ".csv", sep = ""))
 
 pen_results[[r]] <- penalty_diagnosis(t(temp_results)[-1, ], 
+                                      states = 2, 
                                       ant_file = col2_low4_5$data, 
                                       chamber = "queen", 
                                       Time = hours * 60 * 60, fig_path = path,
@@ -323,7 +324,7 @@ MSPE_results_THREE <- matrix(NA, ncol = 2, nrow = length(range_3))
 for (r in 1:length(range_3)) {
 
   osa_param <-  readr::read_csv(paste("../data/pen3_OSA-",
-                                  log(range[r]), "-", n_mcmc,  
+                                  log(range_3[r]), "-", n_mcmc,  
                                   ".csv", sep = ""))
   
   
@@ -364,7 +365,7 @@ compare_plot_3 <- ggplot(data = MSPE_results_THREE, aes(x = penalty, y = MSPE)) 
 minMSPE_3 <- MSPE_results_THREE[which.min(MSPE_results_THREE$MSPE), ]
 
 #out of curiosity
-maxMSPE_3 <- MSPE_results_THREE[which.max(MSPE_results$MSPE_THREE), ]
+maxMSPE_3 <- MSPE_results_THREE[which.max(MSPE_results_THREE$MSPE), ]
 
 
 print(compare_plot_3)
@@ -402,4 +403,3 @@ pen3_results[[r]] <- penalty_diagnosis(t(temp_results)[, -1 ],
 rm(temp_results)
 
 ```
-
