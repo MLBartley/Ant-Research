@@ -29,6 +29,7 @@ n <- states
   bmeans <- bmmat(t(mcmc_matrix))
 
 pdf( file = paste(fig_path, fig_name, round(penalty, 11), ".diagnostics", ".pdf", sep = ""))
+
   #estimates vs sample size
 
     #lamdas - trop.rate(L/H)
@@ -94,6 +95,9 @@ if (n == 2) {
     estvssamp(samp = mcmc_matrix[sample_x, ], plotname = "Behavior State: Random Time Chain")
 
 
+    # estvssamp(samp = mcmc_matrix[sample_x, ], plotname = "Behavior State: Random Time Chain")
+    #
+
   # visualization
 
   #lambdas - troph.rate
@@ -122,6 +126,12 @@ if (n == 2) {
 
       plot(round(bmeans[-(1:19), 1]), type = "l")
     }
+
+
+   #fancy plot
+
+
+   plot(round(bmeans[-(1:9), 1 ]), type = "l")
 
 
    #fancy plot

@@ -11,6 +11,7 @@ library(magrittr)
 library(ggplot2)
 library(dplyr)
 library(doMC)
+library(mvtnorm)
 
 options(error = recover)
 ```
@@ -89,13 +90,14 @@ In order to showcase the improvements our Penalized Hidden Markov Model for colo
 
 path <- out.dir
 path_table <- "../output/tables/" 
-states <- 2
-# states <- 3
-n_mcmc <- 10000
+# states <- 2
+states <- 3
+n_mcmc <- 5000
 hours <- 4
 X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
+X_3 <- sample(x = 1:3, size = hours * 60 * 60, replace = T)
 lambda <- c(.005, .015)
-registerDoMC(cores = 5) 
+# registerDoMC(cores = 5) 
 ```
 
 We will run all models as 2-state HMM models, as determined by previous work. 
@@ -271,4 +273,133 @@ rm(temp_results)
 
 ```
 
+```{r penalized THREE model, eval=FALSE, include=FALSE}
+tau <- matrix( c(.1, 0, 
+                 0, .1), nrow = 2, ncol = 2)
+gamma_3 <- rep(.002, 6)
+lambda_3 <- c(0, 0.006, .05)
+start_3 <- list(X = X_3, lambda = lambda_3, gamma = gamma_3) 
+delta_t <- 1
+
+# high density - one chamber
+
+#low density - both chambers
+
+#low densith - queen's chamber USED FOR PAPER
+
+##THIS ONE FOR JSM
+range_3 <- exp(seq(-20, 7, by =  3))
+
+penalize3_col2lo4qbin1 <- foreach(i = range_3,
+                                  .errorhandling = "remove") %dopar% 
+  DT_pen_mcmc(penalty = i, starts_data = col2_low4_5$queen_starts_persec, 
+              states = 3, ant_file = col2_low4_5$data, chamber = "queen",
+              hours = 4,
+              a = 1, b = 1, c = 1, d = 1, e = 1, f = 1, 
+              tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
+              delta_t = delta_t, start = start_3, 
+              data_out = paste("../data/", "pen3_MCMC", "-", 
+                               log(i), "-", n_mcmc, ".csv", sep = ""), 
+              osa_out = paste("../data/", "pen3_OSA", "-", 
+                               log(i), "-", n_mcmc, ".csv", sep = ""))
+
+
+
+#low density - entrance chamber
+```
+
+
+```{r compare penalized THREE, eval=FALSE, include=FALSE}
+
+#previous results - don't want to save over!
+
+   # old_MSPE_results_THREE <- as.data.frame(MSPE_results_THREE)
+
+Time = hours *60 *60
+
+MSPE_results_THREE <- matrix(NA, ncol = 2, nrow = length(range_3))
+  colnames(MSPE_results_THREE) = c("penalty", "MSPE")
+
+for (r in 1:length(range_3)) {
+
+  osa_param <-  readr::read_csv(paste("../data/pen3_OSA-",
+                                  log(range[r]), "-", n_mcmc,  
+                                  ".csv", sep = ""))
+  
+  
+  data <- col2_low4_5$queen_starts_persec
+  
+  data_mat <- matrix(rep(data, nrow(osa_param)), byrow = T)
+  
+  sum.it <- sum((osa_param[, -1] - data_mat)^2)
+  # square <- subtract^2
+  # sum.it <- sum(square)
+  
+
+  MSPE.1SA <- 1/n_mcmc * 1/Time * sum.it
+
+
+MSPE_results_THREE[r, 1] <- log(range_3[r])
+MSPE_results_THREE[r, 2] <- MSPE.1SA
+# MSPE_results[r, 3] <- penalize_col2lo4qbin1[[r]]$accept
+}
+  
+
+  
+  #remove useless stuff
+  rm(data_mat)
+  rm(final)
+  rm(osa_param)
+
+  
+#combine with old data
+  MSPE_results_THREE <- rbind(old_MSPE_results_THREE[, 1:2], MSPE_results_THREE)
+  
+MSPE_results_THREE <- as.data.frame(MSPE_results_THREE)
+  
+compare_plot_3 <- ggplot(data = MSPE_results_THREE, aes(x = penalty, y = MSPE)) +
+                  geom_point(aes(x = penalty)) 
+
+
+minMSPE_3 <- MSPE_results_THREE[which.min(MSPE_results_THREE$MSPE), ]
+
+#out of curiosity
+maxMSPE_3 <- MSPE_results_THREE[which.max(MSPE_results$MSPE_THREE), ]
+
+
+print(compare_plot_3)
+print(compare_plot_3 + ylim(.0177, .019)) #limits chosen via observation of first plot
+
+
+```
+
+```{r penalized THREE diagnoses, eval=FALSE, include=FALSE}
+
+pen3_results <- list()
+
+range_3 <- exp(minMSPE_3[1]) #if only want one penalty that has been optimized
+ r <- 1
+
+range_3 <- c(exp(minMSPE_3[1]), exp(maxMSPE_3[1]))
+range_3 <- as.data.frame(range_3)
+
+ for (r in 1:length(range_3)) {
+  
+
+temp_results <-  readr::read_csv(paste("../data/pen3_MCMC-",
+                                log(range_3[r]), "-", n_mcmc,  
+                                ".csv", sep = ""))
+
+pen3_results[[r]] <- penalty_diagnosis(t(temp_results)[, -1 ], 
+                                      states = 3,
+                                      ant_file = col2_low4_5$data, 
+                                      chamber = "queen", 
+                                      Time = hours * 60 * 60, fig_path = path,
+                                fig_name = "optimizedMSPE3", penalty = range_3[r])
+ }
+
+
+rm(temp_results)
+
+```
 
