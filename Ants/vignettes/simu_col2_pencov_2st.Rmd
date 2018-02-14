@@ -1,0 +1,109 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(mvtnorm)
+
+# set.seed(2018)
+
+load("../data-raw/Colony2_covariate_low_density_4hr.Rda")
+
+covariate.prepped <- prep_inout_data(covariate, delta_t = 1, hours = 4)
+betas <- c(.0013, .03, .0015, 0 )
+
+simu_cov2 <- sim_pencov_troph(states = 2, time_max = 4*60*60, 
+              delta_t = 1, start_state = 1, 
+              int_rate = c(.005, .02), num_locations = 1, 
+              covariate = covariate.prepped$cov, switch_betas = betas)
+
+
+```
+
+```{r two state}
+n_mcmc <- 10000
+ tau <- matrix( c(.0000000001, 0, 0, 0,
+                  0, .0000000001, 0, 0, 
+                  0, 0, .0000000001, 0, 
+                  0, 0,  0, .000000005), nrow = 4, ncol = 4)
+# gamma <- c(.005, .005)
+X <- simu_cov2$state
+ lambda <- c(.005, .02)
+start <- list(X = X, lambda = lambda, betas = betas * 1)
+i <- exp(-10)
+
+run_model <- DT_pencov_MCMC(penalty = i, starts_data = simu_cov2$inter_persec, 
+                        states = 2, ant_file = simu_cov2, chamber = "queen", 
+                        hours = 4, a = 1, b = 1, c = 1, d = 1, 
+                        tau = tau, tau.pen = 0, n_mcmc = n_mcmc, delta_t = 1,
+                        start = start, 
+                        data_out =  paste("../data/", "sim_pencov_MCMC", "-", 
+                               log(i), "-", n_mcmc, ".csv", sep = ""), 
+                        osa_out = paste("../data/", "sim_pencov_OSA", "-", 
+                               log(i), "-", n_mcmc, ".csv", sep = ""),
+                        covariate = (covariate.prepped$cov - mean(covariate.prepped$cov))/10)
+
+
+
+
+```
+
+
+```{r two state (no cov)}
+
+ gamma <- c(.005, .005)
+start <- list(X = X, lambda = lambda, gamma = gamma)
+
+run_model_pen2 <- DT_pen_mcmc(penalty = i, starts_data = simu_cov2$inter_persec,
+                        states = 2, ant_file = simu_cov2, chamber = "queen",
+                        hours = 4, a = 1, b = 1, c = 1, d = 1, 
+                        tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
+                        delta_t = 1, start = start,
+                        data_out =  paste("../data/", "sim_pen_MCMC", "-",
+                               log(i), "-", n_mcmc, ".csv", sep = ""),
+                        osa_out = paste("../data/", "pen_OSA", "-",
+                               log(i), "-", n_mcmc, ".csv", sep = ""))
+
+```
+
+```{r pencov diagnoses}
+
+
+
+temp_results <- readr::read_csv("../data/sim_pencov_MCMC--10-10000.csv")
+
+path <- "../output/"
+
+#read in data to temp_results
+
+delta_t <- 1
+sim_pencov_diag <-  penalty_diagnosis(t(temp_results)[-1, ], 
+                               ant_file = simu_cov2,
+                              chamber = "queen", states = 2, 
+                              Time = 4 * 60 * 60, fig_path = path,
+                                fig_name = "pencov_simtest", penalty = log(exp(-10)), 
+                              covariate = covariate.prepped$cov)
+
+
+
+```
+
+
+```{r pen diagnoses}
+
+
+
+temp_results <- readr::read_csv("../data/sim_pen_MCMC--5-5000.csv")
+
+
+#read in data to temp_results
+
+
+sim_pen_diag <-  penalty_diagnosis(t(temp_results)[-1, ], 
+                               ant_file = simu_cov2,
+                              chamber = "queen", states = 2, 
+                              Time = 4 * 60 * 60, fig_path = path,
+                                fig_name = "pen_test", penalty = log(exp(-10)))
+
+```

@@ -9,6 +9,7 @@
 #' @param fig_path
 #' @param fig_name
 #' @param penalty
+#' @param covariate
 #'
 #'
 #'
@@ -17,7 +18,8 @@
 #'
 
 
-penalty_diagnosis <- function(mcmc_matrix, states, ant_file, chamber, Time, fig_path, fig_name, penalty){
+penalty_diagnosis <- function(mcmc_matrix, states, ant_file, chamber,
+                              Time, fig_path, fig_name, penalty, covariate = NULL){
 
 
 n <- states
@@ -47,7 +49,7 @@ pdf( file = paste(fig_path, fig_name, round(penalty, 11), ".diagnostics", ".pdf"
         plotname = "Trophallaxis Rate: High")
     }
 
-
+  if (is.null(covariate) == T ){
     #gammas - st_switch_rate(LH/HL)
     if (n == 2) {
       estvssamp(samp = mcmc_matrix[4, ], plotname = "State Switching Rate: Low to High")
@@ -83,6 +85,13 @@ if (n == 2) {
   estvssamp(samp = mcmc_matrix[19, ], plotname = "Probability Transitions: High to High")
 
 }
+  }else{
+    estvssamp(samp = mcmc_matrix[4, ], plotname = "State Switching Rates: e^beta_0LH")
+    estvssamp(samp = mcmc_matrix[5, ], plotname = "State Switching Rates: e^beta_0HL")
+    estvssamp(samp = mcmc_matrix[6, ], plotname = "State Switching Rates: beta_1LH")
+    estvssamp(samp = mcmc_matrix[7, ], plotname = "State Switching Rates: beta_1HL")
+  }
+
 
 
 
@@ -104,11 +113,16 @@ if (n == 2) {
     if (n == 2) {
       plot(coda::mcmc(t(mcmc_matrix[1:2, ])))
 
-  #gammas - st_switch_rate
+  if (is.null(covariate) == T){
+    #gammas - st_switch_rate
   plot(coda::mcmc(t(mcmc_matrix[4:5, ])))
 
   #ptm
   plot(coda::mcmc(t(mcmc_matrix[6:9, ])))
+  }else{
+    plot(coda::mcmc(t(mcmc_matrix[4:7, ]))) #e^betas and betas
+  }
+
 
   #rounded estimates over time for sto process
 
@@ -131,7 +145,7 @@ if (n == 2) {
    #fancy plot
 
 
-   plot(round(bmeans[-(1:9), 1 ]), type = "l")
+   # plot(round(bmeans[-(1:9), 1 ]), type = "l")
 
 
    #fancy plot
@@ -176,6 +190,9 @@ if (n == 2) {
    points(start, 1:int.num,
      xlim = c(0, maxtime))
 
+  if (is.null(covariate) == F) {
+    points(which(covariate == 0), rep(0, length(which(covariate == 0))), pch = 8, col = "#53bc84")
+  }
     dev.off()
 
   return(bmeans)

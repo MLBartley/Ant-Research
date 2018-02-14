@@ -1509,8 +1509,6 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
 #'   interactions starting per delta_t time increments.
 #' @param ant_file Data file of ant trophallaxis interaction
 #'   information, including Location and start/end times.
-#' @param title Title of diagnostic plots used to check model
-#'   results.
 #' @param start  Starting values for the chains of parameters to
 #'   be estimated.
 #' @param a Hyperprior for rates of starting interactions during
@@ -1523,7 +1521,6 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
 #'   "high" state. (lambda_H)
 #' @param hours Hours of ant obseravtions reflected in data
 #'   files.
-#' @param title Title of diagnostic plots.
 #' @param tau Tuning parameter for proposal function.
 #' @param penalty Penalty parameter for the switching rates
 #'   (alpha/beta in model write- up).
@@ -1533,12 +1530,13 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
 #'   "high").
 #' @param n_mcmc Number of MCMC iterations.
 #' @param delta_t Time segments that the starting times are
+#' @param chamber
+#' @param e
+#' @param f
+#' @param tau.pen
+#' @param data_out
+#' @param osa_out
 #'   binned into.
-#' @param fig_save If "TRUE", plots will saved in path proved as
-#'   .jpeg files
-#' @param fig_path Path needed to sent plot figures to folder.
-#' @param fig_name Base name of plot files to be saved.
-#'
 #' @return  (1) - estimates of betas, alpha, X, lambda, gamma, P
 #'   (2) - 2x2 visual of estimates over time (runs) (3) - color
 #'   block state switching graph
@@ -1548,30 +1546,40 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
 #'
 
 
-DT_pencov_mcmc <- function(penalty, covariate, starts_data, states, ant_file, chamber,
-  hours, title, a, b, c, d, tau, #tau.pen,
-  n_mcmc, delta_t, fig_save, fig_path, fig_name, start){
 
-  #starting values - mostly to keep this all in one place to easily check
+DT_pencov_MCMC <- function(penalty, covariate,  starts_data, states, ant_file, chamber, hours,
+  a, b, c, d, e, f, tau, tau.pen, n_mcmc, delta_t, start, data_out, osa_out) {
 
-  X.start <- start$X #same number of values as number of seconds (hours * 60 * 60)
-  lambda.start <- start$lambda #two values
-  betas.start <- start$alpha.beta #four values (for now)
 
-  #any changes to data
+  # starting values - mostly to keep this all in one place to easily
+  # check
+  X.start <- start$X  #same number of values as number of delta_t
+  lambda.start <- start$lambda  #two values
+  betas.start <- start$betas  #four values for now
+
+  # any changes to data
 
   data <- starts_data
   Time <- length(data)
   n <- states
   delta <- rep(1/n, n)
 
-  #needed for final graphic
+  #values from Shaby's adaptive tuning
+  c.0 <- 10;  c.1 <- 0.8;  tun.k <- 3; r <- 10 #temp change to r to effectively turn off adp tuning##
+  acpt <- rep(NA, n_mcmc)
+
+
+  tune.sig <- 2.4^2 / (n*2)
+  tune.Sig <- diag((n^2 - n)*2) # multiplied by two now bc we have e^beta_0 and beta_1 for each transition
+  # tau <- tune.sig * tune.Sig
+
+  # needed for final graphic
   location <- ant_file$Location
   start <- ant_file$start_time
 
-  if (length(unique(location)) != 1){
+  if (length(unique(location)) != 1) {
 
-    if(chamber == "queen") {
+    if (chamber == "queen") {
       start = start[which(location == 1)]
     }else {
       start = start[which(location == 4)]
@@ -1582,555 +1590,676 @@ DT_pencov_mcmc <- function(penalty, covariate, starts_data, states, ant_file, ch
   int.num <- length(start)
   maxtime <- hours * 60 * 60
 
-  #build homes for chains
+  # build homes for chains
 
-  ## Build Homes for X(1:T), lambda(1:n) vector , and P(nXn),  gamma (nxn) matrices
+  ## Build Homes for X(1:T), lambda(1:n) vector , and P(nXn),
+  ## gamma (nxn) matrices
 
-  states_param <- matrix(data = rep(NA, Time * n_mcmc), nrow = Time,
-    ncol = n_mcmc, byrow = T)
+  #stochastic state process
+  states_param <- matrix(data = rep(NA, Time * 1001), nrow = Time, ncol = 1001,
+    byrow = T)
+  row.names(states_param) <- rep("State at Random Time", nrow(states_param))
 
-  osa_param <- matrix(NA, Time, n_mcmc, T)
+  osa_param <- matrix(NA, Time, 1001, T)
 
-  st_rates_param <- matrix(NA, nrow = n + 1, ncol = n_mcmc, byrow = T)
-  row.names(st_rates_param) <- c("trop.rate.low", "trop.rate.change",
-    "trop.rate.high")
+  #starting rates (lambda)
+  st_rates_param <- matrix(data = NA, nrow = n + 1, ncol = 1001,
+    byrow = T)
+  if (n == 2) {
+    row.names(st_rates_param) <- c("trop.rate.low", "trop.rate.change",
+      "trop.rate.high")
+  }else{
+    row.names(st_rates_param) <- c("troph.rate.low", "troph.rate.changeLM",
+      "troph.rate.changeMH", "troph.rate.high")
+  }
 
-  ## P matrix now varies over time, need new homes
 
-  ptm_11_param <- matrix(NA, nrow = Time, ncol = n_mcmc)
-  ptm_12_param <- matrix(NA, nrow = Time, ncol = n_mcmc)
-  ptm_21_param <- matrix(NA, nrow = Time, ncol = n_mcmc)
-  ptm_22_param <- matrix(NA, nrow = Time, ncol = n_mcmc)
+  ## Prob transition matrix now varies over time, need new homes
 
-  switch_rates_param <- matrix(data = NA,
-    nrow = 4, #NOT GENERALIZED
-    ncol = n_mcmc)
-  #if one covariate this is two by two
+  ptm_11_param <- matrix(NA, nrow = Time, ncol = 1001)
+  ptm_12_param <- matrix(NA, nrow = Time, ncol = 1001)
+  ptm_21_param <- matrix(NA, nrow = Time, ncol = 1001)
+  ptm_22_param <- matrix(NA, nrow = Time, ncol = 1001)
 
-  #note that we're just collecting the off diagonal (non zero) values
-  #needed to calculate P
-  #Since gammas now vary second-to-second based on covariate(s)
-  #we've split this into two separate variables
 
-  switch_rate_calc_LH <- matrix(NA, nrow = Time, ncol = n_mcmc,
+  # note that we're just collecting the off diagonal (non zero) values, needed to calculate P
+  switch_rate_calc_LH <- matrix(NA, nrow = Time, ncol = 1001,
     byrow = T)
 
-  switch_rate_calc_HL <- matrix(NA, Time, n_mcmc)
+  switch_rate_calc_HL <- matrix(NA, Time, 1001)
 
 
+  # probability home for generating states_param,
+  # gam <- matrix(NA, nrow = Time, ncol = n, byrow = T)
 
-  #probability home for generating states_param,
-  gam <- matrix(NA, nrow = Time, ncol = n,
-    byrow = T)
+  starts_low <- matrix(NA, nrow = Time, ncol = 1001)
+  if (n == 3) {starts_med <- matrix(NA, nrow = Time, ncol = 1001)}
+  starts_high <- matrix(NA, nrow = Time, ncol = 1001)
 
-  starts_low <- matrix(NA, nrow = Time, ncol = n_mcmc)
-  starts_high <- matrix(NA, nrow = Time, ncol = n_mcmc)
 
-  # penalty.param = matrix(NA, 1, n_mcmc, T) #only used when penalty is not fixed
+  ##THE COVARIATE PART
+  switch_rate_param <- matrix(data = NA,
+    nrow = length(betas.start),
+    ncol = 1001)
+  row.names(switch_rate_param) <- c("e^beta_0LH", "e^beta_0HL", "beta_1LH", "beta_1HL")
+
+
 
   ## Initialize parameters
 
-  states_param[,1] <- X.start
+  states_param[, 1] <- X.start
 
   osa_param[, 1] <- data
 
-  st_rates_param[1, 1] <- lambda.start[1] #lambda low
-  st_rates_param[2, 1] <- lambda.start[2]# - lambda.start[1] #change in lambda
+  if (n == 2) {
+    st_rates_param[1, 1] <- lambda.start[1]  #lambda low
+    st_rates_param[2, 1] <- lambda.start[2] - lambda.start[1]  #change in lambda LH
+    st_rates_param[3, 1] <- st_rates_param[1, 1] + st_rates_param[2, 1]  #lambda high, not needed, just a reminder
 
-  #st_rate_high <- st_rates_param[1,1] + st_rates_param[2, 1] #lambda high, not needed, just a reminder
+    switch_rate_param[1, 1] <- betas.start[1] #exp{beta_0LH)
+    switch_rate_param[3, 1] <- betas.start[2] #beta_1LH
 
-  switch_rates_param[1, 1] <- betas.start[1] #exp{beta_0}
-  switch_rates_param[2, 1] <- betas.start[2] #beta_1
+    switch_rate_param[2, 1] <- betas.start[3] #exp{beta_0HL}
+    switch_rate_param[4, 1] <- betas.start[4] #beta_1HL
 
-  switch_rates_param[3, 1] <- betas.start[3] #exp{alpha_0}
-  switch_rates_param[4, 1] <- betas.start[4] #alpha_1
+    ## IN FUTURE NEED TO GENERALIZE ABOVE CODE FOR ANY NUMBER OF COVARIATES!
+    ## Current Meridith apologizes to Future Meridith, but this is on Her.
 
-  ## IN FUTURE NEED TO GENERALIZE ABOVE CODE FOR ANY NUMBER OF COVARIATES!
-  ## Current Meridith apologizes to Future Meridith, but this is on Her.
+    #gammas now function of betas (and alpha?)
+    switch_rate_calc_LH[, 1] <- switch_rate_param[1,1] * exp(switch_rate_param[3,1] * -covariate) #LH #covariate??? CHECK
+    switch_rate_calc_HL[, 1] <- switch_rate_param[2,1] * exp(switch_rate_param[4,1] * -covariate) #HL
 
-  #gammas now function of betas (and alpha?)
-  switch_rate_calc_LH[1, 1] <- switch_rates_param[1,1] * exp(switch_rates_param[2,1] * covariate[1]) #LH #covariate[1]??? CHECK
-  switch_rate_calc_HL[1, 1] <- switch_rates_param[3,1] * exp(switch_rates_param[4,1] * covariate[1]) #HL
+  }else{
+    st_rates_param[1, 1] <- lambda.start[1]  #lambda low
+    st_rates_param[2, 1] <- lambda.start[2] - lambda.start[1]  #change in lambda LM
+    st_rates_param[3, 1] <- lambda.start[3] - lambda.start[1]  #change in lambda MH
+    st_rates_param[4, 1] <- lambda.start[4] #lambda high - not really needed
 
-  #Don't forget that now Pmatrix and Gamma values change over time
-  P.matrix <- matrix(NA, nrow = n, ncol = n, byrow = T)
-
-
-  P.matrix[1, 2] <- switch_rate_calc_LH[1, 1] * exp(-switch_rate_calc_LH[1, 1] * delta_t)
-  P.matrix[1, 1] <- 1 - P.matrix[1,2]
-  P.matrix[2, 1] <- switch_rate_calc_HL[1, 1] * exp(-switch_rate_calc_HL[1, 1] * delta_t)
-  P.matrix[2, 2] <- 1 - P.matrix[2,1]
-
-  #need to send each start value to full P variables (same for all runs)
-
-  ptm_11_param[, 1] <- P.matrix[1, 1]
-  ptm_12_param[, 1] <- P.matrix[1, 2]
-  ptm_21_param[, 1] <- P.matrix[2, 1]
-  ptm_22_param[, 1] <- P.matrix[2, 2]
+    switch_rate_param[1, 1] <- gamma.start[1]  #LH
+    switch_rate_param[2, 1] <- gamma.start[2]  #HL
+    switch_rate_param[3, 1] <- gamma.start[3]  #ML
+    switch_rate_param[4, 1] <- gamma.start[4]  #MH
+    switch_rate_param[5, 1] <- gamma.start[5]  #LM
+    switch_rate_param[6, 1] <- gamma.start[6]  #HM
+  }
 
 
 
-  for (t in 1:Time) {
-    if (states_param[t, 1] == 1) {
-      starts_low[t, 1] <- data[t]
-      starts_high[t, 1] <- 0
-    } else {
-      split <- rmultinom(1, size = data[t], prob = c(st_rates_param[1,
-        1], st_rates_param[2, 1]))
-      starts_low[t, 1] <- split[1]
-      starts_high[t, 1] <- split[2]
+  # ptm_matrix <- matrix(NA, nrow = n, ncol = n, byrow = T)
+
+  if (n == 2) {
+
+
+    ptm_12_param[, 1] <- switch_rate_calc_LH[, 1] * exp(-switch_rate_calc_LH[, 1] * delta_t) /
+      (exp(1) / (exp(1) - 1)^2)
+    ptm_11_param[, 1] <- 1 - ptm_12_param[, 1]
+    ptm_21_param[, 1] <- switch_rate_calc_HL[, 1] * exp(-switch_rate_calc_HL[, 1] * delta_t) /
+      (exp(1) / (exp(1) - 1)^2)
+    ptm_22_param[, 1] <- 1 - ptm_21_param[, 1]
+
+
+    # ptm_matrix[1, 2] <- switch_rate_param[1, 1] * exp(-switch_rate_param[1, 1] * delta_t) /
+    #   (exp(1) / (exp(1) - 1)^2)
+    #
+    # ptm_matrix[1, 1] <- 1 - ptm_matrix[1, 2]
+    #
+    # ptm_matrix[2, 1] <- switch_rate_param[2, 1] * exp(-switch_rate_param[2, 1] * delta_t) /
+    #   (exp(1) / (exp(1) - 1)^2)
+    #
+    # ptm_matrix[2, 2] <- 1 - ptm_matrix[2, 1]
+
+
+
+  }else{
+    ptm_matrix[1, 2] <- switch_rate_param[5, 1] * exp(-switch_rate_param[5, 1] * delta_t) /
+      (exp(1) / (exp(1) - 1)^2) #LM
+
+    ptm_matrix[1, 3] <- switch_rate_param[2, 1] * exp(-switch_rate_param[2, 1] * delta_t) /
+      (exp(1) / (exp(1) - 1)^2) #LH
+
+    ptm_matrix[1, 1] <- 1 - ptm_matrix[1, 2] - ptm_matrix[1, 3] #LL
+
+    ptm_matrix[2, 1] <- switch_rate_param[3, 1] * exp(-switch_rate_param[3, 1] * delta_t) /
+      (exp(1) / (exp(1) - 1)^2) #ML
+
+    ptm_matrix[2, 3] <- switch_rate_param[4, 1] * exp(-switch_rate_param[4, 1] * delta_t) /
+      (exp(1) / (exp(1) - 1)^2) #MH
+
+    ptm_matrix[2, 2] <- 1 - ptm_matrix[2, 1] - ptm_matrix[2, 3] #MM
+
+    ptm_matrix[3, 1] <- switch_rate_param[2, 1] * exp(-switch_rate_param[2, 1] * delta_t) /
+      (exp(1) / (exp(1) - 1)^2) #HL
+
+    ptm_matrix[3, 2] <- switch_rate_param[6, 1] * exp(-switch_rate_param[6, 1] * delta_t) /
+      (exp(1) / (exp(1) - 1)^2) #HM
+
+    ptm_matrix[3, 3] <- 1 - ptm_matrix[3, 1] - ptm_matrix[3, 2] #HH
+
+  }
+
+
+  # st_ptm_param[, 1] <- as.vector(t(ptm_matrix))
+
+
+  if (n == 2) {
+    for (t in 1:Time) {
+      if (states_param[t, 1] == 1) {
+        starts_low[t, 1] <- data[t]
+        starts_high[t, 1] <- 0
+      } else {
+        split <- rmultinom(1, size = data[t], prob = c(st_rates_param[1,
+          1], st_rates_param[2, 1]))
+        starts_low[t, 1] <- split[1]
+        starts_high[t, 1] <- split[2]
+      }
     }
-
+  }else{
+    for (t in 1:Time) {
+      if (states_param[t, 1] == 1) {
+        starts_low[t, 1] <- data[t]
+        starts_med[t, 1] <- 0
+        starts_high[t, 1] <- 0
+      } else {
+        split <- rmultinom(1, size = data[t], prob = c(st_rates_param[1,
+          1], st_rates_param[2, 1], st_rates_param[3, 1]))
+        starts_low[t, 1] <- split[1]
+        starts_med[t, 1] <- split[2]
+        starts_high[t, 1] <- split[3]
+      }
+    }
   }
 
 
   # penalty.param[1, 1] = penalty
 
-  #log likelihood
+  # log likelihood
 
-  log.fullcond <- function(P.param, params, states_param, penalty){
+  log.fullcond <- function(st_ptm_param, params, states_param, penalty) {
 
-    #LogFullCond: [X|P(gamma)] + [e^beta_0] + [betas] + [e^alpha_b] + [alphas]
-    #Note that the P.matrix varies over time
-    # and is represented as a matrix now
-    # P.param <- [P11, P12, P.21, P.22] are column heads
+    # ptm_matrix <- matrix(data = st_ptm_param, nrow = n, ncol = n, byrow = T)
 
     sumX <- 0
+    sumR_LH <- 0
+    sumR_HL <- 0
 
     for (t in 2:length(data)) {
 
-      #pull off P matrix for each time
-      P.matrix <- matrix(data = P.param[t - 1, ], nrow = n, ncol = n, byrow = T)
+      ptm_matrix <- matrix(data = st_ptm_param[t - 1, ], nrow = n, ncol = n, byrow = T)
 
-      sumX <- sumX + log(P.matrix[states_param[t - 1, l.1000 - 1], states_param[t, l.1000 - 1]])
+      sumX <- sumX + log(ptm_matrix[states_param[t - 1, l.1000 - 1], states_param[t,
+        l.1000 - 1]])
+
+      sumR_LH <- sumR_LH + exp(params[3] * -covariate[t])
+      sumR_HL <- sumR_HL + exp(params[4] * -covariate[t])
     }
 
-    loglike <- sumX -
-      1/penalty * (params[1]^2)  + log(params[1]) -  #e^beta_0
-      1/penalty * (params[3]^2) + log(params[3]) -  #e^alpha_0
-      1/penalty * (params[2]^2) - #betas
-      1/penalty * (params[4]^2)  #alphas
+    constantB_LH <-  1/Time * sumR_LH
+    constantB_HL <-  1/Time * sumR_HL
+
+    if (n == 2) {
+      loglike <- sumX - # log(penalty) -
+        ((1/(2 * penalty)) * ((params[1])^2 * (constantB_LH)^2 +
+            (params[2])^2) * (constantB_HL)^2) +
+        log(params[1]) + log(params[2])  + #H Norm prior
+       params[3]^2 + params[4]^2 #UNsure if i can do both together in one A/R
+
+
+      # ((1/(penalty)) * ((params[1]) + (params[2]))) +
+      # log(params[1]) + log(params[2]) #Exp prior
+    }else{
+      loglike <- sumX - # log(penalty) -
+        ((1/(2 * penalty)) * ((params[1])^2 + (params[2])^2 +
+            params[3]^2 + params[4]^2 + params[5]^2 + params[6]^2)) +
+        log(params[1]) + log(params[2]) + log(params[3]) +
+        log(params[4]) + log(params[5]) + log(params[6])
+
+      # ((1/(penalty)) * ((params[1]) + (params[2]) +
+      #     params[3] + params[4] + params[5] + params[6])) +
+      #   log(params[1]) + log(params[2]) + log(params[3]) +
+      #   log(params[4]) + log(params[5]) + log(params[6]) #EXP PRIOR
+    }
+
     return(loglike)
   }
 
-  accept <- 0
+  acpt[1] <- 1
+  # sigma <- tau
+  l.1000 <- 2 #one is prefilled with 'previous' run
+
+
+  #start excel save file and save names and first column
+
+  results <- rbind(st_rates_param,
+    switch_rate_param,
+    # st_ptm_param, #changes over time not sure if useful to check
+    states_param
+  )
+
+  osa_results <- osa_param
+
+  write.csv(t(results[, 1]), file = data_out)
+  write.csv(t(osa_results[, 1]), file = osa_out)
+
+
+  #shaby's adaptive tuning alg
+  update.var <- function(cur.var, acpt.rt, opt.rt, gamma2){
+    exp(log(cur.var) + gamma1*(acpt.rt - opt.rt))
+  }
+
 
 
   for (l in 2:n_mcmc) {
+    # MH updates - want to propose/accept/reject gammaLH and gammaHL
 
-    # print out every 100 iterations completed
-    if ( l %% 100 == 0 ) cat(paste("iteration", l, "complete\n"))
-
-
-    #MH updates - want to propose/accept/reject gammaLH and gammaHL
-
-    #adaptive tuning parameter
-    # if(l < n_mcmc/2 & l %% 100 == 0){
+    # #update tuning variable
     #
-    #   sigma <- (2.38^2 / 2) * var(log(t(gamma.param[, 1:(l - 1)])))
-    #   tau <- sigma
-    # }
-
-    #proposing - beta.0, beta.1, alpha_0, alpha_1
-
-    #proposal.log <- rmvnorm(n = 1, mean = log(switch_rates_param[c[1, 3], l - 1]), sigma = tau.exp)
-    proposal_cov <- rmvnorm(n = 1, mean = c(log(switch_rates_param[1, l - 1]),
-      switch_rates_param[2, l - 1],
-      log(switch_rates_param[3, l - 1]),
-      switch_rates_param[4, l - 1]),
-      sigma = tau)
-
-    # proposal.pen <- rmvnorm(n = 1, mean = log(penalty.param[, l - 1]), sigma = tau.pen)
-
-    #unlog
-    proposal <- c(exp(proposal_cov[1]), proposal_cov[2], #beta_0, beta_1
-      exp(proposal_cov[3]), proposal_cov[4])
-
-    #alpha/betas <- gamma values
-
-    #Note order is not changed as above in commented out line
-    sw_rate_star_LH_t <- proposal[1] * exp(proposal[2] * exp(-covariate)) #LH #covariate[1]??? CHECK
-    sw_rate_star_HL_t <- proposal[3] * exp(proposal[4] * exp(-covariate)) #HL
-
-
-
-    #uncomment to hold gamma proposal fixed at true values - NEEDS UPDATING
-    #
-    # theta.star <- c(.005, .005)
-    #
-
-
-
-    ## Need to take the gamma values
-    ## we've proposed and caluate the
-    ## P matrix for probability of 'jumping'
-    ## between states (at each second)
-    ##
-    P.12.star <- sw_rate_star_LH_t * exp(-sw_rate_star_LH_t * delta_t)
-
-
-
-    P.11.star <- 1 - P.12.star
-
-    P.21.star <- sw_rate_star_HL_t * exp(-sw_rate_star_HL_t * delta_t)
-
-
-    P.22.star <- 1 - P.21.star
-
-
-    #Uncommont to hold P matrix constant - NEEDS UPDATING
-    #
-    # P.star <- P.param[,1]
-    #
-
-    ## NEED TO PULL OFF P param values from last run (for each second)
-    ##
-
-    P.11.prev <- ptm_11_param[, l - 1]
-    P.12.prev <- ptm_12_param[, l - 1]
-    P.21.prev <- ptm_21_param[, l - 1]
-    P.22.prev <- ptm_22_param[, l - 1]
-
-
-
-    P.star <- cbind(P.11.star, P.12.star, P.21.star, P.22.star)
-    P.previous <- cbind(P.11.prev, P.12.prev, P.21.prev, P.22.prev)
-
-    #calculate probability
-    MHprob <- exp(log.fullcond(P.star, proposal, states_param, penalty) -
-        log.fullcond(P.previous, switch_rates_param[, l - 1], states_param, penalty))
-
-    if (is.finite(MHprob) == FALSE) {MHprob <- 0}
-
-
-    #accept/reject
-
-    if (runif(1) < MHprob) {
-      accept <- accept + 1
-      switch_rates_param[, l] <- proposal
-      ptm_11_param[, l] <- P.11.star[1:(hours*60*60)]
-      ptm_12_param[, l] <- P.12.star[1:(hours*60*60)]
-      ptm_21_param[, l] <- P.21.star[1:(hours*60*60)]
-      ptm_22_param[, l] <- P.22.star[1:(hours*60*60)]
-    }else{
-      switch_rates_param[, l] <- switch_rates_param[, l - 1]
-      ptm_11_param[, l] <- ptm_11_param[, l - 1]
-      ptm_12_param[, l] <- ptm_12_param[, l - 1]
-      ptm_21_param[, l] <- ptm_21_param[, l - 1]
-      ptm_22_param[, l] <- ptm_22_param[, l - 1]  }
-
-
-
-    #gibbs updates
-
-    ## X Values over time
-
-    ##X Parameters
-
-    #Pull off just current probabilities (over time)
-    #and then combine into matrix
-
-    P.param <- cbind(ptm_11_param[, l], ptm_12_param[, l], ptm_21_param[, l], ptm_22_param[, l])
-
-
-    m <- matrix(data = 0, nrow = 2, ncol = 2)
-    rownames(m) <- c("low", "high")
-    colnames(m) <- c("low", "high")
-    # number states going from i to j, refreshes every run
-
-    st_rate_low <- st_rates_param[1, l - 1]
-    st_rate_high <- st_rates_param[2, l - 1] #+st_rate_low
-
-    ##X Parameters
-
-    P.matrix <- matrix(data = P.param[1, ], nrow = n, ncol = n, byrow = T)
-
-
-    gam[1, 1] <- st_rate_low ^ data[1] * exp(-st_rate_low) *
-      delta[1] * P.matrix[1, states_param[2, l - 1]]
-
-    gam[1, 2] <- st_rate_high ^ data[1] * exp(-st_rate_high) *
-      delta[1] * P.matrix[1, states_param[2, l - 1]]
-
-
-
-    states_param[1, l] <- sample(x = (1:n), size = 1, prob = gam[1,])
-
-    ##################
-    # states_param[1, l] <- X.start[1]
-    ##################
-
-    m[states_param[1, l], states_param[1, l]] <- m[states_param[1, l], states_param[1, l]] + 1
-
-    osa_param[1, l] <- st_rate_low * P.matrix[states_param[1, l], 1] +
-      st_rate_high * P.matrix[states_param[1, l], 2]
-
-    for(t in 2:(Time - 1)){
-      P.matrix <- matrix(data = P.param[t, ], nrow = n, ncol = n, byrow = T)
-
-
-      gam[t, 1] <- st_rate_low ^ data[t] * exp(-st_rate_low) *
-        P.matrix[states_param[t - 1, l.1000 - 1], 1] *
-        P.matrix[1, states_param[t + 1, l.1000 - 1]]
-
-      gam[t, 2] <- st_rate_high ^ data[t] * exp(-st_rate_high) *
-        P.matrix[states_param[t - 1, l.1000 - 1], 2] *
-        P.matrix[2, states_param[t + 1, l.1000 - 1]]
-
-
-
-      states_param[t, l] <- sample(x = (1:n), 1,  prob = gam[t, ])
-
-      ##################
-      # states_param[t, l] = X.start[t]
-      ##################
-
-      m[states_param[t - 1, l], states_param[t, l]] <- m[states_param[t - 1, l],
-        states_param[t,l]] + 1
-
-      osa_param[t, l] <- st_rate_low * P.matrix[states_param[t, l], 1] +
-        st_rate_high * P.matrix[states_param[t, l], 2]
-
-    }
-
-    P.matrix <- matrix(data = P.param[Time, ], nrow = n, ncol = n, byrow = T)
-
-
-    gam[Time, 1] <- st_rate_low ^ data[Time] * exp(-st_rate_low) *
-      P.matrix[states_param[Time - 1, l - 1], 1]
-
-    gam[Time, 2] <- st_rate_high ^ data[Time] * exp(-st_rate_high) *
-      P.matrix[states_param[Time - 1, l - 1], 2]
-
-
-    states_param[Time, l] <- sample(x = 1:n, 1,  prob = gam[Time, ])
-
-    ##################
-    # states_param[Time, l] <- X.start[Time]
-    ##################
-
-    m[states_param[Time - 1, l], states_param[Time, l]] <- m[states_param[Time - 1, l],
-      states_param[Time, l]] + 1
-
-    osa_param[Time, l] <- st_rate_low * P.matrix[states_param[Time, l], 1] +
-      st_rate_high * P.matrix[states_param[Time, l], 2]
-
-    # Data augmentation step - split data into "low" and "high" (N_t <- N_Lt + N_Ht I{X_t = H})
-
-    for (t in 1:Time) {
-      if (states_param[t, l] == 1) {
-        starts_low[t, l] <- data[t]
-        starts_high[t, l] <- 0
-      } else {
-        split <- rmultinom(1, size = data[t], prob = c(st_rates_param[1,
-          l - 1], st_rates_param[2, l - 1]))
-        starts_low[t, l] <- split[1]
-        starts_high[t, l] <- split[2]
+    # #1: for t = 0 to T do
+    if ((l.1000) %% r == 0 ) {
+
+      # 3: calculate rˆ = # jumps / k (here k = r)
+      r.hat <- mean(acpt[(l - r):(l - 1)], na.rm = T)
+
+      # 5: calculate gamma1(t) 1/(t)^c1;  gamma2(t) c.0 * gamma1(t)
+      # above is different from Shaby outline code and lacks tune.k
+      gamma1 <- c.0 / ((l/r) + tun.k)^(c.1) # Automatic tuning constant
+      gamma2 <- 1 / ((l/r) + tun.k)^(c.1)
+
+      # 6: calculate log(sig_t+1) = exp(log(sig_t) + gamma2 (r.hat - r.opt))
+      # see above function
+      tune.sig <- update.var(cur.var = tune.sig, r.hat,
+        opt.rt = 0.234, gamma2 = gamma2)
+
+      # 7: calculate Sigma_t+1 = Sig_t + gamma1 * (Sig_hat - Sig_t)
+      tune.Sig <- tune.Sig +
+        gamma2 * (cov(t(rbind(log(switch_rate_param[1:2, ((l.1000 - r):(l.1000 - 1))]),
+                              switch_rate_param[3:4, ((l.1000 - r):(l.1000 - 1))]))) - tune.Sig)
+
+      while (is(try(chol(tune.Sig), silent = TRUE), "try-error")) {
+        tune.Sig <- tune.Sig + .02*diag(n)
+        cat(paste("Oops. Proposal covariance matrix at iteration ", l, " is now:\n", sep = ""))
+        print(tune.Sig)
       }
 
-    }
+      # prop.C <- chol(tune.Sig)
 
-    ## Lambda Parameters
-
-    st_rates_param[1, l] <- rgamma(n = 1, shape = sum(starts_low[,
-      l]) + a, rate = Time + b)
-
-    st_rates_param[2, l] <- rgamma(n = 1, shape = sum(starts_high[which(states_param[,
-      l] == 2)]) + c, rate = sum(m[2, ]) + d)
-
-  }
-
-
-  #estimation
-  source("http://www.stat.psu.edu/~mharan/batchmeans.R")
-
-  st_rate_high <-  st_rates_param[2, ] #+ st_rates_param[1, ]
-
-  lambda.est <- apply(rbind(st_rates_param[1, ], st_rate_high), 1, bm)
-  lambda.var <- apply(st_rates_param, 1, quantile, probs = c(0.025, 0.975),  na.rm = TRUE)
-
-  # gamma.est <- apply(gamma.param, 1, bm)
-  # gamma.var <- apply(gamma.param, 1, quantile, probs = c(0.025, 0.975),  na.rm = TRUE)
-
-
-  P.11.est <- apply(ptm_11_param, 1, bm)
-  P.11.var <- apply(ptm_11_param, 1 , quantile, probs = c(0.025, 0.975, na.rm = T))
-
-  P.12.est <- apply(ptm_12_param, 1, bm)
-  P.12.var <- apply(ptm_12_param, 1 , quantile, probs = c(0.025, 0.975, na.rm = T))
-
-  P.21.est <- apply(ptm_21_param, 1, bm)
-  P.21.var <- apply(ptm_21_param, 1 , quantile, probs = c(0.025, 0.975, na.rm = T))
-
-  P.22.est <- apply(ptm_22_param, 1, bm)
-  P.22.var <- apply(ptm_22_param, 1 , quantile, probs = c(0.025, 0.975, na.rm = T))
-
-  #Want to create combined estimates over time for visuals/estimation
-  X.est <- matrix(NA, Time, 1, T)
-  P.11.est <- matrix(NA, Time, 1)
-  P.12.est <- matrix(NA, Time, 1)
-  P.21.est <- matrix(NA, Time, 1)
-  P.22.est <- matrix(NA, Time, 1)
-
-  for (t in 1:Time) {
-    X.est[t, 1] <- mean(states_param[t, ])
-    P.11.est[t, 1] <- mean(ptm_11_param[t, ])
-    P.12.est[t, 1] <- mean(ptm_12_param[t, ])
-    P.21.est[t, 1] <- mean(ptm_21_param[t, ])
-    P.22.est[t, 1] <- mean(ptm_22_param[t, ])
-  }
-
-  sum.it <- 0
-
-  for (i in 1:n_mcmc) {
-    for (t in 1:Time) {
-      sum.it <- sum.it +  (osa_param[t, i] - data[t])^2
-    }
-  }
-
-  MSPE.1SA <- 1/n_mcmc * 1/Time * sum.it
-
-
-  #visualization
-  #
-  if (fig_save == TRUE) {
-    jpeg(file = paste(fig_path, fig_name, round(penalty, digits = 11), ".diagnostics", ".jpg", sep = ""))
-
-  }
-
-  #plot the estimation runs.
-
-  col <- c("#120d08", "#bc5356", "#538bbc", "#53bc84")
-
-  # if(fig_save == T){
-  #   pdf(file = paste("./output/", Sys.time(), ".pdf", sep = ""))
-  # }
-
-
-
-  #Rate Parameters
-  plot(0,0,xlab = "MCMC Runs",
-    ylab = "Rates",
-    ylim = c(0, 2*max(st_rates_param[1:2, ])),
-    xlim = c(0,n_mcmc),
-    type = "n",
-    cex.lab = 1)
-  lines(1:n_mcmc, (st_rates_param[1, ]), col = col[1])
-  lines(1:n_mcmc,  st_rates_param[2, ], col = col[2])
-
-  par(mfrow = c(2,2),
-    oma = c(0,0,2,0) + 1,
-    mar = c(1,1,1,1) + 3)
-
-
-  choose <- sample(1:Time, 1) #Choosing one second to explore through all the runs
-  P.11 <- ptm_11_param[choose, ]
-  P.21 <- ptm_21_param[choose, ]
-  P.12 <- ptm_12_param[choose, ]
-  P.22 <- ptm_22_param[choose, ]
-
-  P <- cbind(P.11, P.21, P.12, P.22)
-
-  #Single P
-  plot(0,0,xlab = "MCMC Runs",
-    ylab = "Single Second Probability Matrix for State Switching",
-    ylim = c(0, 1), xlim = c(0,n_mcmc),
-    type = "n", cex.lab = 1)
-  for (i in 1:(4)) {
-    lines(1:n_mcmc, P[, i], col = col[i])
-  }
-
-  #Probabilities over time
-  P.est <- cbind(P.11.est, P.12.est, P.21.est, P.22.est)
-  plot(0,0,xlab = "MCMC Runs",
-    ylab = "Combined Probability Matrix for State Switching",
-    ylim = c(0, 1), xlim = c(0,n_mcmc),
-    type = "n", cex.lab = 1)
-  for (i in 1:(4)) {
-    lines(1:Time, P.est[, i], col = col[i])
-  }
-
-
-  #Single X
-  X <- states_param[choose, ]
-  plot(0, 0, xlab = "MCMC Runs", ylab = "Single X", ylim = c(0,max(X)),
-    xlim = c(0,n_mcmc), type = "n", cex.lab = 1)
-  lines(1:n_mcmc, X, col = col[4])
-
-  #States over time
-  #plot(X.est, type = "l")
-  plot(round(X.est), type = "l")
-
-
-  title(main = title, outer = T)
-
-  if (fig_save == TRUE) {
-    dev.off()
-  }
-
-  #########################################################
-  ##
-  ## Fancy Plots with Background Colors
-  ##
-  #########################################################
-
-  if (fig_save == TRUE) {
-    jpeg(file = paste(fig_path, fig_name, round(penalty, digits = 11), ".states", ".jpg", sep = ""))
-  }
-
-  par(mfrow = c(1, 1))
-
-
-  if (length(unique(location)) == 1) {
-
-    ##High Density - 4 Hours
-    plot(start, 1:int.num, main = "High",
-      xlab = "delta_t", ylab = "Cumulative Interaction Count",
-      xlim = c(0, maxtime))
-    states <- X.est #from code above
-    rr <- rle(states[,1])
-    rr$values <- round(rr$values, digits = 0)
-    embedded.chain <- rr$values
-    cs <- c(0,cumsum(rr$lengths))*delta_t - delta_t
-    cols <- c('#bc535644','#538bbc44')
-
-    for (j in 1:length(embedded.chain)) {
-      rect(cs[j],0,cs[j + 1],int.num,
-        col = cols[embedded.chain[j]], border = NA, density = NA)
+      # tau is what we use for rmvnorm(n= 1, mean = log(previous), sigma = tau)
+      tau <- tune.sig * tune.Sig
 
     }
-    points(start, 1:int.num, main = "Low", xlab = "delta_t",
-      ylab = "Cumulative Interaction Count",
-      xlim = c(0,maxtime))
+
+    # 2: take k RWM steps using σm^2_t and Sigma_t
+    #propose switch rates for LH and HL (gamma_LH, gamma_HL)
+    proposal <- rmvnorm(n = 1,
+      mean = c(log(switch_rate_param[1:2, l.1000 - 1]), switch_rate_param[3:4, l.1000 - 1]),
+      sigma = tau)
+
+    # unlog and separate to be used for beta-ij r/a THEN e^beta_ij updates
+    theta.star <- cbind(exp(proposal[1]) * exp(proposal[3] * -covariate),
+      # exp(proposal[2]) * exp(proposal[4] * -covariate))
+        exp(proposal[2]) * exp(0)) #Holding b_1HL at 0 (i.e. no influence of covariates)
+
+        P.star <- matrix(NA, ncol = (n^2), nrow =  Time)
+    ## Need to take the gamma values we've proposed and caluate the P
+    ## matrix for probability of 'jumping' between states
+    if (n == 2) {
+      P.star[, 2] <- theta.star[, 1] * exp(-theta.star[, 1] * delta_t) /
+        (exp(1) / (exp(1) - 1)^2)
+
+      P.star[, 1] <- 1 - P.star[, 2]
+
+      P.star[, 3] <- theta.star[, 2] * exp(-theta.star[, 2] * delta_t) /
+        (exp(1) / (exp(1) - 1)^2)
+
+      P.star[, 4] <- 1 - P.star[, 3]
+    }else{
+      ptm_matrix[1, 2] <- theta.star[5] * exp(-theta.star[5] * delta_t) /
+        (exp(1) / (exp(1) - 1)^2) #LM
+
+      ptm_matrix[1, 3] <- theta.star[2] * exp(-theta.star[2] * delta_t) /
+        (exp(1) / (exp(1) - 1)^2) #LH
+
+      ptm_matrix[1, 1] <- 1 - ptm_matrix[1, 2] - ptm_matrix[1, 3] #LL
+
+      ptm_matrix[2, 1] <- theta.star[3] * exp(-theta.star[3] * delta_t) /
+        (exp(1) / (exp(1) - 1)^2) #ML
+
+      ptm_matrix[2, 3] <- theta.star[4] * exp(-theta.star[4] * delta_t) /
+        (exp(1) / (exp(1) - 1)^2) #MH
+
+      ptm_matrix[2, 2] <- 1 - ptm_matrix[2, 1] - ptm_matrix[2, 3] #MM
+
+      ptm_matrix[3, 1] <- theta.star[2] * exp(-theta.star[2] * delta_t) /
+        (exp(1) / (exp(1) - 1)^2) #HL
+
+      ptm_matrix[3, 2] <- theta.star[6] * exp(-theta.star[6] * delta_t) /
+        (exp(1) / (exp(1) - 1)^2) #HM
+
+      ptm_matrix[3, 3] <- 1 - ptm_matrix[3, 1] - ptm_matrix[3, 2] #HH
+    }
+
+
+    # P.star <- as.vector(t(ptm_matrix))
+
+#bring together all previous iteration ptm values
+  st_ptm_param <- cbind(ptm_11_param[, l.1000 - 1], ptm_12_param[, l.1000 - 1],
+                        ptm_21_param[, l.1000 - 1], ptm_22_param[, l.1000 - 1])
+
+
+    #ACCEPT REJECT ALL TOGETHER
+
+    # calculate probability
+    MHprob <- exp(log.fullcond(P.star,
+      # c(exp(proposal[1:2]), proposal[3:4]),
+      c(exp(proposal[1:2]), proposal[3], 0),
+      states_param,
+      penalty) -
+      log.fullcond(st_ptm_param,
+        switch_rate_param[, l.1000 - 1],
+        states_param,
+        penalty))
+
+if (is.finite(MHprob) == FALSE) {
+  MHprob <- 0
+}
+
+
+# accept/reject
+
+if (runif(1) < MHprob) {
+  acpt[l] <- 1
+
+  switch_rate_param[1:2, l.1000] <- exp(proposal[1:2])
+  # switch_rate_param[3:4, l.1000] <- proposal[3:4]
+  switch_rate_param[3:4, l.1000] <- c(proposal[3], 0) #covariates do not influence HL switch
+  # st_ptm_param[, l.1000] <- as.vector(t(P.star))
+
+} else {
+  acpt[l] <- 0
+
+  switch_rate_param[1:4, l.1000] <- switch_rate_param[1:4, l.1000 - 1]
+  # st_ptm_param[, l.1000] <- st_ptm_param[, l.1000 - 1]
+}
+
+
+##updated calculated swtiching rates and time varying ptm  - ASSUMES n = 2
+
+switch_rate_calc_LH[, l.1000] <- switch_rate_param[1, l.1000] * exp(switch_rate_param[3, l.1000] * -covariate) #LH
+switch_rate_calc_HL[, l.1000] <- switch_rate_param[2, l.1000] * exp(switch_rate_param[4, l.1000] * -covariate)
+
+ptm_12_param[, l.1000] <- switch_rate_calc_LH[, l.1000] * exp(-switch_rate_calc_LH[, l.1000] * delta_t) /
+  (exp(1) / (exp(1) - 1)^2)
+ptm_11_param[, l.1000] <- 1 - ptm_12_param[, l.1000]
+ptm_21_param[, l.1000] <- switch_rate_calc_HL[, l.1000] * exp(-switch_rate_calc_HL[, l.1000] * delta_t) /
+  (exp(1) / (exp(1) - 1)^2)
+ptm_22_param[, l.1000] <- 1 - ptm_21_param[, l.1000]
+
+
+#Checking code - need to hold everything else constant
+# states_param[, l.1000] <- states_param[, 1]
+# st_rates_param[, l.1000] <- st_rates_param[, 1]
+# st_ptm_param[, l.1000] <- st_ptm_param[, 1]
+
+# gibbs updates
+
+
+## X Values over time
+
+## X Parameters
+
+ptm_columns <- cbind(ptm_11_param[, l.1000], ptm_12_param[, l.1000],
+  ptm_21_param[, l.1000], ptm_22_param[, l.1000])
+
+#
+m <- matrix(data = 0, nrow = n, ncol = n)
+if (n == 2){
+  rownames(m) <- c("low", "high")
+  colnames(m) <- c("low", "high")
+}else{
+  rownames(m) <- c("low", "med", "high")
+  colnames(m) <- c("low", "med", "high")
+}
+
+# # number states going from i to j, refreshes every run
+#
+st_rate_low <- st_rates_param[1, l.1000 - 1]
+st_rate_high <- st_rate_low + st_rates_param[2, l.1000 - 1]
+
+if (n == 3) {
+  st_rate_med <- st_rates_param[2, l.1000 - 1]
+  st_rate_high <- st_rate_high + st_rates_param[3, l.1000 - 1]
+}
+#
+#
+# #alpha values - needed to do black of backward X updates a la Zuchinni et al
+#
+alpha_step <- matrix(NA, Time, n)
+#break alpha step calculations into 2 blocks
+
+if (n == 2) {
+  diag_P <- matrix(c(dpois(data[1], st_rate_low),0,
+    0, dpois(data[1], st_rate_high)), 2, 2)
+}else{
+  diag_P <- matrix(c(dpois(data[1], st_rate_low), 0, 0,
+    0, dpois(data[1], st_rate_med), 0,
+    0, 0, dpois(data[1], st_rate_high)), 3, 3)
+}
+
+
+alpha_step[1, ] <- delta %*% diag_P
+
+for (t in 2:(Time/2)) {
+  if (n == 2) {
+    diag_P <- matrix(c(dpois(data[t], st_rate_low),0,
+      0, dpois(data[t], st_rate_high)), 2, 2)
   }else{
-    #Low Density - 4 Hours
-
-    plot(start, 1:int.num, main = "Low", xlab = "delta_t",
-      ylab = "Cumulative Interaction Count",
-      xlim = c(0,maxtime))
-    states <- X.est
-    rr <- rle(states[,1])
-    rr$values <- round(rr$values, digits = 0)
-    embedded.chain <- rr$values
-    cs <- c(0,cumsum(rr$lengths))*delta_t - delta_t
-    cols <- c('#bc535644','#538bbc44')
-    for (j in 1:length(embedded.chain)) {
-      rect(cs[j],0,cs[j + 1],int.num, col = cols[embedded.chain[j]] , density = NA)
-    }
-    points(start, 1:int.num, main = "Low", xlab = "delta_t",
-      ylab = "Cumulative Interaction Count",
-      xlim = c(0,maxtime))
+    diag_P <- matrix(c(dpois(data[t], st_rate_low), 0, 0,
+      0, dpois(data[t], st_rate_med), 0,
+      0, 0, dpois(data[t], st_rate_high)), 3, 3)
   }
 
-  if (fig_save == TRUE) {
-    dev.off()
-  }
+  ptm_matrix <- matrix(data = c(ptm_columns[t, ]), nrow = n, ncol = n,
+    byrow = T)
 
+  alpha_step[t, ] <- alpha_step[(t - 1), ] %*% ptm_matrix %*% diag_P
+}
 
-  list(X.est = X.est, st_rates_est = lambda.est,
-    P.est = c(P.11.est, P.12.est, P.21.est, P.22.est), MSPE = MSPE.1SA, accept = accept)
+#block 2
 
+if (n == 2) {
+  diag_P <- matrix(c(dpois(data[(Time/2) + 1], st_rate_low),0,
+    0, dpois(data[(Time/2) + 1], st_rate_high)), 2, 2)
+}else{
+  diag_P <- matrix(c(dpois(data[Time/2 + 1], st_rate_low), 0, 0,
+    0, dpois(data[Time/2 + 1], st_rate_med), 0,
+    0, 0, dpois(data[Time/2 + 1], st_rate_high)), 3, 3)
 }
 
 
 
+alpha_step[(Time/2) + 1, ] <- delta %*% diag_P
+
+for (t in (Time/2 + 2):Time) {
+
+  if (n == 2) {
+    diag_P <- matrix(c(dpois(data[t], st_rate_low),0,
+      0, dpois(data[t], st_rate_high)), 2, 2)
+  }else{
+    diag_P <- matrix(c(dpois(data[t], st_rate_low), 0, 0,
+      0, dpois(data[t], st_rate_med), 0,
+      0, 0, dpois(data[t], st_rate_high)), 3, 3)
+  }
+  ptm_matrix <- matrix(data = c(ptm_columns[t, ]), nrow = n, ncol = n,
+    byrow = T)
+
+  alpha_step[t, ] <- alpha_step[(t - 1), ] %*% ptm_matrix %*% diag_P
+}
+
+
+#backwards stochastic process block update
+
+states_param[Time, l.1000] <- sample(x = (1:n), size = 1, replace = F, prob = alpha_step[Time, ])
+
+ptm_matrix <- matrix(data = c(ptm_columns[Time, ]), nrow = n, ncol = n,
+  byrow = T)
+
+if (n == 2) {
+  osa_param[Time, l.1000] <- st_rate_low * ptm_matrix[states_param[Time, l.1000], 1] +
+    st_rate_high * ptm_matrix[states_param[Time, l.1000], 2]
+}else{
+  osa_param[Time, l.1000] <- st_rate_low * ptm_matrix[states_param[Time, l.1000], 1] +
+    st_rate_med * ptm_matrix[states_param[Time, l.1000], 2] +
+    st_rate_high * ptm_matrix[states_param[Time, l.1000], 3]
+}
+
+for (t in (Time - 1):1) {
+
+  ptm_matrix <- matrix(data = c(ptm_columns[t, ]), nrow = n, ncol = n,
+    byrow = T)
+
+  if (n == 2){
+    states_param[t, l.1000] <- sample(x = (1:n), size = 1,
+      prob = c(alpha_step[t, 1] * ptm_matrix[1, states_param[t + 1, l.1000]],
+        alpha_step[t, 2] * ptm_matrix[2, states_param[t + 1, l.1000]]))
+  }else{
+    states_param[t, l.1000] <- sample(x = (1:n), size = 1,
+      prob = c(alpha_step[t, 1] * ptm_matrix[1, states_param[t + 1, l.1000]],
+        alpha_step[t, 2] * ptm_matrix[2, states_param[t + 1, l.1000]],
+        alpha_step[t, 3] * ptm_matrix[3, states_param[t + 1, l.1000]]))
+  }
+
+
+
+
+  m[states_param[t, l.1000], states_param[t + 1, l.1000]] <- m[states_param[t, l.1000],
+    states_param[t + 1, l.1000]] + 1
+
+  if (n == 2) {
+    osa_param[t, l.1000] <- st_rate_low * ptm_matrix[states_param[t, l.1000], 1] +
+      st_rate_high * ptm_matrix[states_param[t, l.1000], 2]
+  }else{
+    osa_param[t, l.1000] <- st_rate_low * ptm_matrix[states_param[t, l.1000], 1] +
+      st_rate_med * ptm_matrix[states_param[t, l.1000], 2] +
+      st_rate_high * ptm_matrix[states_param[t, l.1000], 3]
+  }
+}
+
+
+
+if (n == 2) {
+  for (t in 1:Time) {
+    if (states_param[t, l.1000] == 1) {
+      starts_low[t, l.1000] <- data[t]
+      starts_high[t, l.1000] <- 0
+    } else {
+      split <- rmultinom(1, size = data[t], prob = c(st_rates_param[1,
+        l.1000 - 1], st_rates_param[2, l.1000 - 1]))
+      starts_low[t, l.1000] <- split[1]
+      starts_high[t, l.1000] <- split[2]
+    }
+  }
+}else{
+  for (t in 1:Time) {
+    if (states_param[t, l.1000] == 1) {
+      starts_low[t, l.1000] <- data[t]
+      starts_med[t, l.1000] <- 0
+      starts_high[t, l.1000] <- 0
+    } else {
+      split <- rmultinom(1, size = data[t], prob = c(st_rates_param[1,
+        l.1000 - 1], st_rates_param[2, l.1000 - 1], st_rates_param[3, l.1000 - 1]))
+      starts_low[t, l.1000] <- split[1]
+      starts_med[t, l.1000] <- split[2]
+      starts_high[t, l.1000] <- split[3]
+    }
+  }
+}
+
+# ## Lambda Parameters
+
+st_rates_param[1, l.1000] <- rgamma(n = 1,
+  shape = sum(starts_low[, l.1000]) + a,
+  rate = Time + b)
+
+
+if ( n == 2) {
+
+  st_rates_param[2, l.1000] <- rgamma(n = 1,
+    shape = sum(starts_high[which(states_param[, l.1000] == 2), l.1000]) + c,
+    rate = sum(m[2, ]) + d)
+
+  st_rates_param[3, l.1000] <- st_rates_param[1, l.1000] + st_rates_param[2, l.1000]
+}else{
+  st_rates_param[2, l.1000] <- rgamma(n = 1,
+    shape = sum(starts_med[which(states_param[, l.1000] == 2), l.1000]) + e,
+    rate = sum(m[2, ]) + f)
+
+  st_rates_param[3, l.1000] <- rgamma(n = 1,
+    shape = sum(starts_high[which(states_param[, l.1000] == 3), l.1000]) + c,
+    rate = sum(m[3, ]) + d)
+
+  st_rates_param[4, l.1000] <- st_rates_param[1, l.1000] + st_rates_param[2, l.1000] + st_rates_param[3, l.1000]
+
+}
+
+# move iteration forward
+l.1000 <- l.1000 + 1
+###################################### Every 1000 iterations
+
+if (l %% 1000 == 0) {
+  # print out every 100 iterations completed
+  cat(paste("iteration", l, "complete\n"))
+
+  #save off chunk of 1000 chains
+
+  results <- rbind(st_rates_param,
+    switch_rate_param,
+    # st_ptm_param,
+    states_param)
+
+  osa_results <- osa_param
+
+
+
+  write.table(t(results[, 2:1000 ]), file = data_out,
+    append = T, col.names = F, sep = ',')
+
+  write.table(t(osa_results[, 2:1000]), file = osa_out,
+    append = T, col.names = F, sep = ',')
+
+
+  #reset chain home
+  #save most recent
+
+  st_rates_param[, 1] <- st_rates_param[, 1000]
+  switch_rate_param[ , 1] <- switch_rate_param[ , 1000]
+
+  ptm_11_param[, 1] <- ptm_11_param[, 1000]
+  ptm_12_param[, 1] <- ptm_12_param[, 1000]
+  ptm_21_param[, 1] <- ptm_21_param[, 1000]
+  ptm_22_param[, 1] <- ptm_22_param[, 1000]
+
+  states_param[ , 1] <- states_param[ , 1000]
+  switch_rate_calc_LH[ , 1] <- switch_rate_calc_LH[ , 1000]
+  switch_rate_calc_HL[ , 1] <- switch_rate_calc_HL[ , 1000]
+
+  osa_param[, 1] <- osa_param[ , 1000]
+
+  starts_low[ , 1] <- starts_low[ , 1000]
+  starts_high[ , 1] <- starts_high[ , 1000]
+
+  if (n == 3) {
+    starts_med[, 1] <- starts_med[ , 1000]
+  }
+
+  #reset chain home index
+  l.1000 <- 2
+
+}
+
+  }
+
+
+
+  list(accept = sum(acpt)/length(acpt))
+
+
+}

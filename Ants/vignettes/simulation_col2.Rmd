@@ -2,7 +2,7 @@
 title: "R Notebook"
 output: html_notebook
 ---
-
+THis file is to do blah blah
 ```{r}
 set.seed(2017)
 simulated <- sim_DT_troph(time_max = 4*60*60, delta_t = 1, start_state = 1, switch_rate = c(.005, .005), int_rate = c(.005, .02), num_locations = 1, state_tpm = matrix(c(.99, .01, .01, .99), nrow = 2, byrow = T))
