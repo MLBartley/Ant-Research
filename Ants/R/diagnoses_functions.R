@@ -167,7 +167,7 @@ if (n == 2) {
    rr$values <- round(rr$values, digits = 0)
    embedded.chain <- rr$values
    cs <- c(0, cumsum(rr$lengths)) * delta_t - delta_t
-   cols <- c("#bc535644", "#538bbc44")
+   cols <- c("#bc535644", "#538bbc44", "#56bc5344")
    for (j in 1:length(embedded.chain)) {
      rect(cs[j], 0, cs[j + 1], int.num, col = cols[embedded.chain[j]],
        density = NA)

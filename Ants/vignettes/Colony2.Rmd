@@ -11,7 +11,6 @@ library(magrittr)
 library(ggplot2)
 library(dplyr)
 library(doMC)
-library(mvtnorm)
 
 options(error = recover)
 ```
@@ -92,12 +91,12 @@ path <- out.dir
 path_table <- "../output/tables/" 
 # states <- 2
 states <- 3
-n_mcmc <- 5000
+n_mcmc <- 10000
 hours <- 4
 X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
 X_3 <- sample(x = 1:3, size = hours * 60 * 60, replace = T)
 lambda <- c(.005, .015)
-# registerDoMC(cores = 5) 
+registerDoMC(cores = 5) 
 ```
 
 We will run all models as 2-state HMM models, as determined by previous work. 
@@ -242,6 +241,23 @@ print(compare_plot)
 print(compare_plot + ylim(.0177, .019)) #limits chosen via observation of first plot
 
 
+plot_pen2 <- compare_plot + 
+        geom_vline( xintercept=-23, col = 'red') + 
+        xlab("Penalty (e^value)") + 
+        xlim(-30, 30) +
+        # theme_bw(base_size = 13, base_family = "Helvetica") + 
+        theme(text = element_text(size=14),
+              panel.grid.major = element_blank(), 
+              panel.grid.minor = element_blank(),
+              # panel.background = element_blank(),
+              axis.line = element_line(colour = "black")) 
+
+print(plot_pen2)
+ggsave("../output/MSPE_pen2.pdf")
+
+#save MSPE_results
+save(MSPE_results, file = "../output/MSPE_pen2_table.Rda")
+
 ```
 
 ```{r penalized diagnoses, eval=FALSE, include=FALSE}
@@ -289,7 +305,8 @@ delta_t <- 1
 #low densith - queen's chamber USED FOR PAPER
 
 ##THIS ONE FOR JSM
-range_3 <- exp(seq(-20, 7, by =  3))
+range_3 <- exp(seq(-30, -10, by =  1))
+# i <- exp(-19)
 
 penalize3_col2lo4qbin1 <- foreach(i = range_3,
                                   .errorhandling = "remove") %dopar% 
@@ -314,7 +331,7 @@ penalize3_col2lo4qbin1 <- foreach(i = range_3,
 
 #previous results - don't want to save over!
 
-   # old_MSPE_results_THREE <- as.data.frame(MSPE_results_THREE)
+    old_MSPE_results_THREE <- as.data.frame(MSPE_results_THREE)
 
 Time = hours *60 *60
 
@@ -349,7 +366,7 @@ MSPE_results_THREE[r, 2] <- MSPE.1SA
   
   #remove useless stuff
   rm(data_mat)
-  rm(final)
+  # rm(final)
   rm(osa_param)
 
   
@@ -369,7 +386,24 @@ maxMSPE_3 <- MSPE_results_THREE[which.max(MSPE_results_THREE$MSPE), ]
 
 
 print(compare_plot_3)
-print(compare_plot_3 + ylim(.0177, .019)) #limits chosen via observation of first plot
+
+plot_pen3 <- compare_plot_3 + 
+        ylim(.0185, .0188) + 
+            geom_vline( xintercept=-13, col = 'red') + 
+        xlab("Penalty (e^value)") + 
+        xlim(-30, 10) +
+        # theme_bw(base_size = 13, base_family = "Helvetica") + 
+        theme(text = element_text(size=14),
+              panel.grid.major = element_blank(), 
+              panel.grid.minor = element_blank(),
+              # panel.background = element_blank(),
+              axis.line = element_line(colour = "black"))  #limits chosen via observation of first plot
+
+print(plot_pen3)
+
+ggsave("../output/MSPE_pen3.pdf")
+
+save(MSPE_results_THREE, file = "../output/MSPE_pen3_table.Rda")
 
 
 ```
@@ -379,6 +413,7 @@ print(compare_plot_3 + ylim(.0177, .019)) #limits chosen via observation of firs
 pen3_results <- list()
 
 range_3 <- exp(minMSPE_3[1]) #if only want one penalty that has been optimized
+range_3 <- exp(-13)
  r <- 1
 
 range_3 <- c(exp(minMSPE_3[1]), exp(maxMSPE_3[1]))
@@ -391,13 +426,14 @@ temp_results <-  readr::read_csv(paste("../data/pen3_MCMC-",
                                 log(range_3[r]), "-", n_mcmc,  
                                 ".csv", sep = ""))
 
-pen3_results[[r]] <- penalty_diagnosis(t(temp_results)[, -1 ], 
+pen3_results[[r]] <- penalty_diagnosis(t(temp_results[, -1 ]), 
                                       states = 3,
                                       ant_file = col2_low4_5$data, 
                                       chamber = "queen", 
                                       Time = hours * 60 * 60, fig_path = path,
-                                fig_name = "optimizedMSPE3", penalty = range_3[r])
- }
+                                fig_name = "MSPE3", penalty = log(range_3[r]))
+ 
+}
 
 
 rm(temp_results)

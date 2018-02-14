@@ -882,7 +882,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
     # #alpha values - needed to do black of backward X updates a la Zuchinni et al
     #
     alpha_step <- matrix(NA, Time, n)
-#break alpha step calculations into 2 blocks
+#break alpha step calculations into 6 blocks
 
     if (n == 2) {
       diag_P <- matrix(c(dpois(data[1], st_rate_low),0,
@@ -896,7 +896,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
 
     alpha_step[1, ] <- delta %*% diag_P
 
-    for (t in 2:(Time/2)) {
+    for (t in 2:(Time/8)) {
       if (n == 2) {
       diag_P <- matrix(c(dpois(data[t], st_rate_low),0,
         0, dpois(data[t], st_rate_high)), 2, 2)
@@ -912,19 +912,19 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
 #block 2
 
     if (n == 2) {
-      diag_P <- matrix(c(dpois(data[(Time/2) + 1], st_rate_low),0,
-        0, dpois(data[(Time/2) + 1], st_rate_high)), 2, 2)
+      diag_P <- matrix(c(dpois(data[(Time/8) + 1], st_rate_low),0,
+        0, dpois(data[(Time/8) + 1], st_rate_high)), 2, 2)
     }else{
-      diag_P <- matrix(c(dpois(data[Time/2 + 1], st_rate_low), 0, 0,
-        0, dpois(data[Time/2 + 1], st_rate_med), 0,
-        0, 0, dpois(data[Time/2 + 1], st_rate_high)), 3, 3)
+      diag_P <- matrix(c(dpois(data[Time/8 + 1], st_rate_low), 0, 0,
+        0, dpois(data[Time/8 + 1], st_rate_med), 0,
+        0, 0, dpois(data[Time/8 + 1], st_rate_high)), 3, 3)
     }
 
+    alpha_step[(Time/8) + 1, ] <- delta %*% diag_P
+  
+  
 
-
-    alpha_step[(Time/2) + 1, ] <- delta %*% diag_P
-
-    for (t in (Time/2 + 2):Time) {
+    for (t in (Time/8 + 2):(Time * 2/8)) {
 
       if (n == 2) {
         diag_P <- matrix(c(dpois(data[t], st_rate_low),0,
@@ -937,8 +937,182 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
 
       alpha_step[t, ] <- alpha_step[(t - 1), ] %*% ptm_matrix %*% diag_P
     }
+    
+    #block 3
+    
+    if (n == 2) {
+      diag_P <- matrix(c(dpois(data[(Time * 2/8) + 1], st_rate_low),0,
+                         0, dpois(data[(Time * 2/8) + 1], st_rate_high)), 2, 2)
+    }else{
+      diag_P <- matrix(c(dpois(data[Time * 2/8 + 1], st_rate_low), 0, 0,
+                         0, dpois(data[Time * 2/8 + 1], st_rate_med), 0,
+                         0, 0, dpois(data[Time * 2/8 + 1], st_rate_high)), 3, 3)
+    }
+    
+    
+    
+    alpha_step[(Time * 2/8) + 1, ] <- delta %*% diag_P
+    
+    for (t in (Time * 2/8 + 2):(Time * 3/8)) {
+      
+      if (n == 2) {
+        diag_P <- matrix(c(dpois(data[t], st_rate_low),0,
+                           0, dpois(data[t], st_rate_high)), 2, 2)
+      }else{
+        diag_P <- matrix(c(dpois(data[t], st_rate_low), 0, 0,
+                           0, dpois(data[t], st_rate_med), 0,
+                           0, 0, dpois(data[t], st_rate_high)), 3, 3)
+      }
+      
+      alpha_step[t, ] <- alpha_step[(t - 1), ] %*% ptm_matrix %*% diag_P
+    }
+    
+    #block 4
+    
+    if (n == 2) {
+      diag_P <- matrix(c(dpois(data[(Time * 3/8) + 1], st_rate_low),0,
+                         0, dpois(data[(Time * 3/8) + 1], st_rate_high)), 2, 2)
+    }else{
+      diag_P <- matrix(c(dpois(data[Time * 3/8 + 1], st_rate_low), 0, 0,
+                         0, dpois(data[Time * 3/8 + 1], st_rate_med), 0,
+                         0, 0, dpois(data[Time * 3/8 + 1], st_rate_high)), 3, 3)
+    }
+    
+    
+    
+    alpha_step[(Time * 3/8) + 1, ] <- delta %*% diag_P
+    
+    for (t in (Time * 3/8 + 2):(Time * 4/8)) {
+      
+      if (n == 2) {
+        diag_P <- matrix(c(dpois(data[t], st_rate_low),0,
+                           0, dpois(data[t], st_rate_high)), 2, 2)
+      }else{
+        diag_P <- matrix(c(dpois(data[t], st_rate_low), 0, 0,
+                           0, dpois(data[t], st_rate_med), 0,
+                           0, 0, dpois(data[t], st_rate_high)), 3, 3)
+      }
+      
+      alpha_step[t, ] <- alpha_step[(t - 1), ] %*% ptm_matrix %*% diag_P
+    }
 
+    
+    #block 5
+    
+    if (n == 2) {
+      diag_P <- matrix(c(dpois(data[(Time * 4/8) + 1], st_rate_low),0,
+                         0, dpois(data[(Time * 4/8) + 1], st_rate_high)), 2, 2)
+    }else{
+      diag_P <- matrix(c(dpois(data[Time * 4/8 + 1], st_rate_low), 0, 0,
+                         0, dpois(data[Time * 4/8 + 1], st_rate_med), 0,
+                         0, 0, dpois(data[Time * 4/8 + 1], st_rate_high)), 3, 3)
+    }
+    
+    
+    
+    alpha_step[(Time * 4/8) + 1, ] <- delta %*% diag_P
+    
+    for (t in (Time * 4/8 + 2):(Time * 5/8)) {
+      
+      if (n == 2) {
+        diag_P <- matrix(c(dpois(data[t], st_rate_low),0,
+                           0, dpois(data[t], st_rate_high)), 2, 2)
+      }else{
+        diag_P <- matrix(c(dpois(data[t], st_rate_low), 0, 0,
+                           0, dpois(data[t], st_rate_med), 0,
+                           0, 0, dpois(data[t], st_rate_high)), 3, 3)
+      }
+      
+      alpha_step[t, ] <- alpha_step[(t - 1), ] %*% ptm_matrix %*% diag_P
+    }
+    
+    #block 6
+    
+    if (n == 2) {
+      diag_P <- matrix(c(dpois(data[(Time * 5/8) + 1], st_rate_low),0,
+                         0, dpois(data[(Time * 5/8) + 1], st_rate_high)), 2, 2)
+    }else{
+      diag_P <- matrix(c(dpois(data[Time * 5/8 + 1], st_rate_low), 0, 0,
+                         0, dpois(data[Time * 5/8 + 1], st_rate_med), 0,
+                         0, 0, dpois(data[Time * 5/8 + 1], st_rate_high)), 3, 3)
+    }
+    
+    
+    
+    alpha_step[(Time * 5/8) + 1, ] <- delta %*% diag_P
+    
+    for (t in (Time * 5/8 + 2):(Time * 6/8)) {
+      
+      if (n == 2) {
+        diag_P <- matrix(c(dpois(data[t], st_rate_low),0,
+                           0, dpois(data[t], st_rate_high)), 2, 2)
+      }else{
+        diag_P <- matrix(c(dpois(data[t], st_rate_low), 0, 0,
+                           0, dpois(data[t], st_rate_med), 0,
+                           0, 0, dpois(data[t], st_rate_high)), 3, 3)
+      }
+      
+      alpha_step[t, ] <- alpha_step[(t - 1), ] %*% ptm_matrix %*% diag_P
+    }
 
+    #block 7
+    
+    if (n == 2) {
+      diag_P <- matrix(c(dpois(data[(Time * 6/8) + 1], st_rate_low),0,
+                         0, dpois(data[(Time * 6/8) + 1], st_rate_high)), 2, 2)
+    }else{
+      diag_P <- matrix(c(dpois(data[Time * 6/8 + 1], st_rate_low), 0, 0,
+                         0, dpois(data[Time * 6/8 + 1], st_rate_med), 0,
+                         0, 0, dpois(data[Time * 6/8 + 1], st_rate_high)), 3, 3)
+    }
+    
+    
+    
+    alpha_step[(Time * 6/8) + 1, ] <- delta %*% diag_P
+    
+    for (t in (Time * 6/8 + 2):(Time * 7/8)) {
+      
+      if (n == 2) {
+        diag_P <- matrix(c(dpois(data[t], st_rate_low),0,
+                           0, dpois(data[t], st_rate_high)), 2, 2)
+      }else{
+        diag_P <- matrix(c(dpois(data[t], st_rate_low), 0, 0,
+                           0, dpois(data[t], st_rate_med), 0,
+                           0, 0, dpois(data[t], st_rate_high)), 3, 3)
+      }
+      
+      alpha_step[t, ] <- alpha_step[(t - 1), ] %*% ptm_matrix %*% diag_P
+    }
+    
+    #block 8
+    
+    if (n == 2) {
+      diag_P <- matrix(c(dpois(data[(Time * 7/8) + 1], st_rate_low),0,
+                         0, dpois(data[(Time * 7/8) + 1], st_rate_high)), 2, 2)
+    }else{
+      diag_P <- matrix(c(dpois(data[Time * 7/8 + 1], st_rate_low), 0, 0,
+                         0, dpois(data[Time * 7/8 + 1], st_rate_med), 0,
+                         0, 0, dpois(data[Time * 7/8 + 1], st_rate_high)), 3, 3)
+    }
+    
+    
+    
+    alpha_step[(Time * 7/8) + 1, ] <- delta %*% diag_P
+    
+    for (t in (Time * 7/8 + 2):(Time)) {
+      
+      if (n == 2) {
+        diag_P <- matrix(c(dpois(data[t], st_rate_low),0,
+                           0, dpois(data[t], st_rate_high)), 2, 2)
+      }else{
+        diag_P <- matrix(c(dpois(data[t], st_rate_low), 0, 0,
+                           0, dpois(data[t], st_rate_med), 0,
+                           0, 0, dpois(data[t], st_rate_high)), 3, 3)
+      }
+      
+      alpha_step[t, ] <- alpha_step[(t - 1), ] %*% ptm_matrix %*% diag_P
+    }
+    
     #backwards stochastic process block update
 
     states_param[Time, l.1000] <- sample(x = (1:n), size = 1, replace = F, prob = alpha_step[Time, ])
