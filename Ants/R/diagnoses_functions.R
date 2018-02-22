@@ -13,7 +13,7 @@
 #'
 #'
 #'
-#' @return
+#' @return Diagnoses plots of parameters in model + state estimates plot. Works with all models.
 #' @export
 #'
 
@@ -49,7 +49,7 @@ pdf( file = paste(fig_path, fig_name, round(penalty, 11), ".diagnostics", ".pdf"
         plotname = "Trophallaxis Rate: High")
     }
 
-  if (is.null(covariate) == T ){
+  if (is.null(covariate) == TRUE ){
     #gammas - st_switch_rate(LH/HL)
     if (n == 2) {
       estvssamp(samp = mcmc_matrix[4, ], plotname = "State Switching Rate: Low to High")
@@ -113,7 +113,7 @@ if (n == 2) {
     if (n == 2) {
       plot(coda::mcmc(t(mcmc_matrix[1:2, ])))
 
-  if (is.null(covariate) == T){
+  if (is.null(covariate) == TRUE){
     #gammas - st_switch_rate
   plot(coda::mcmc(t(mcmc_matrix[4:5, ])))
 

@@ -193,7 +193,7 @@ sim_DT_troph <- function(states, time_max, delta_t, start_state = 1,
 }
 
 
-#' Title
+#' Simulation of Ant Trophallaxis Start Times - PenCov Model
 #'
 #' @param states
 #' @param time_max
@@ -204,10 +204,24 @@ sim_DT_troph <- function(states, time_max, delta_t, start_state = 1,
 #' @param covariate
 #' @param switch_betas
 #'
-#' @return
+#' @return This function will return the following:
+#'   \enumerate{
+#'     \item inter_persec: (0, ...) 'observed' number of
+#'       interactions per 1 second
+#'     \item state: (1 = low, 2 = high) unobserved two state process
+#'     \item cumu_inter: (0, ...) cumulative count of interactions
+#'     \item bin_inter: Trophallaxis interactions binned into smaller
+#'       intervals determined by sum over delta_t
+#'     \item bin_state: Trophallaxis rate state binned into smaller
+#'       intervals, determined by average over delta_t
+#'     \item bin_sec: (0, ...) time (in seconds) binned by delta_t
+#'     \item start_time: vector of interaction start times
+#'     \item location: location of each ant interaction
+#'     \item Visuals: 1x1 visual of cumlative counts over time, colored
+#'       by state, separated by location if applicable.
+#'       }
 #' @export
 #'
-#' @examples
 sim_pencov_troph <- function(states, time_max, delta_t, start_state = 1,
   # switch_rate = c(0, 0), state_tpm,
   int_rate, num_locations = 1,

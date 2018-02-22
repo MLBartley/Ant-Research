@@ -256,7 +256,6 @@ sumvis_troph <- function(data, entrance = FALSE, hours, density = "high"){
 #' @param file_path
 #' @param file_name
 #'
-#' @return
 #' @export
 #'
 #'
@@ -400,10 +399,8 @@ sumtable_model <- function(results, compare, file_path, file_name, model){
 #' @param fig_path Path needed to sent plot figures to folder.
 #' @param fig_name Base name of plot files to be saved.
 #'
-#' @return
 #' @export
 #'
-#' @examples
 plot_states  <- function(mcmc_matrix, fig_path, fig_name){
 
   

@@ -3,11 +3,22 @@
 #' The purpose of this function is to find MCMC generated estimates of 
 #' (1) - 
 #'
-#' @param 
+#' @param a 
+#' @param b 
+#' @param c 
+#' @param d 
+#' @param r 
+#' @param q 
+#' @param tau 
+#' @param theta 
+#' @param data 
+#' @param init 
+#' @param Time 
+#' @param n.mcmc 
+#' @param save 
 #' @return  (1) - estimates of X, gamma, lambda, P
 #'        
 #' @export
-#' @examples
 #' 
 
 

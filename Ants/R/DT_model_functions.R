@@ -1548,7 +1548,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
 
 
 DT_pencov_MCMC <- function(penalty, covariate,  starts_data, states, ant_file, chamber, hours,
-  a, b, c, d, e, f, tau, tau.pen, n_mcmc, delta_t, start, data_out, osa_out) {
+  a, b, c, d, e, f, tau, tau.pen, n_mcmc, delta_t, start,fig_path, fig_name, data_out, osa_out) {
 
 
   # starting values - mostly to keep this all in one place to easily
@@ -1666,8 +1666,8 @@ DT_pencov_MCMC <- function(penalty, covariate,  starts_data, states, ant_file, c
     ## Current Meridith apologizes to Future Meridith, but this is on Her.
 
     #gammas now function of betas (and alpha?)
-    switch_rate_calc_LH[, 1] <- switch_rate_param[1,1] * exp(switch_rate_param[3,1] * -covariate) #LH #covariate??? CHECK
-    switch_rate_calc_HL[, 1] <- switch_rate_param[2,1] * exp(switch_rate_param[4,1] * -covariate) #HL
+    switch_rate_calc_LH[, 1] <- switch_rate_param[1,1] * exp(switch_rate_param[3,1] * 1 / ((covariate)^(1/4) + 1)) #LH #covariate??? CHECK
+    switch_rate_calc_HL[, 1] <- switch_rate_param[2,1] * exp(switch_rate_param[4,1] * 1 / ((covariate)^(1/4) + 1)) #HL
 
   }else{
     st_rates_param[1, 1] <- lambda.start[1]  #lambda low
@@ -1789,8 +1789,8 @@ DT_pencov_MCMC <- function(penalty, covariate,  starts_data, states, ant_file, c
       sumX <- sumX + log(ptm_matrix[states_param[t - 1, l.1000 - 1], states_param[t,
         l.1000 - 1]])
 
-      sumR_LH <- sumR_LH + exp(params[3] * -covariate[t])
-      sumR_HL <- sumR_HL + exp(params[4] * -covariate[t])
+      sumR_LH <- sumR_LH + exp(params[3] * 1 / ((covariate[t])^(1/4) + 1))
+      sumR_HL <- sumR_HL + exp(params[4] * 1 / ((covariate[t])^(1/4) + 1))
     }
 
     constantB_LH <-  1/Time * sumR_LH
@@ -1894,7 +1894,7 @@ DT_pencov_MCMC <- function(penalty, covariate,  starts_data, states, ant_file, c
       sigma = tau)
 
     # unlog and separate to be used for beta-ij r/a THEN e^beta_ij updates
-    theta.star <- cbind(exp(proposal[1]) * exp(proposal[3] * -covariate),
+    theta.star <- cbind(exp(proposal[1]) * exp(proposal[3] * 1 / ((covariate)^(1/4) + 1)),
       # exp(proposal[2]) * exp(proposal[4] * -covariate))
         exp(proposal[2]) * exp(0)) #Holding b_1HL at 0 (i.e. no influence of covariates)
 
@@ -1983,8 +1983,8 @@ if (runif(1) < MHprob) {
 
 ##updated calculated swtiching rates and time varying ptm  - ASSUMES n = 2
 
-switch_rate_calc_LH[, l.1000] <- switch_rate_param[1, l.1000] * exp(switch_rate_param[3, l.1000] * -covariate) #LH
-switch_rate_calc_HL[, l.1000] <- switch_rate_param[2, l.1000] * exp(switch_rate_param[4, l.1000] * -covariate)
+switch_rate_calc_LH[, l.1000] <- switch_rate_param[1, l.1000] * exp(switch_rate_param[3, l.1000] * 1 / ((covariate)^(1/4) + 1))#LH
+switch_rate_calc_HL[, l.1000] <- switch_rate_param[2, l.1000] * exp(switch_rate_param[4, l.1000] * 1 / ((covariate)^(1/4) + 1))
 
 ptm_12_param[, l.1000] <- switch_rate_calc_LH[, l.1000] * exp(-switch_rate_calc_LH[, l.1000] * delta_t) /
   (exp(1) / (exp(1) - 1)^2)
@@ -2217,7 +2217,12 @@ if (l %% 1000 == 0) {
 
   osa_results <- osa_param
 
-
+pdf( file = paste(fig_path, fig_name, log(penalty), ".tracesnapshot", ".pdf", sep = ""))
+ for (i in 2:7) {
+   plot((results[i, ]), type = "l") #snapshot trace plots for 
+   
+ }
+dev.off()
 
   write.table(t(results[, 2:1000 ]), file = data_out,
     append = T, col.names = F, sep = ',')
