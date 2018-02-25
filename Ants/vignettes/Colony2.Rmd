@@ -160,7 +160,7 @@ sumtable_model(results = simple_col2lo4qbin1, compare = range_simple,
 
 tau <- matrix( c(.1, 0, 
                  0, .1), nrow = 2, ncol = 2)
-gamma <- c(.005, .005) #NEXT: change to .0005 and rerun model at e^-23
+gamma <- c(.0005, .0005) #NEXT: change to .0005 and rerun model at e^-23
 start <- list(X = X, lambda = lambda, gamma = gamma) 
 delta_t <- 1
 
@@ -172,6 +172,7 @@ delta_t <- 1
 
 ##THIS ONE FOR JSM
 range <- exp(seq(-40, -22, by =  2))
+range <- exp(-23)
 
 penalize_col2lo4qbin1 <- foreach(i = range,
                                   .errorhandling = "remove") %dopar% 
@@ -465,8 +466,8 @@ rm(temp_results)
 betas <- c(.0004, .4, .0004, 0 )
 start <- list(X = X, lambda = lambda, betas = betas)
 
-range_pencov <- exp(seq(-30, 10, by =  1))
-range_pencov <- exp(-23)
+range_pencov <- exp(seq(-26, -22, by =  1))
+
 
 pencov_col2lo4qbin1 <- foreach(i = range_pencov,
                                   .errorhandling = "remove") %dopar% 

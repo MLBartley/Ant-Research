@@ -578,12 +578,12 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
 
   if (n == 2) {
     ptm_matrix[1, 2] <- switch_rate_param[1, 1] * exp(-switch_rate_param[1, 1] * delta_t) /
-    (exp(1) / (exp(1) - 1)^2)
+    (exp(switch_rate_param[1, 1]) / (exp(switch_rate_param[1, 1]) - 1))
 
   ptm_matrix[1, 1] <- 1 - ptm_matrix[1, 2]
 
   ptm_matrix[2, 1] <- switch_rate_param[2, 1] * exp(-switch_rate_param[2, 1] * delta_t) /
-    (exp(1) / (exp(1) - 1)^2)
+    (exp(switch_rate_param[2, 1]) / (exp(switch_rate_param[2, 1]) - 1))
 
   ptm_matrix[2, 2] <- 1 - ptm_matrix[2, 1]
   }else{
@@ -776,12 +776,12 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
     ## matrix for probability of 'jumping' between states
     if (n == 2) {
       ptm_matrix[1, 2] <- theta.star[1] * exp(-theta.star[1] * delta_t) /
-                        (exp(1) / (exp(1) - 1)^2)
+                        (exp(theta.star[1]) / (exp(theta.star[1]) - 1))
 
     ptm_matrix[1, 1] <- 1 - ptm_matrix[1, 2]
 
     ptm_matrix[2, 1] <- theta.star[2] * exp(-theta.star[2] * delta_t) /
-                        (exp(1) / (exp(1) - 1)^2)
+      (exp(theta.star[2]) / (exp(theta.star[2]) - 1))
 
     ptm_matrix[2, 2] <- 1 - ptm_matrix[2, 1]
     }else{
@@ -1691,10 +1691,10 @@ DT_pencov_MCMC <- function(penalty, covariate,  starts_data, states, ant_file, c
 
 
     ptm_12_param[, 1] <- switch_rate_calc_LH[, 1] * exp(-switch_rate_calc_LH[, 1] * delta_t) /
-      (exp(1) / (exp(1) - 1)^2)
+      (exp(switch_rate_calc_LH[, 1]) / (exp(switch_rate_calc_LH[, 1]) - 1))
     ptm_11_param[, 1] <- 1 - ptm_12_param[, 1]
     ptm_21_param[, 1] <- switch_rate_calc_HL[, 1] * exp(-switch_rate_calc_HL[, 1] * delta_t) /
-      (exp(1) / (exp(1) - 1)^2)
+      (exp(switch_rate_calc_HL[, 1]) / (exp(switch_rate_calc_HL[, 1]) - 1))
     ptm_22_param[, 1] <- 1 - ptm_21_param[, 1]
 
 
@@ -1903,12 +1903,12 @@ DT_pencov_MCMC <- function(penalty, covariate,  starts_data, states, ant_file, c
     ## matrix for probability of 'jumping' between states
     if (n == 2) {
       P.star[, 2] <- theta.star[, 1] * exp(-theta.star[, 1] * delta_t) /
-        (exp(1) / (exp(1) - 1)^2)
+        (exp(theta.star[, 1]) / (exp(theta.star[, 1]) - 1))
 
       P.star[, 1] <- 1 - P.star[, 2]
 
       P.star[, 3] <- theta.star[, 2] * exp(-theta.star[, 2] * delta_t) /
-        (exp(1) / (exp(1) - 1)^2)
+        (exp(theta.star[, 2]) / (exp(theta.star[, 2]) - 1))
 
       P.star[, 4] <- 1 - P.star[, 3]
     }else{
@@ -1987,10 +1987,10 @@ switch_rate_calc_LH[, l.1000] <- switch_rate_param[1, l.1000] * exp(switch_rate_
 switch_rate_calc_HL[, l.1000] <- switch_rate_param[2, l.1000] * exp(switch_rate_param[4, l.1000] * 1 / ((covariate)^(1/4) + 1))
 
 ptm_12_param[, l.1000] <- switch_rate_calc_LH[, l.1000] * exp(-switch_rate_calc_LH[, l.1000] * delta_t) /
-  (exp(1) / (exp(1) - 1)^2)
+  (exp(switch_rate_calc_LH[, l.1000]) / (exp(switch_rate_calc_LH[, l.1000]) - 1))
 ptm_11_param[, l.1000] <- 1 - ptm_12_param[, l.1000]
 ptm_21_param[, l.1000] <- switch_rate_calc_HL[, l.1000] * exp(-switch_rate_calc_HL[, l.1000] * delta_t) /
-  (exp(1) / (exp(1) - 1)^2)
+  (exp(switch_rate_calc_HL[, l.1000]) / (exp(switch_rate_calc_HL[, l.1000]) - 1))
 ptm_22_param[, l.1000] <- 1 - ptm_21_param[, l.1000]
 
 
