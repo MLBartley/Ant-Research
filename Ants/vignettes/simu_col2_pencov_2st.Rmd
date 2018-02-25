@@ -11,42 +11,43 @@ library(mvtnorm)
 load("../data-raw/Colony2_covariate_low_density_4hr.Rda")
 
 covariate.prepped <- prep_inout_data(covariate, delta_t = 1, hours = 4)
-betas <- c(.0013, .03, .0015, 0 )
+betas <- c(.0005, .4, .0005, 0 )
 
 simu_cov2 <- sim_pencov_troph(states = 2, time_max = 4*60*60, 
               delta_t = 1, start_state = 1, 
-              int_rate = c(.005, .02), num_locations = 1, 
+              int_rate = c(.005, .04), num_locations = 1, 
               covariate = covariate.prepped$cov, switch_betas = betas)
 
+path <- "../output/"
 
 ```
 
 ```{r two state}
 n_mcmc <- 10000
- tau <- matrix( c(.0000000001, 0, 0, 0,
-                  0, .0000000001, 0, 0, 
-                  0, 0, .0000000001, 0, 
+ tau <- matrix( c(.001, 0, 0, 0,
+                  0, .001, 0, 0, 
+                  0, 0, .01, 0, 
                   0, 0,  0, .000000005), nrow = 4, ncol = 4)
 # gamma <- c(.005, .005)
 X <- simu_cov2$state
- lambda <- c(.005, .02)
+ lambda <- c(.005, .04)
 start <- list(X = X, lambda = lambda, betas = betas * 1)
 i <- exp(-10)
 
 run_model <- DT_pencov_MCMC(penalty = i, starts_data = simu_cov2$inter_persec, 
                         states = 2, ant_file = simu_cov2, chamber = "queen", 
-                        hours = 4, a = 1, b = 1, c = 1, d = 1, 
-                        tau = tau, tau.pen = 0, n_mcmc = n_mcmc, delta_t = 1,
-                        start = start, 
-                        data_out =  paste("../data/", "sim_pencov_MCMC", "-", 
+                          hours = 4, a = 1, b = 1, c = 1, d = 1, 
+                          tau = tau, tau.pen = 0, n_mcmc = n_mcmc, delta_t = 1,
+                          start = start, 
+                          data_out =  paste("../data/", "sim_pencov_MCMC", "-", 
                                log(i), "-", n_mcmc, ".csv", sep = ""), 
                         osa_out = paste("../data/", "sim_pencov_OSA", "-", 
                                log(i), "-", n_mcmc, ".csv", sep = ""),
-                        covariate = (covariate.prepped$cov - mean(covariate.prepped$cov))/10)
+                          fig_path = path, fig_name = "pencov_MCMC",
+                        covariate = (covariate.prepped$cov))
 
 
-
-
+ 
 ```
 
 
