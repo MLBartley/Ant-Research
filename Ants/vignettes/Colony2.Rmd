@@ -464,6 +464,7 @@ rm(temp_results)
                   0, 0,  0, .000000005), nrow = 4, ncol = 4)
 betas <- c(.0004, .4, .0004, 0 )
 start <- list(X = X, lambda = lambda, betas = betas)
+delta_t <- 1
 
 range_pencov <- exp(seq(-30, 10, by =  1))
 range_pencov <- exp(-23)

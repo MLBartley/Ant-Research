@@ -227,13 +227,13 @@ sim_pencov_troph <- function(states, time_max, delta_t, start_state = 1,
   int_rate, num_locations = 1,
   covariate, switch_betas) {
 
-  cov_centered <- (covariate - mean(covariate))/10
+  # cov_centered <- (covariate - mean(covariate))/10
 
   #gammas now function of betas and vary over time
 
-  switch_rates_LH <- switch_betas[1] * exp(switch_betas[2] * -cov_centered) #LH
+  switch_rates_LH <- switch_betas[1] * exp(switch_betas[2] * 1/(covariate^(1/4) + 1)) #LH
 
-  switch_rates_HL <- switch_betas[3] * exp(switch_betas[4] * -cov_centered) #HL
+  switch_rates_HL <- switch_betas[3] * exp(switch_betas[4] * 1/(covariate^(1/4) + 1)) #HL
 
 
   #if given switch rates (gamma in model) use them to calculate transition
@@ -242,10 +242,10 @@ sim_pencov_troph <- function(states, time_max, delta_t, start_state = 1,
 
 
     ptm_12_param <- switch_rates_LH * exp(-switch_rates_LH * delta_t) /
-      (exp(1) / (exp(1) - 1)^2)
+      (switch_rates_LH / (exp(switch_rates_LH) - 1))
     ptm_11_param <- 1 - ptm_12_param
     ptm_21_param <- switch_rates_HL * exp(-switch_rates_HL * delta_t) /
-      (exp(1) / (exp(1) - 1)^2)
+      (switch_rates_HL / (exp(switch_rates_HL) - 1))
     ptm_22_param <- 1 - ptm_21_param
 
   }else{
