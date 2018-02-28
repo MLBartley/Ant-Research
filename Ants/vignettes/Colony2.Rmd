@@ -459,16 +459,16 @@ rm(temp_results)
 #Penalty Covariate Model
 
 ```{r pencov ant data 2state}
- tau <- matrix( c(.01, 0, 0, 0,
-                  0, .01, 0, 0, 
+ tau <- matrix( c(.001, 0, 0, 0,
+                  0, .001, 0, 0, 
                   0, 0, .01, 0, 
                   0, 0,  0, .000000005), nrow = 4, ncol = 4)
 betas <- c(.0004, .4, .0004, 0 )
 start <- list(X = X, lambda = lambda, betas = betas)
 delta_t <- 1
 
-range_pencov <- exp(seq(-26, -22, by =  1))
-
+range_pencov <- exp(seq(-23, -19, by =  1))
+# range_pencov <- exp(-20)
 
 pencov_col2lo4qbin1 <- foreach(i = range_pencov,
                                   .errorhandling = "remove") %dopar% 
@@ -493,7 +493,7 @@ pencov_col2lo4qbin1 <- foreach(i = range_pencov,
 
 #previous results - don't want to save over!
 
-     old_MSPE_results_cov <- as.data.frame(MSPE_results_cov)
+     # old_MSPE_results_cov <- as.data.frame(MSPE_results_cov)
 
 Time = hours *60 *60
 
@@ -533,7 +533,7 @@ MSPE_results_cov[r, 2] <- MSPE.1SA
 
   
 #combine with old data
-  MSPE_results_cov <- rbind(old_MSPE_results_cov[, 1:2], MSPE_results_cov)
+  # MSPE_results_cov <- rbind(old_MSPE_results_cov[, 1:2], MSPE_results_cov)
   
 MSPE_results_cov <- as.data.frame(MSPE_results_cov)
   
@@ -572,11 +572,11 @@ save(MSPE_results_cov, file = "../output/MSPE_pencov_table.Rda")
 ```{r penalized covariate diagnoses, eval=FALSE, include=FALSE}
 
 pencov_results <- list()
-
-range_pencov <- exp(minMSPE_cov[1]) #if only want one penalty that has been optimized
-r <- 1
-
-range_pencov <- c(exp(minMSPE_cov[1]), exp(maxMSPE_cov[1]))
+# 
+# range_pencov <- exp(minMSPE_cov[1]) #if only want one penalty that has been optimized
+# r <- 1
+# 
+# range_pencov <- c(exp(minMSPE_cov[1]), exp(maxMSPE_cov[1]))
 range_pencov <- as.data.frame(range_pencov)
 
  for (r in 1:length(range_pencov)) {
