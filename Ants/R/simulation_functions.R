@@ -67,11 +67,11 @@ sim_DT_troph <- function(states, time_max, delta_t, start_state = 1,
         state_tpm <- state_tpm
     } else {
         state_tpm[1, 2] <- switch_rate[1] * exp(-switch_rate[1] * 1) /
-          (exp(1) / (exp(1) - 1)^2)
+          (switch_rate[1] / (exp(switch_rate[1]) - 1))
         state_tpm[1, 1] <- 1 - state_tpm[1, 2]
 
         state_tpm[2, 1] <- switch_rate[2] * exp(-switch_rate[2] * 1) /
-          (exp(1) / (exp(1) - 1)^2)
+          (switch_rate[2] / (exp(switch_rate[2]) - 1))
         state_tpm[2, 2] <- 1 - state_tpm[1, 2]
     }
   }else{
@@ -79,26 +79,26 @@ sim_DT_troph <- function(states, time_max, delta_t, start_state = 1,
       state_tpm <- state_tpm
     } else {
       state_tpm[1, 2] <- switch_rate[5] * exp(-switch_rate[5] * delta_t) /
-        (exp(1) / (exp(1) - 1)^2) #LM
+        (switch_rate[5] / (exp(switch_rate[5]) - 1)) #LM
 
       state_tpm[1, 3] <- switch_rate[2] * exp(-switch_rate[2] * delta_t) /
-        (exp(1) / (exp(1) - 1)^2) #LH
+        (switch_rate[2] / (exp(switch_rate[2]) - 1)) #LH
 
       state_tpm[1, 1] <- 1 - state_tpm[1, 2] - state_tpm[1, 3] #LL
 
       state_tpm[2, 1] <- switch_rate[3] * exp(-switch_rate[3] * delta_t) /
-        (exp(1) / (exp(1) - 1)^2) #ML
+        (switch_rate[3] / (exp(switch_rate[3]) - 1)) #ML
 
       state_tpm[2, 3] <- switch_rate[4] * exp(-switch_rate[4] * delta_t) /
-        (exp(1) / (exp(1) - 1)^2) #MH
+        (switch_rate[4] / (exp(switch_rate[4]) - 1)) #MH
 
       state_tpm[2, 2] <- 1 - state_tpm[2, 1] - state_tpm[2, 3] #MM
 
       state_tpm[3, 1] <- switch_rate[2] * exp(-switch_rate[2] * delta_t) /
-        (exp(1) / (exp(1) - 1)^2) #HL
+        (switch_rate[2] / (exp(switch_rate[2]) - 1)) #HL
 
       state_tpm[3, 2] <- switch_rate[6] * exp(-switch_rate[6] * delta_t) /
-        (exp(1) / (exp(1) - 1)^2) #HM
+        (switch_rate[6] / (exp(switch_rate[6]) - 1)) #HM
 
       state_tpm[3, 3] <- 1 - state_tpm[3, 1] - state_tpm[3, 2] #HH
     }
