@@ -480,7 +480,6 @@ rm(temp_results)
 #Penalty Covariate Model
 
 ```{r pencov ant data 2state}
-<<<<<<< HEAD
  tau <- matrix( c(.001, 0, 0, 0, 0,
                   0, .001, 0, 0, 0,
                   0, 0, .01, 0, 0,
@@ -496,18 +495,6 @@ range_pencov <- exp(seq(-26, -22, by =  1))
 #           col.names = c("Penalty", "MSPE", "Accept", "Number of Iterations"),
 #           file = "../output/modelsrun_testpencov.csv")
 
-=======
- tau <- matrix( c(.001, 0, 0, 0,
-                  0, .001, 0, 0, 
-                  0, 0, .01, 0, 
-                  0, 0,  0, .000000005), nrow = 4, ncol = 4)
-betas <- c(.0004, .4, .0004, 0, .25 )
-start <- list(X = X, lambda = lambda, betas = betas)
-delta_t <- 1
-
-range_pencov <- exp(seq(-23, -19, by =  1))
-# range_pencov <- exp(-20)
->>>>>>> f14bf7583507c249c670162959ac2b4588e1a9f3
 
 pencov_col2lo4qbin1 <- foreach(i = range_pencov,
                                   .errorhandling = "remove") %dopar% 
@@ -533,7 +520,6 @@ pencov_col2lo4qbin1 <- foreach(i = range_pencov,
 
 #previous results - don't want to save over!
 
-<<<<<<< HEAD
 #      old_MSPE_results_cov <- as.data.frame(MSPE_results_cov)
 # 
 # Time = hours *60 *60
@@ -581,61 +567,6 @@ MSPE_results_cov <- readr::read_csv(paste("../output/modelsrun_testpencov.csv"))
   
 MSPE_results_cov <- as.data.frame(MSPE_results_cov[which(MSPE_results_cov$V4 >= n_mcmc), -1])
 colnames(MSPE_results_cov) <- c("penalty", "MSPE", "accept", "numiter")
-=======
-     # old_MSPE_results_cov <- as.data.frame(MSPE_results_cov)
-
-# Time = hours *60 *60
-# 
-# MSPE_results_cov <- matrix(NA, ncol = 2, nrow = length(range_pencov))
-#   colnames(MSPE_results_cov) = c("penalty", "MSPE")
-# 
-# for (r in 1:length(range_pencov)) {
-# 
-#   osa_param <-  readr::read_csv(paste("../data/pencov_OSA-",
-#                                   log(range_pencov[r]), "-", n_mcmc,  
-#                                   ".csv", sep = ""))
-#   
-#   
-#   data <- col2_low4_5$queen_starts_persec
-#   
-#   data_mat <- matrix(rep(data, nrow(osa_param)), byrow = T)
-#   
-#   sum.it <- sum((osa_param[, -1] - data_mat)^2)
-#   # square <- subtract^2
-#   # sum.it <- sum(square)
-#   
-# 
-#   MSPE.1SA <- 1/n_mcmc * 1/Time * sum.it
-# 
-# 
-# MSPE_results_cov[r, 1] <- log(range_pencov[r])
-# MSPE_results_cov[r, 2] <- MSPE.1SA
-# # MSPE_results[r, 3] <- penalize_col2lo4qbin1[[r]]$accept
-# }
-#   
-# 
-#   
-#   #remove useless stuff
-#   rm(data_mat)
-#   # rm(final)
-#   rm(osa_param)
-# 
-#   
-# #combine with old data
-#   # MSPE_results_cov <- rbind(old_MSPE_results_cov[, 1:2], MSPE_results_cov)
-#   
-# MSPE_results_cov <- as.data.frame(MSPE_results_cov)
-
-<<<<<<< HEAD
-MSPE
-=======
-  
-#combine with old data
-  # MSPE_results_cov <- rbind(old_MSPE_results_cov[, 1:2], MSPE_results_cov)
-  
-MSPE_results_cov <- as.data.frame(MSPE_results_cov)
->>>>>>> f14bf7583507c249c670162959ac2b4588e1a9f3
->>>>>>> f50ac8bd459e9f633b8384576b7f5c0b3aff848a
   
 compare_plot_cov <- ggplot(data = MSPE_results_cov, aes(x = penalty, y = MSPE)) +
                   geom_point(aes(x = penalty)) 

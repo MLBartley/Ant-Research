@@ -451,17 +451,10 @@ DT_mcmc_troph <- function(starts_data, ant_file, chamber, title, a, b, c, d, the
 #'
 #'
 
-
-<<<<<<< HEAD
-DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber, hours,
-                        a, b, c, d, e, f, tau, tau.pen, n_mcmc, delta_t, start, 
-                        data_out, osa_out, modelsrun_out, fig_path, fig_name) {
-=======
 DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber,
                         hours, a, b, c, d, e, f, tau, tau.pen, n_mcmc,
                         delta_t, start, data_out, osa_out, modelsrun_out,
                         fig_path, fig_name) {
->>>>>>> f50ac8bd459e9f633b8384576b7f5c0b3aff848a
 
 
   # starting values - mostly to keep this all in one place to easily
@@ -596,8 +589,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber,
 
   ptm_matrix[2, 2] <- 1 - ptm_matrix[2, 1]
   }else{
-<<<<<<< HEAD
-    
+
     sum_swrate_L <- switch_rate_param[5, 1] + switch_rate_param[1, 1]
     sum_swrate_M <- switch_rate_param[3, 1] + switch_rate_param[4, 1]
     sum_swrate_H <- switch_rate_param[6, 1] + switch_rate_param[2, 1]
@@ -624,35 +616,6 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber,
     ptm_matrix[3, 2] <- switch_rate_param[6, 1] * exp(-sum_swrate_H * delta_t) /
       (sum_swrate_H/ (exp(sum_swrate_H) - 1)) #HM
     
-=======
-
-    sum_swrate_L <- switch_rate_param[5, 1] + switch_rate_param[1, 1]
-    sum_swrate_M <- switch_rate_param[3, 1] + switch_rate_param[4, 1]
-    sum_swrate_H <- switch_rate_param[6, 1] + switch_rate_param[2, 1]
-
-    ptm_matrix[1, 2] <- switch_rate_param[5, 1] * exp(-sum_swrate_L * delta_t) /
-      (sum_swrate_L / (exp(sum_swrate_L) - 1)) #LM
-
-    ptm_matrix[1, 3] <- switch_rate_param[1, 1] * exp(-sum_swrate_L * delta_t) /
-      (sum_swrate_L / (exp(sum_swrate_L) - 1)) #LH
-
-    ptm_matrix[1, 1] <- 1 - ptm_matrix[1, 2] - ptm_matrix[1, 3] #LL
-
-    ptm_matrix[2, 1] <- switch_rate_param[3, 1] * exp(-sum_swrate_M * delta_t) /
-      (sum_swrate_M / (exp(sum_swrate_M) - 1)) #ML
-
-    ptm_matrix[2, 3] <- switch_rate_param[4, 1] * exp(-sum_swrate_M* delta_t) /
-      (sum_swrate_M / (exp(sum_swrate_M) - 1)) #MH
-
-    ptm_matrix[2, 2] <- 1 - ptm_matrix[2, 1] - ptm_matrix[2, 3] #MM
-
-    ptm_matrix[3, 1] <- switch_rate_param[2, 1] * exp(-sum_swrate_H * delta_t) /
-      (sum_swrate_H / (exp(sum_swrate_H) - 1)) #HL
-
-    ptm_matrix[3, 2] <- switch_rate_param[6, 1] * exp(-sum_swrate_H * delta_t) /
-      (sum_swrate_H/ (exp(sum_swrate_H) - 1)) #HM
-
->>>>>>> f50ac8bd459e9f633b8384576b7f5c0b3aff848a
     ptm_matrix[3, 3] <- 1 - ptm_matrix[3, 1] - ptm_matrix[3, 2] #HH
 
   }
@@ -829,7 +792,6 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber,
 
     ptm_matrix[2, 2] <- 1 - ptm_matrix[2, 1]
     }else{
-<<<<<<< HEAD
       sum_swrate_L <- theta.star[5] + theta.star[1] #(LM + LH)
       sum_swrate_M <- theta.star[3] + theta.star[4] #(ML + MH)
       sum_swrate_H <- theta.star[6] + theta.star[2] #(HM + HL)
@@ -857,9 +819,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber,
         (sum_swrate_H / (exp(sum_swrate_H) - 1)) #HM
       
       ptm_matrix[3, 3] <- 1 - ptm_matrix[3, 1] - ptm_matrix[3, 2] #HH
-=======
 
->>>>>>> f50ac8bd459e9f633b8384576b7f5c0b3aff848a
       }
 
 
@@ -1396,7 +1356,6 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber,
   }
 
 
-<<<<<<< HEAD
   list(accept = sum(acpt)/length(acpt), MSPE = 1/n_mcmc * 1/Time * osa_final)
   
   accept = sum(acpt)/length(acpt)
@@ -1404,14 +1363,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber,
   
   out <- c(log(penalty), MSPE, accept, n_mcmc)
   
-=======
 
-  accept = sum(acpt)/length(acpt)
-  MSPE = 1/n_mcmc * 1/Time * osa_final
-
-  out <- c(log(penalty), MSPE, accept, n_mcmc)
-
->>>>>>> f50ac8bd459e9f633b8384576b7f5c0b3aff848a
   write.table(t(out), file = modelsrun_out,
               append = T, col.names = F, sep = ',')
 
