@@ -1,7 +1,15 @@
 ```{r}
 
-load("../output/MSPE_pen2_table.Rda")
-load("../output/MSPE_pen3_table.Rda")
+# load("../output/MSPE_pen2_table.Rda")
+# load("../output/MSPE_pen3_table.Rda")
+
+MSPE_results <- read.csv("../output/modelsrun_pen2.csv")
+MSPE_results <- as.data.frame(MSPE_results[ which(MSPE_results$V4 >= 10000), -1] )
+colnames(MSPE_results) <- c("penalty", "MSPE", "accept", "num_iter")
+
+MSPE_results_THREE <- read.csv("../output/modelsrun_pen3.csv")
+MSPE_results_THREE <- as.data.frame(MSPE_results_THREE[ which(MSPE_results_THREE$V4 >= 10000), -1] )
+colnames(MSPE_results_THREE) <- c("penalty", "MSPE", "accept", "num_iter")
 
 
 #if models ran at penalty tuning parameter multiple times, average together
@@ -13,7 +21,7 @@ MSPE_results2_summ <- MSPE_results %>%
 
 
 MSPE_results3_summ <- MSPE_results_THREE %>% 
-                        subset(MSPE > 0.0185) %>% 
+                         # subset(MSPE > 0.0185) %>% 
                         group_by(penalty) %>% 
                         summarise(MSPE = mean(MSPE))
 
@@ -26,7 +34,7 @@ plot_pen2 <- compare_pen2 +
   geom_line() +
   geom_vline( xintercept=-23, col = 'red') + 
   xlab("Penalty (e^value)") + 
-  xlim(-30, 30) +
+  xlim(-30, -9) +
   # theme_bw(base_size = 13, base_family = "Helvetica") + 
   theme(text = element_text(size=14),
         panel.grid.major = element_blank(), 
@@ -39,11 +47,11 @@ compare_pen3 <- ggplot(data = MSPE_results3_summ, aes(x = penalty, y = MSPE)) +
                   geom_point(aes(x = penalty)) 
 
 plot_pen3 <- compare_pen3 + 
-        ylim(.0185, .0188) + 
+        # ylim(.0185, .0188) + 
         geom_vline( xintercept=-13, col = 'red') + 
         geom_line() +
          xlab("Penalty (e^value)") + 
-        xlim(-30, 10) +
+        xlim(-30, -9) +
         # theme_bw(base_size = 13, base_family = "Helvetica") + 
         theme(text = element_text(size=14),
               panel.grid.major = element_blank(), 
@@ -90,7 +98,7 @@ MSPE_results_combined$states <- as.factor(MSPE_results_combined$states)
         geom_vline(xintercept = -23, col = 'darkblue') +
         geom_line(aes(color = states)) +
          xlab("Penalty (e^value)") + 
-        xlim(-30, 10) +
+        xlim(-30, 20) +
         # theme_bw(base_size = 13, base_family = "Helvetica") + 
         theme(text = element_text(size=14),
               panel.grid.major = element_blank(), 
@@ -102,6 +110,6 @@ MSPE_results_combined$states <- as.factor(MSPE_results_combined$states)
   
     
 #Woo done, now save, send to Ephraim, and add to manuscript
-ggsave("MSPEcombined.pdf")
+ggsave("MSPEcombined_2.0.pdf")
 ```
 

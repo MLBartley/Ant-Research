@@ -6,8 +6,8 @@
 Trophallaxis data with Covariates}
 \usage{
 DT_pencov_MCMC(penalty, covariate, starts_data, states, ant_file, chamber,
-  hours, a, b, c, d, e, f, tau, tau.pen, n_mcmc, delta_t, start, data_out,
-  osa_out)
+  hours, a, b, c, d, e, f, tau, tau.pen, n_mcmc, delta_t, start, fig_path,
+  fig_name, data_out, osa_out)
 }
 \arguments{
 \item{penalty}{Penalty parameter for the switching rates
