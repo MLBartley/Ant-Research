@@ -21,7 +21,7 @@ simulated3 <- sim_DT_troph(states = 3, time_max = 2*60*60, delta_t = 1,
 ```
 
 ```{r two state}
-n_mcmc <- 2000
+n_mcmc <- 10000
 tau <- matrix( c(.1, 0, 
                  0, .1), nrow = 2, ncol = 2)
 gamma <- c(.0005, .0005)
@@ -77,14 +77,18 @@ sim_diag2 <-  penalty_diagnosis(t(temp_results)[-1, ],
 ```
 
 ```{r three state}
-n_mcmc <- 20000
+n_mcmc <- 10000
 tau <- matrix( c(.1, 0, 
                  0, .1), nrow = 2, ncol = 2)
 gamma <- rep(.0005, 6)
 X <- simulated3$state
 lambda <- c(0, 0.02, .1)
 start <- list(X = X, lambda = lambda, gamma = gamma)
-i <- exp(-16)
+i <- exp(-13)
+
+# write.csv(t(c(1, 2, 3, 4)),
+#           col.names = c("Penalty", "MSPE", "Accept", "Number of Iterations"),
+#           file = "../output/modelsrun_simpen3.csv")
 
 run_model_3 <- DT_pen_mcmc(penalty = i, starts_data = simulated3$inter_persec, 
                         states = 3, ant_file = simulated3, chamber = "queen", 
@@ -94,6 +98,7 @@ run_model_3 <- DT_pen_mcmc(penalty = i, starts_data = simulated3$inter_persec,
                                log(i), "-", n_mcmc, ".csv", sep = ""), 
                         osa_out = paste("../data/", "sim_pen3_OSA", "-", 
                                log(i), "-", n_mcmc, ".csv", sep = ""), 
+                        modelsrun_out = paste("../output/modelsrun_simpen3.csv", sep=""), 
                           fig_path = path, fig_name = "sim_pen3_MCMC")
 
 ```
@@ -102,7 +107,7 @@ run_model_3 <- DT_pen_mcmc(penalty = i, starts_data = simulated3$inter_persec,
 
 
 
-temp_results <- readr::read_csv("~/Google Drive/PSU/Projects/Ant-Research/Ants/data/sim_pen3_MCMC--16-20000.csv")
+temp_results <- readr::read_csv("~/Google Drive/PSU/Projects/Ant-Research/Ants/data/sim_pen3_MCMC--13-10000.csv")
 
 path <- "../output/"
 
@@ -113,7 +118,7 @@ sim_diag3 <-  penalty_diagnosis(t(temp_results)[-1, ],
                                ant_file = simulated3,
                               chamber = "queen", states = 3, 
                               Time = 2 * 60 * 60, fig_path = path,
-                                fig_name = "test3", penalty = (-16))
+                                fig_name = "test3", penalty = (-13))
 
 ```
 

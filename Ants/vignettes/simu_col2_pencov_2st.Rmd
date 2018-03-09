@@ -11,7 +11,7 @@ library(mvtnorm)
 load("../data-raw/Colony2_covariate_low_density_4hr.Rda")
 
 covariate.prepped <- prep_inout_data(covariate, delta_t = 1, hours = 4)
-betas <- c(.0005, .4, .0005, 0 )
+betas <- c(.0005, .4, .0005, 0 , 1/4)
 
 simu_cov2 <- sim_pencov_troph(states = 2, time_max = 4*60*60, 
               delta_t = 1, start_state = 1, 
@@ -23,18 +23,25 @@ path <- "../output/"
 ```
 
 ```{r two state}
-n_mcmc <- 10000
- tau <- matrix( c(.001, 0, 0, 0,
-                  0, .001, 0, 0, 
-                  0, 0, .01, 0, 
-                  0, 0,  0, .000000005), nrow = 4, ncol = 4)
+n_mcmc <- 1000
+ tau <- matrix( c(.001, 0, 0, 0, 0,
+                  0, .001, 0, 0, 0,
+                  0, 0, .01, 0, 0,
+                  0, 0,  0, .000000005, 0, 
+                  0, 0, 0, 0, .001), nrow = 5, ncol = 5)
 # gamma <- c(.005, .005)
 X <- simu_cov2$state
  lambda <- c(.005, .04)
 start <- list(X = X, lambda = lambda, betas = betas * 1)
 i <- exp(-10)
 
-run_model <- DT_pencov_MCMC(penalty = i, starts_data = simu_cov2$inter_persec, 
+# 
+# write.csv(t(c(1, 2, 3, 4)),
+#           col.names = c("Penalty", "MSPE", "Accept", "Number of Iterations"),
+#           file = "../output/modelsrun_simpencov.csv")
+
+
+run_model_cov <- DT_pencov_MCMC(penalty = i, starts_data = simu_cov2$inter_persec, 
                         states = 2, ant_file = simu_cov2, chamber = "queen", 
                           hours = 4, a = 1, b = 1, c = 1, d = 1, 
                           tau = tau, tau.pen = 0, n_mcmc = n_mcmc, delta_t = 1,
@@ -43,6 +50,7 @@ run_model <- DT_pencov_MCMC(penalty = i, starts_data = simu_cov2$inter_persec,
                                log(i), "-", n_mcmc, ".csv", sep = ""), 
                         osa_out = paste("../data/", "sim_pencov_OSA", "-", 
                                log(i), "-", n_mcmc, ".csv", sep = ""),
+                         modelsrun_out = paste("../output/modelsrun_simpencov.csv", sep=""), 
                           fig_path = path, fig_name = "pencov_MCMC",
                         covariate = (covariate.prepped$cov))
 
@@ -56,6 +64,11 @@ run_model <- DT_pencov_MCMC(penalty = i, starts_data = simu_cov2$inter_persec,
  gamma <- c(.005, .005)
 start <- list(X = X, lambda = lambda, gamma = gamma)
 
+
+# write.csv(c(1, 2, 3, 4), 
+#           row.names = c("Penalty", "MSPE", "Accept", "Number of Iterations"), 
+#           file = "../output/modelsrun_simpen2.csv")
+
 run_model_pen2 <- DT_pen_mcmc(penalty = i, starts_data = simu_cov2$inter_persec,
                         states = 2, ant_file = simu_cov2, chamber = "queen",
                         hours = 4, a = 1, b = 1, c = 1, d = 1, 
@@ -64,7 +77,8 @@ run_model_pen2 <- DT_pen_mcmc(penalty = i, starts_data = simu_cov2$inter_persec,
                         data_out =  paste("../data/", "sim_pen_MCMC", "-",
                                log(i), "-", n_mcmc, ".csv", sep = ""),
                         osa_out = paste("../data/", "pen_OSA", "-",
-                               log(i), "-", n_mcmc, ".csv", sep = ""))
+                               log(i), "-", n_mcmc, ".csv", sep = ""), 
+                        modelsrun_out = paste("../output/modelsrun_simpen2.csv", sep=""))
 
 ```
 
@@ -72,7 +86,7 @@ run_model_pen2 <- DT_pen_mcmc(penalty = i, starts_data = simu_cov2$inter_persec,
 
 
 
-temp_results <- readr::read_csv("../data/sim_pencov_MCMC--10-10000.csv")
+temp_results <- readr::read_csv("../data/sim_pencov_MCMC--10-2000.csv")
 
 path <- "../output/"
 
