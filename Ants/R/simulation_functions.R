@@ -78,27 +78,31 @@ sim_DT_troph <- function(states, time_max, delta_t, start_state = 1,
     if (switch_rate[1] == 0) {
       state_tpm <- state_tpm
     } else {
-      state_tpm[1, 2] <- switch_rate[5] * exp(-switch_rate[5] * delta_t) /
-        (switch_rate[5] / (exp(switch_rate[5]) - 1)) #LM
+      sum_swrate_L <- switch_rate[5] + switch_rate[1]
+      sum_swrate_M <- switch_rate[3] + switch_rate[4]
+      sum_swrate_H <- switch_rate[6] + switch_rate[2]
 
-      state_tpm[1, 3] <- switch_rate[2] * exp(-switch_rate[2] * delta_t) /
-        (switch_rate[2] / (exp(switch_rate[2]) - 1)) #LH
+      state_tpm[1, 2] <- switch_rate[5] * exp(-sum_swrate_L * delta_t) /
+        (sum_swrate_L / (exp(sum_swrate_L) - 1)) #LM
+
+      state_tpm[1, 3] <- switch_rate[1] * exp(-sum_swrate_L * delta_t) /
+        (sum_swrate_L / (exp(sum_swrate_L) - 1)) #LH
 
       state_tpm[1, 1] <- 1 - state_tpm[1, 2] - state_tpm[1, 3] #LL
 
-      state_tpm[2, 1] <- switch_rate[3] * exp(-switch_rate[3] * delta_t) /
-        (switch_rate[3] / (exp(switch_rate[3]) - 1)) #ML
+      state_tpm[2, 1] <- switch_rate[3] * exp(-sum_swrate_M * delta_t) /
+        (sum_swrate_M/ (exp(sum_swrate_M) - 1)) #ML
 
-      state_tpm[2, 3] <- switch_rate[4] * exp(-switch_rate[4] * delta_t) /
-        (switch_rate[4] / (exp(switch_rate[4]) - 1)) #MH
+      state_tpm[2, 3] <- switch_rate[4] * exp(-sum_swrate_M * delta_t) /
+        (sum_swrate_M / (exp(sum_swrate_M) - 1)) #MH
 
       state_tpm[2, 2] <- 1 - state_tpm[2, 1] - state_tpm[2, 3] #MM
 
-      state_tpm[3, 1] <- switch_rate[2] * exp(-switch_rate[2] * delta_t) /
-        (switch_rate[2] / (exp(switch_rate[2]) - 1)) #HL
+      state_tpm[3, 1] <- switch_rate[2] * exp(-sum_swrate_H * delta_t) /
+        (sum_swrate_H / (exp(sum_swrate_H) - 1)) #HL
 
-      state_tpm[3, 2] <- switch_rate[6] * exp(-switch_rate[6] * delta_t) /
-        (switch_rate[6] / (exp(switch_rate[6]) - 1)) #HM
+      state_tpm[3, 2] <- switch_rate[6] * exp(-sum_swrate_H * delta_t) /
+        (sum_swrate_H / (exp(sum_swrate_H) - 1)) #HM
 
       state_tpm[3, 3] <- 1 - state_tpm[3, 1] - state_tpm[3, 2] #HH
     }
@@ -231,9 +235,9 @@ sim_pencov_troph <- function(states, time_max, delta_t, start_state = 1,
 
   #gammas now function of betas and vary over time
 
-  switch_rates_LH <- switch_betas[1] * exp(switch_betas[2] * 1/(covariate^(1/4) + 1)) #LH
+  switch_rates_LH <- switch_betas[1] * exp(switch_betas[2] * 1/(covariate^(switch_betas[5]) + 1)) #LH
 
-  switch_rates_HL <- switch_betas[3] * exp(switch_betas[4] * 1/(covariate^(1/4) + 1)) #HL
+  switch_rates_HL <- switch_betas[3] * exp(switch_betas[4] * 1/(covariate^(switch_betas[5]) + 1)) #HL
 
 
   #if given switch rates (gamma in model) use them to calculate transition

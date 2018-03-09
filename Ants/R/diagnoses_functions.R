@@ -90,6 +90,7 @@ if (n == 2) {
     estvssamp(samp = mcmc_matrix[5, ], plotname = "State Switching Rates: e^beta_0HL")
     estvssamp(samp = mcmc_matrix[6, ], plotname = "State Switching Rates: beta_1LH")
     estvssamp(samp = mcmc_matrix[7, ], plotname = "State Switching Rates: beta_1HL")
+    estvssamp(samp = mcmc_matrix[8, ], plotname = "State Swithc Rates: cov_exponent")
   }
 
 
@@ -120,7 +121,7 @@ if (n == 2) {
   #ptm
   plot(coda::mcmc(t(mcmc_matrix[6:9, ])))
   }else{
-    plot(coda::mcmc(t(mcmc_matrix[4:7, ]))) #e^betas and betas
+    plot(coda::mcmc(t(mcmc_matrix[4:8, ]))) #e^betas and betas
   }
 
 
