@@ -1,0 +1,147 @@
+\begin{thebibliography}{16}
+\newcommand{\enquote}[1]{``#1''}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{{\tt #1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+\ifx\endbibitem\undefined \let\endbibitem\relax\fi
+
+\bibitem[{Borchers et~al.(2013)Borchers, Zucchini, Heide-J{\o}rgensen,
+  Ca{\~{n}}adas, and Langrock}]{Borchers2013}
+Borchers, D.~L., Zucchini, W., Heide-J{\o}rgensen, M.~P., Ca{\~{n}}adas, A.,
+  and Langrock, R. (2013).
+\newblock \enquote{{Using Hidden Markov Models to Deal with Availability Bias
+  on Line Transect Surveys}.}
+\newblock {\em Biometrics\/}, 69(3): 703--713.
+\endbibitem
+
+\bibitem[{DeRuiter et~al.(2016)DeRuiter, Langrock, Skirbutas, Goldbogen,
+  Chalambokidis, Friedlaender, and Southall}]{DeRuiter2016}
+DeRuiter, S.~L., Langrock, R., Skirbutas, T., Goldbogen, J.~A., Chalambokidis,
+  J., Friedlaender, A.~S., and Southall, B.~L. (2016).
+\newblock \enquote{{A multivariate mixed hidden Markov model to analyze blue
+  whale diving behaviour during controlled sound exposures}.}
+\newblock 1--26.
+\newline\urlprefix\url{http://arxiv.org/abs/1602.06570}
+\endbibitem
+
+\bibitem[{Fewell(2013)}]{Fewell2013}
+Fewell, J.~H. (2013).
+\newblock \enquote{{References and Notes}.}
+\newblock {\em Hunt Parathyroids\/}, 301(September): 132--143.
+\newline\urlprefix\url{http://doi.wiley.com/10.1002/9781118343371.refs}
+\endbibitem
+
+\bibitem[{Gimenez et~al.(2014)Gimenez, Blanc, Besnard, Pradel, Doherty,
+  Marboutin, and Choquet}]{Gimenez2014}
+Gimenez, O., Blanc, L., Besnard, A., Pradel, R., Doherty, P.~F., Marboutin, E.,
+  and Choquet, R. (2014).
+\newblock \enquote{{Fitting occupancy models with E-SURGE: Hidden Markov
+  modelling of presence-absence data}.}
+\newblock {\em Methods Ecol. Evol.\/}, 5(6): 592--597.
+\endbibitem
+
+\bibitem[{Johnson et~al.(2016)Johnson, Laake, Melin, and DeLong}]{Johnson2016}
+Johnson, D.~S., Laake, J.~L., Melin, S.~R., and DeLong, R.~L. (2016).
+\newblock \enquote{{Multivariate state hidden Markov models for mark-recapture
+  data}.}
+\newblock {\em Stat. Sci.\/}, 31(1958): 233--244.
+\endbibitem
+
+\bibitem[{Langrock et~al.(2012)Langrock, King, Matthiopoulos, Thomas, Fortin,
+  and Morales}]{Langrock2012}
+Langrock, R., King, R., Matthiopoulos, J., Thomas, L., Fortin, D., and Morales,
+  J.~M. (2012).
+\newblock \enquote{{Flexible and practical modeling of animal telemetry data:
+  hidden Markov models and extensions.}}
+\newblock {\em Ecology\/}, 93(11): 2336--42.
+\newline\urlprefix\url{http://www.ncbi.nlm.nih.gov/pubmed/23236905}
+\endbibitem
+
+\bibitem[{Langrock et~al.(2014)Langrock, Marques, Baird, and
+  Thomas}]{Langrock2014}
+Langrock, R., Marques, T.~A., Baird, R.~W., and Thomas, L. (2014).
+\newblock \enquote{{Modeling the Diving Behavior of Whales: A Latent-Variable
+  Approach with Feedback and Semi-Markovian Components}.}
+\newblock {\em J. Agric. Biol. Environ. Stat.\/}, 19(1): 82--100.
+\endbibitem
+
+\bibitem[{Leos-Barajas et~al.(2017)Leos-Barajas, Photopoulou, Langrock,
+  Patterson, Watanabe, Murgatroyd, and Papastamatiou}]{Leos-Barajas2017a}
+Leos-Barajas, V., Photopoulou, T., Langrock, R., Patterson, T.~A., Watanabe,
+  Y.~Y., Murgatroyd, M., and Papastamatiou, Y.~P. (2017).
+\newblock \enquote{{Analysis of animal accelerometer data using hidden Markov
+  models}.}
+\newblock {\em Methods Ecol. Evol.\/}, 8(2): 161--173.
+\endbibitem
+
+\bibitem[{McKellar et~al.(2015)McKellar, Langrock, Walters, and
+  Kesler}]{McKellar2015}
+McKellar, A.~E., Langrock, R., Walters, J.~R., and Kesler, D.~C. (2015).
+\newblock \enquote{{Using mixed hidden Markov models to examine behavioral
+  states in a cooperatively breeding bird}.}
+\newblock {\em Behav. Ecol.\/}, 26(1).
+\endbibitem
+
+\bibitem[{Naug and Camazine(2002)}]{Naug2002}
+Naug, D. and Camazine, S. (2002).
+\newblock \enquote{{The role of colony organization on pathogen transmission in
+  social insects}.}
+\newblock {\em J. Theor. Biol.\/}, 215(4): 427--439.
+\endbibitem
+
+\bibitem[{Patterson et~al.(2017)Patterson, Parton, Langrock, Blackwell, Thomas,
+  and King}]{Patterson2017}
+Patterson, T.~A., Parton, A., Langrock, R., Blackwell, P.~G., Thomas, L., and
+  King, R. (2017).
+\newblock \enquote{{Statistical modelling of individual animal movement: an
+  overview of key methods and a discussion of practical challenges}.}
+\newblock {\em AStA Adv. Stat. Anal.\/}, 101(4): 399--438.
+\endbibitem
+
+\bibitem[{Quevillon et~al.(2015)Quevillon, Hanks, Bansal, and
+  Hughes}]{Quevillon2015}
+Quevillon, L.~E., Hanks, E.~M., Bansal, S., and Hughes, D.~P. (2015).
+\newblock \enquote{{Social, spatial, and temporal organization in a complex
+  insect society}.}
+\newblock {\em Sci. Rep.\/}, 5: 13393.
+\newline\urlprefix\url{http://www.nature.com/doifinder/10.1038/srep13393}
+\endbibitem
+
+\bibitem[{Richardson et~al.(2017)Richardson, Liechti, Stroeymeyt, Bonhoeffer,
+  and Keller}]{Richardson2017}
+Richardson, T.~O., Liechti, J.~I., Stroeymeyt, N., Bonhoeffer, S., and Keller,
+  L. (2017).
+\newblock \enquote{{Short-term activity cycles impede information transmission
+  in ant colonies}.}
+\newblock {\em PLoS Comput. Biol.\/}, 13(5): 1--17.
+\endbibitem
+
+\bibitem[{Schliehe-Diecks et~al.(2012)Schliehe-Diecks, Kappeler, and
+  Langrock}]{Schliehe-Diecks2012}
+Schliehe-Diecks, S., Kappeler, P.~M., and Langrock, R. (2012).
+\newblock \enquote{{On the application of mixed hidden Markov models to
+  multiple behavioural time series}.}
+\newblock {\em Interface Focus\/}, 2(2): 180--189.
+\newline\urlprefix\url{http://rsfs.royalsocietypublishing.org/cgi/doi/10.1098/rsfs.2011.0077}
+\endbibitem
+
+\bibitem[{Towner et~al.(2016)Towner, Leos-Barajas, Langrock, Schick, Smale,
+  Kaschke, Jewell, and Papastamatiou}]{Towner2016}
+Towner, A.~V., Leos-Barajas, V., Langrock, R., Schick, R.~S., Smale, M.~J.,
+  Kaschke, T., Jewell, O.~J., and Papastamatiou, Y.~P. (2016).
+\newblock \enquote{{Sex-specific and individual preferences for hunting
+  strategies in white sharks}.}
+\newblock {\em Funct. Ecol.\/}, 30(8): 1397--1407.
+\endbibitem
+
+\bibitem[{van~de Kerk et~al.(2015)van~de Kerk, Onorato, Criffield, Bolker,
+  Augustine, Mckinley, and Oli}]{VandeKerk2015}
+van~de Kerk, M., Onorato, D.~P., Criffield, M.~A., Bolker, B.~M., Augustine,
+  B.~C., Mckinley, S.~A., and Oli, M.~K. (2015).
+\newblock \enquote{{Hidden semi-Markov models reveal multiphasic movement of
+  the endangered Florida panther}.}
+\newblock {\em J. Anim. Ecol.\/}, 84(2): 576--585.
+\endbibitem
+
+\end{thebibliography}

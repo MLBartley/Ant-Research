@@ -20,4 +20,3 @@ entrance/exit data and format it for use in mcmc model.
 
 prep.inout.data(inout.high.4, 60, 4)
 }
-

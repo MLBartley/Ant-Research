@@ -1,0 +1,148 @@
+\begin{thebibliography}{24}
+\providecommand{\natexlab}[1]{#1}
+
+\bibitem[{Borchers \textit{et~al.}(2013)Borchers, Zucchini, Heide-J{\o}rgensen,
+  Ca{\~{n}}adas and Langrock}]{Borchers2013}
+Borchers DL, Zucchini W, Heide-J{\o}rgensen MP, Ca{\~{n}}adas A, Langrock R,
+  2013. {Using Hidden Markov Models to Deal with Availability Bias on Line
+  Transect Surveys}. \textit{Biometrics} \textbf{69}(3): 703--713.
+
+\bibitem[{DeRuiter \textit{et~al.}(2016)DeRuiter, Langrock, Skirbutas,
+  Goldbogen, Chalambokidis, Friedlaender and Southall}]{DeRuiter2016}
+DeRuiter SL, Langrock R, Skirbutas T, Goldbogen JA, Chalambokidis J,
+  Friedlaender AS, Southall BL, 2016. {A multivariate mixed hidden Markov model
+  to analyze blue whale diving behaviour during controlled sound exposures} :
+  1--26.
+
+\bibitem[{Farine \textit{et~al.}(2016)Farine, Strandburg-Peshkin, Berger-Wolf,
+  Ziebart, Brugere, Li and Crofoot}]{Farine2016}
+Farine DR, Strandburg-Peshkin A, Berger-Wolf T, Ziebart B, Brugere I, Li J,
+  Crofoot MC, 2016. {Both nearest neighbours and long-term affiliates predict
+  individual locations during collective movement in wild baboons}.
+  \textit{Scientific Reports} .
+
+\bibitem[{Fewell(2013)}]{Fewell2013}
+Fewell JH, 2013. {References and Notes}. \textit{The Hunt for the Parathyroids}
+  \textbf{301}(September): 132--143.
+
+\bibitem[{Gernat \textit{et~al.}(2017)Gernat, Rao, Middendorf, Dankowicz,
+  Goldenfeld, Robinson, Holme, Naug and Sokolowski}]{Gernat2017}
+Gernat T, Rao VD, Middendorf M, Dankowicz H, Goldenfeld N, Robinson GE, Holme
+  P, Naug D, Sokolowski MB, 2017. {Automated monitoring of behavior reveals
+  bursty interaction patterns and rapid spreading dynamics in honeybee social
+  networks} : 1--6.
+
+\bibitem[{Gimenez \textit{et~al.}(2014)Gimenez, Blanc, Besnard, Pradel,
+  Doherty, Marboutin and Choquet}]{Gimenez2014}
+Gimenez O, Blanc L, Besnard A, Pradel R, Doherty PF, Marboutin E, Choquet R,
+  2014. {Fitting occupancy models with E-SURGE: Hidden Markov modelling of
+  presence-absence data}. \textit{Methods in Ecology and Evolution}
+  \textbf{5}(6): 592--597.
+
+\bibitem[{Johnson \textit{et~al.}(2016)Johnson, Laake, Melin and
+  DeLong}]{Johnson2016}
+Johnson DS, Laake JL, Melin SR, DeLong RL, 2016. {Multivariate state hidden
+  Markov models for mark-recapture data}. \textit{Statistical Science}
+  \textbf{31}(1958): 233--244.
+
+\bibitem[{Langrock \textit{et~al.}(2012)Langrock, King, Matthiopoulos, Thomas,
+  Fortin and Morales}]{Langrock2012}
+Langrock R, King R, Matthiopoulos J, Thomas L, Fortin D, Morales JM, 2012.
+  {Flexible and practical modeling of animal telemetry data: hidden Markov
+  models and extensions.} \textit{Ecology} \textbf{93}(11): 2336--42.
+
+\bibitem[{Langrock \textit{et~al.}(2014)Langrock, Marques, Baird and
+  Thomas}]{Langrock2014}
+Langrock R, Marques TA, Baird RW, Thomas L, 2014. {Modeling the Diving Behavior
+  of Whales: A Latent-Variable Approach with Feedback and Semi-Markovian
+  Components}. \textit{Journal of Agricultural, Biological, and Environmental
+  Statistics} \textbf{19}(1): 82--100.
+
+\bibitem[{Leos-Barajas \textit{et~al.}(2017)Leos-Barajas, Photopoulou,
+  Langrock, Patterson, Watanabe, Murgatroyd and
+  Papastamatiou}]{Leos-Barajas2017a}
+Leos-Barajas V, Photopoulou T, Langrock R, Patterson TA, Watanabe YY,
+  Murgatroyd M, Papastamatiou YP, 2017. {Analysis of animal accelerometer data
+  using hidden Markov models}. \textit{Methods in Ecology and Evolution}
+  \textbf{8}(2): 161--173.
+
+\bibitem[{McKellar \textit{et~al.}(2015)McKellar, Langrock, Walters and
+  Kesler}]{McKellar2015}
+McKellar AE, Langrock R, Walters JR, Kesler DC, 2015. {Using mixed hidden
+  Markov models to examine behavioral states in a cooperatively breeding bird}.
+  \textit{Behavioral Ecology} \textbf{26}(1).
+
+\bibitem[{Naug and Camazine(2002)}]{Naug2002}
+Naug D, Camazine S, 2002. {The role of colony organization on pathogen
+  transmission in social insects}. \textit{Journal of Theoretical Biology}
+  \textbf{215}(4): 427--439.
+
+\bibitem[{Patterson \textit{et~al.}(2017)Patterson, Parton, Langrock,
+  Blackwell, Thomas and King}]{Patterson2017}
+Patterson TA, Parton A, Langrock R, Blackwell PG, Thomas L, King R, 2017.
+  {Statistical modelling of individual animal movement: an overview of key
+  methods and a discussion of practical challenges}. \textit{AStA Advances in
+  Statistical Analysis} \textbf{101}(4): 399--438.
+
+\bibitem[{Pohle \textit{et~al.}(2017)Pohle, Langrock, van Beest and
+  Schmidt}]{Pohle2017}
+Pohle J, Langrock R, van Beest FM, Schmidt NM, 2017. {Selecting the Number of
+  States in Hidden Markov Models: Pragmatic Solutions Illustrated Using Animal
+  Movement}. \textit{Journal of Agricultural, Biological, and Environmental
+  Statistics} \textbf{22}(3): 270--293.
+
+\bibitem[{Quevillon \textit{et~al.}(2015)Quevillon, Hanks, Bansal and
+  Hughes}]{Quevillon2015}
+Quevillon LE, Hanks EM, Bansal S, Hughes DP, 2015. {Social, spatial, and
+  temporal organization in a complex insect society}. \textit{Scientific
+  Reports} \textbf{5}: 13393.
+
+\bibitem[{{R Core Team}(2016)}]{RCoreTeam2016}
+{R Core Team}, 2016. {R Core Team (2016). R: A language and environment for
+  statistical computing.} \textit{R Foundation for Statistical Computing,
+  Vienna, Austria. URL http://www.R-project.org/.} .
+
+\bibitem[{Richardson \textit{et~al.}(2017)Richardson, Liechti, Stroeymeyt,
+  Bonhoeffer and Keller}]{Richardson2017}
+Richardson TO, Liechti JI, Stroeymeyt N, Bonhoeffer S, Keller L, 2017.
+  {Short-term activity cycles impede information transmission in ant colonies}.
+  \textit{PLoS Computational Biology} \textbf{13}(5): 1--17.
+
+\bibitem[{Schliehe-Diecks \textit{et~al.}(2012)Schliehe-Diecks, Kappeler and
+  Langrock}]{Schliehe-Diecks2012}
+Schliehe-Diecks S, Kappeler PM, Langrock R, 2012. {On the application of mixed
+  hidden Markov models to multiple behavioural time series}. \textit{Interface
+  Focus} \textbf{2}(2): 180--189.
+
+\bibitem[{Shaby and Wells(2010)}]{Shaby2010}
+Shaby B, Wells M, 2010. {Exploring an adaptive Metropolis algorithm}.
+  \textit{Currently under review} : 1--31.
+
+\bibitem[{Tanner and Wong(1987)}]{Tanner1987}
+Tanner MA, Wong WH, 1987. {The Calculation of Posterior Distributions by Data
+  Augmentation: Rejoinder}. \textit{Journal of the American Statistical
+  Association} \textbf{82}(398): 548--550.
+
+\bibitem[{Towner \textit{et~al.}(2016)Towner, Leos-Barajas, Langrock, Schick,
+  Smale, Kaschke, Jewell and Papastamatiou}]{Towner2016}
+Towner AV, Leos-Barajas V, Langrock R, Schick RS, Smale MJ, Kaschke T, Jewell
+  OJ, Papastamatiou YP, 2016. {Sex-specific and individual preferences for
+  hunting strategies in white sharks}. \textit{Functional Ecology}
+  \textbf{30}(8): 1397--1407.
+
+\bibitem[{van~de Kerk \textit{et~al.}(2015)van~de Kerk, Onorato, Criffield,
+  Bolker, Augustine, Mckinley and Oli}]{VandeKerk2015}
+van~de Kerk M, Onorato DP, Criffield MA, Bolker BM, Augustine BC, Mckinley SA,
+  Oli MK, 2015. {Hidden semi-Markov models reveal multiphasic movement of the
+  endangered Florida panther}. \textit{Journal of Animal Ecology}
+  \textbf{84}(2): 576--585.
+
+\bibitem[{van Dyk and Meng(2001)}]{VanDyk2001}
+van Dyk Da, Meng XL, 2001. {The Art of Data Augmentation}. \textit{Journal of
+  Computational and Graphical Statistics} \textbf{10}(1): 1--50.
+
+\bibitem[{Zucchini and MacDonald(2009)}]{Zucchini2009a}
+Zucchini W, MacDonald I, 2009. \textit{{Hidden Markov Models for Time Series}},
+  volume 110. 278 pp.
+
+\end{thebibliography}

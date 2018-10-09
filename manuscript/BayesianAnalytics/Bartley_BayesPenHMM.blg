@@ -1,0 +1,49 @@
+This is BibTeX, Version 0.99d (TeX Live 2018)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: Bartley_BayesPenHMM.aux
+The style file: bib/ba.bst
+Database file #1: bib/library_20180904.bib
+Warning--I didn't find a database entry for ""
+Warning--empty journal in DeRuiter2016
+You've used 16 entries,
+            2760 wiz_defined-function locations,
+            703 strings with 8801 characters,
+and the built_in function-call counts, 11906 in all, are:
+= -- 891
+> -- 702
+< -- 2
++ -- 256
+- -- 240
+* -- 1050
+:= -- 1866
+add.period$ -- 64
+call.type$ -- 16
+change.case$ -- 144
+chr.to.int$ -- 16
+cite$ -- 17
+duplicate$ -- 778
+empty$ -- 766
+format.name$ -- 288
+if$ -- 2242
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 190
+newline$ -- 110
+num.names$ -- 64
+pop$ -- 341
+preamble$ -- 1
+purify$ -- 144
+quote$ -- 0
+skip$ -- 230
+stack$ -- 0
+substring$ -- 529
+swap$ -- 498
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 144
+warning$ -- 1
+while$ -- 78
+width$ -- 0
+write$ -- 236
+(There were 2 warnings)

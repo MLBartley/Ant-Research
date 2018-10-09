@@ -1,0 +1,124 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(mvtnorm)
+
+set.seed(2017)
+simulated2 <- sim_DT_troph(states = 2, time_max = 2*60*60, delta_t = 1, 
+                           start_state = 1, switch_rate = c(.0005, .0005), 
+                           int_rate = c(.002, .02), num_locations = 1,
+                           state_tpm = matrix(c(.99, .01, .01, .99),
+                                              nrow = 2, byrow = T))
+
+simulated3 <- sim_DT_troph(states = 3, time_max = 2*60*60, delta_t = 1, 
+                           start_state = 1, switch_rate = rep(.0005, 6), 
+                           int_rate = c(0, .02, .1), num_locations = 1, 
+                           state_tpm = matrix(NA, nrow = 3, 
+                                              ncol = 3, byrow = T))
+```
+
+```{r two state}
+n_mcmc <- 10000
+tau <- matrix( c(.1, 0, 
+                 0, .1), nrow = 2, ncol = 2)
+gamma <- c(.0005, .0005)
+X <- simulated2$state
+lambda <- c(.002, .02)
+start <- list(X = X, lambda = lambda, gamma = gamma)
+i <- exp(-14)
+
+run_model <- DT_pen_mcmc(penalty = i, starts_data = simulated2$inter_persec, 
+                        states = 2, ant_file = simulated2, chamber = "queen", 
+                        hours = 2, a = 1, b = 1, c = 1, d = 1, 
+                        tau = tau, tau.pen = 0, n_mcmc = n_mcmc, delta_t = 1,
+                        start = start, 
+                        data_out =  paste("../data/", "sim_pen2_MCMC", "-", 
+                               log(i), "-", n_mcmc, ".csv", sep = ""), 
+                         osa_out = paste("../data/", "sim_pen2_OSA", "-",
+                               log(i), "-", n_mcmc, ".csv", sep = ""), 
+                          fig_path = path, fig_name = "sim_pen2_MCMC")
+
+```
+
+```{r 2 state diagnosis}
+
+Time = hours *60 *60
+
+MSPE_results <- matrix(NA, ncol = 2, nrow = length(range))
+  colnames(MSPE_results) = c("penalty", "MSPE")
+  
+  
+  
+  
+
+for (r in 1:length(range)) {
+
+MSPE_results[r, 1] <- log(range[r])
+MSPE_results[r, 2] <- run_model$MSPE
+# MSPE_results[r, 3] <- penalize_col2lo4qbin1[[r]]$accept
+}
+
+temp_results <- readr::read_csv("~/Google Drive/PSU/Projects/Ant-Research/Ants/data/sim_pen2_MCMC--14-2000.csv")
+
+path <- "../output/"
+
+#read in data to temp_results
+
+delta_t <- 1
+sim_diag2 <-  penalty_diagnosis(t(temp_results)[-1, ], 
+                               ant_file = simulated2,
+                              chamber = "queen", states = 2, 
+                              Time = 2 * 60 * 60, fig_path = path,
+                                fig_name = "test2", penalty = (-14))
+
+```
+
+```{r three state}
+n_mcmc <- 10000
+tau <- matrix( c(.1, 0, 
+                 0, .1), nrow = 2, ncol = 2)
+gamma <- rep(.0005, 6)
+X <- simulated3$state
+lambda <- c(0, 0.02, .1)
+start <- list(X = X, lambda = lambda, gamma = gamma)
+i <- exp(-13)
+
+# write.csv(t(c(1, 2, 3, 4)),
+#           col.names = c("Penalty", "MSPE", "Accept", "Number of Iterations"),
+#           file = "../output/modelsrun_simpen3.csv")
+
+run_model_3 <- DT_pen_mcmc(penalty = i, starts_data = simulated3$inter_persec, 
+                        states = 3, ant_file = simulated3, chamber = "queen", 
+                        hours = 2, a = 1, b = 1, c = 1, d = 1, e = 1, f = 1, 
+                        tau = tau, tau.pen = 0, n_mcmc = n_mcmc, delta_t = 1,
+                        start = start, data_out =  paste("../data/", "sim_pen3_MCMC", "-", 
+                               log(i), "-", n_mcmc, ".csv", sep = ""), 
+                        osa_out = paste("../data/", "sim_pen3_OSA", "-", 
+                               log(i), "-", n_mcmc, ".csv", sep = ""), 
+                        modelsrun_out = paste("../output/modelsrun_simpen3.csv", sep=""), 
+                          fig_path = path, fig_name = "sim_pen3_MCMC")
+
+```
+
+```{r 3 state diagnosis}
+
+
+
+temp_results <- readr::read_csv("~/Google Drive/PSU/Projects/Ant-Research/Ants/data/sim_pen3_MCMC--13-10000.csv")
+
+path <- "../output/"
+
+#read in data to temp_results
+
+delta_t <- 1
+sim_diag3 <-  penalty_diagnosis(t(temp_results)[-1, ], 
+                               ant_file = simulated3,
+                              chamber = "queen", states = 3, 
+                              Time = 2 * 60 * 60, fig_path = path,
+                                fig_name = "test3", penalty = (-13))
+
+```
+

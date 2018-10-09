@@ -1,0 +1,58 @@
+
+//define data
+data {
+  int<lower=0> N; // number of states
+  int<lower=1> T; // length of data set
+  int<lower=0> y[T]; // observations
+}
+
+//define parameters
+parameters {
+  simplex[N] theta[N]; // N x N tpm
+  ordered[N] lambda[N];
+}
+
+//initialize tpm with delta
+transformed parameters{
+  matrix[N, N] ta; //
+  simplex[N] statdist; // stationary distribution
+  for(j in 1:N){
+      for(i in 1:N){
+        ta[i,j]= theta[i,j];
+      }
+  }
+statdist =  to_vector((to_row_vector(rep_vector(1.0, N))/
+(diag_matrix(rep_vector(1.0, N)) - ta + rep_matrix(1, N, N)))) ; //
+
+}
+
+
+# Define model
+
+model {
+  vector[N] log_theta_tr[N];
+  vector[N] lp;
+  vector[N] lp_p1;
+
+  // prior for lambda
+  lambda[1] ~ gamma(1, 1);
+  lambda[2] ~ gamma(1, 1);
+
+
+  // transpose the tpm and take natural log of entries
+  for (n_from in 1:N)
+  for (n in 1:N)
+  log_theta_tr[n, n_from] = log(theta[n_from, n]);
+
+  // forward algorithm implementation
+  for(n in 1:N) // first observation
+  lp[n] = log(statdist[n]) + poisson_lpmf(y[1] | lambda[n]);
+  for (t in 2:T) { // looping over observations
+  for (n in 1:N) // looping over states
+  lp_p1[n] = log_sum_exp(log_theta_tr[n] + lp) +
+  poisson_lpmf(y[t] | lambda[n]);
+  lp = lp_p1; }
+  target += log_sum_exp(lp);
+}
+// end model
+    

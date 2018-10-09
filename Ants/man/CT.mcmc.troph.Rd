@@ -7,6 +7,33 @@
 CT.mcmc.troph(a, b, c, d, r, q, tau, theta, data, init, Time, n.mcmc,
   save = F)
 }
+\arguments{
+\item{a}{}
+
+\item{b}{}
+
+\item{c}{}
+
+\item{d}{}
+
+\item{r}{}
+
+\item{q}{}
+
+\item{tau}{}
+
+\item{theta}{}
+
+\item{data}{}
+
+\item{init}{}
+
+\item{Time}{}
+
+\item{n.mcmc}{}
+
+\item{save}{}
+}
 \value{
 (1) - estimates of X, gamma, lambda, P
 }
@@ -14,7 +41,3 @@ CT.mcmc.troph(a, b, c, d, r, q, tau, theta, data, init, Time, n.mcmc,
 The purpose of this function is to find MCMC generated estimates of 
 (1) -
 }
-\examples{
-
-}
-

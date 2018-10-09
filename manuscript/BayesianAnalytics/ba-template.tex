@@ -1,0 +1,105 @@
+\RequirePackage{etoolbox}
+\csdef{input@path}{%
+ {sty/}% cls, sty files
+ {img/}% eps files
+}%
+\csgdef{bibdir}{bib/}% bst, bib files
+
+\documentclass[ba]{imsart}
+%
+\pubyear{0000}
+\volume{00}
+\issue{0}
+\doi{0000}
+\firstpage{1}
+\lastpage{1}
+
+
+%
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{natbib}
+\usepackage[colorlinks,citecolor=blue,urlcolor=blue,filecolor=blue,backref=page]{hyperref}
+\usepackage{graphicx}
+
+\startlocaldefs
+% ** Local definitions **
+\endlocaldefs
+
+\begin{document}
+
+%% *** Frontmatter *** 
+
+\begin{frontmatter}
+\title{A Bayesian Penalized Hidden Markov Model for Ant Interactions}
+
+%\title{\thanksref{T1}}
+%\thankstext{T1}{<thanks text>}
+\runtitle{Bayesian Penalized HMM}
+
+\begin{aug}
+\author{\fnms{Meridith} \snm{Bartley}}\thanksref{addr1}\ead[label=e1]{bartley@psu.edu},
+\author{\fnms{Ephraim} \snm{Hanks}\thanksref{addr1}\ead[label=e2]{hanks@psu.edu}}
+\and
+\author{\fnms{David} \snm{Hughes}}\thanksref{addr2}\ead[label=e3]{hughes@psu.edu}
+
+
+
+\runauthor{M. Bartley et al.}
+
+\address[addr1]{Department of Statistics, Penn State University
+	\printead{e1}
+	\printead*{e2}
+}
+\address[addr1]{Department of Entomology, Penn State University
+\printead{e3}}
+
+
+%\thankstext{<id>}{<text>}
+
+\end{aug}
+
+\begin{abstract}
+Interactions between social animals provide insights into the exchange and flow of nutrients, disease, and social contacts. We consider a chamber level analysis of trophallaxis interactions between carpenter ants (\textit{Camponotus pennsylvanicus}) over 4 hours of second-by-second observations. The data show clear switches between fast and slow modes of trophallaxis. However, fitting a standard hidden Markov model (HMM) results in an estimated hidden state process that is overfit to this high resolution data, as the state process fluctuates an order of magnitude more quickly than is biologically reasonable.  We propose a novel approach for penalized estimation of HMMs through a Bayesian ridge prior on the state transition rates while also incorporating biologically motivated covariates. This penalty induces smoothing, limiting the rate of state switching that combines with appropriate covariates within the colony to ensure more biologically feasible results. We develop a Markov chain Monte Carlo algorithm to perform Bayesian inference based on discretized observations of the contact network. 
+\end{abstract}
+
+%% ** Keywords **
+\begin{keyword}%[class=MSC]
+%\kwd{}
+%\kwd[]{}
+\end{keyword}
+
+\end{frontmatter}
+
+%% ** Mainmatter **
+
+%\section{}\label{}
+
+% \begin{figure} 
+% \includegraphics{<eps-file>}% place <eps-file> in ./img  subfolder
+% \caption{}
+% \label{}
+% \end{figure}
+
+
+% \begin{table} 
+% *****************
+% \begin{tabular}{lll}
+% \end{tabular}
+% *****************
+% \caption{}
+% \label{}
+% \end{figure}
+
+
+%% ** The bibliograhy **
+\bibliographystyle{ba}
+\bibliography{<bib-data-file>}% place <bib-data-file> 
+
+% ** Acknowledgements **
+% \begin{acknowledgement}
+% \end{acknowledgement}
+
+
+\end{document}
+

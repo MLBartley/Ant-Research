@@ -31,4 +31,3 @@ sum = sumvis.troph.data(data = troph.high.4,
                  hours = 4, 
                  density = "high")
 }
-

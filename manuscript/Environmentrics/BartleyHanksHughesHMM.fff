@@ -1,0 +1,48 @@
+\begin{figure*}
+
+ \centerline{\includegraphics[width=6in]{Sim2_MSPE120000_states.pdf}}
+\caption{While periods of relatively low and high rates of feeding interactions are clear, the stochastic process of chamber-level feeding states is switching between the two much faster than biologically feasible. Red background denotes low state while blue background denotes high state of feeding exchanges. }
+\label{f:simplestates}
+\end{figure*}
+\efloatseparator
+ 
+\begin{figure*}
+
+ \centerline{\includegraphics[width=7in]{MSPEcombined_2_0.pdf}}
+\caption{MSPE Comparison results }
+\label{f:MSPEpen2&3}
+\end{figure*}
+\efloatseparator
+ 
+\begin{figure*}
+
+ \centerline{\includegraphics[width=6in]{Pen2_MSPE-6_states.pdf}}
+ \caption{Two state enalized HMM results. Again, red background denotes low state while blue background denotes high state of feeding exchanges.}
+\label{f:penaltystates}
+\end{figure*}
+\efloatseparator
+ 
+\begin{figure*}
+
+ \centerline{\includegraphics[width=6in]{Pen3_-3_states.pdf}}
+\caption{Three state penalized HMM results. Red background denotes low state while blue background denotes high state of feeding exchanges. Additionally, green now denotes the third, or medium, state of feeding exchanges.}
+\label{f:pen3states}
+\end{figure*}
+\efloatseparator
+ 
+\begin{figure*}
+
+ \centerline{\includegraphics[width=5in]{Pen2CovPlot.pdf}}
+ \caption{Ant interaction data with cumulative feeding interactions over 4 hours of observation. Green asterisk symbols denote times at which an ant enters into the nest chamber.}
+\label{f:pencov}
+\end{figure*}
+\efloatseparator
+ 
+\begin{figure*}
+
+ \centerline{\includegraphics[width=6in]{MSPEcov-3_states.pdf}}
+ \caption{Two state penalized HMM results with biological covariates - time since ant has entered the chamber. Again, red background denotes low state while blue background denotes high state of feeding exchanges. Black symbols denote entrance times.}
+\label{f:covstates}
+\end{figure*}
+\efloatseparator
+ 

@@ -15,4 +15,3 @@ Import Ants ggplot2 theme. It builds on theme_classic. You can change font famil
 \examples{
 qplot(1) + theme.ants.fancy()
 }
-
