@@ -1,4 +1,5 @@
 ```{r}
+<<<<<<< HEAD
 library(magrittr)
 library(dplyr)
 library(ggplot2)
@@ -10,6 +11,17 @@ MSPE_results <- as.data.frame(MSPE_results[ which(MSPE_results$V4 >= 10000), -1]
 colnames(MSPE_results) <- c("penalty", "MSPE", "accept", "num_iter")
 
 MSPE_results_THREE <- read.csv("../output/modelsrun_pen3_redo.csv")
+=======
+
+# load("../output/MSPE_pen2_table.Rda")
+# load("../output/MSPE_pen3_table.Rda")
+
+MSPE_results <- read.csv("../output/modelsrun_pen2.csv")
+MSPE_results <- as.data.frame(MSPE_results[ which(MSPE_results$V4 >= 10000), -1] )
+colnames(MSPE_results) <- c("penalty", "MSPE", "accept", "num_iter")
+
+MSPE_results_THREE <- read.csv("../output/modelsrun_pen3.csv")
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 MSPE_results_THREE <- as.data.frame(MSPE_results_THREE[ which(MSPE_results_THREE$V4 >= 10000), -1] )
 colnames(MSPE_results_THREE) <- c("penalty", "MSPE", "accept", "num_iter")
 
@@ -34,12 +46,20 @@ compare_pen2 <- ggplot(data = MSPE_results2_summ, aes(x = penalty, y = MSPE)) +
 
 plot_pen2 <- compare_pen2 + 
   geom_line() +
+<<<<<<< HEAD
   geom_vline( xintercept=-6, col = 'red') + 
   labs(x = expression("Penalty (" ~tau~ "= e^value)")) + 
   ylim(0.017875, 0.017915) +
   xlim(-15, 0) +
   # theme_bw(base_size = 13, base_family = "Helvetica") + 
   theme(text = element_text(size=23),
+=======
+  geom_vline( xintercept=-23, col = 'red') + 
+  xlab("Penalty (e^value)") + 
+  xlim(-30, -9) +
+  # theme_bw(base_size = 13, base_family = "Helvetica") + 
+  theme(text = element_text(size=14),
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank(),
         # panel.background = element_blank(),
@@ -53,8 +73,13 @@ plot_pen3 <- compare_pen3 +
         # ylim(.0185, .0188) + 
         geom_vline( xintercept=-13, col = 'red') + 
         geom_line() +
+<<<<<<< HEAD
 labs(x = expression("Penalty (" ~tau~ "= e^value)")) + 
   xlim(-30, 0) +
+=======
+         xlab("Penalty (e^value)") + 
+        xlim(-30, -9) +
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
         # theme_bw(base_size = 13, base_family = "Helvetica") + 
         theme(text = element_text(size=14),
               panel.grid.major = element_blank(), 
@@ -66,8 +91,11 @@ labs(x = expression("Penalty (" ~tau~ "= e^value)")) +
 
 
 print(plot_pen2)
+<<<<<<< HEAD
 ggsave("MSPE_ISEC2018.pdf")
 
+=======
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 print(plot_pen3)
 
 ```
@@ -83,7 +111,11 @@ MSPE_results3_summ <- MSPE_results3_summ %>%
                       mutate(states = rep(3, nrow(MSPE_results3_summ)))
   
   
+<<<<<<< HEAD
 MSPE_results_combined <- rbind(MSPE_results2_summ, MSPE_results3_summ)
+=======
+MSPE_results_combined <- bind(MSPE_results2_summ, MSPE_results3_summ)
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 
 MSPE_results_combined$states <- as.factor(MSPE_results_combined$states) 
   
@@ -99,6 +131,7 @@ MSPE_results_combined$states <- as.factor(MSPE_results_combined$states)
                             breaks = c("2", "3"),
                       values = c("darkblue", "skyblue")) +
         # ylim(.0185, .0188) + 
+<<<<<<< HEAD
         geom_vline( xintercept=-3, col = 'skyblue') + 
         geom_vline(xintercept = -6, col = 'darkblue') +
         geom_line(aes(color = states)) +
@@ -106,6 +139,15 @@ MSPE_results_combined$states <- as.factor(MSPE_results_combined$states)
         xlim(-23, 0) +
         # theme_bw(base_size = 13, base_family = "Helvetica") + 
         theme(text = element_text(size=23),
+=======
+        geom_vline( xintercept=-13, col = 'skyblue') + 
+        geom_vline(xintercept = -23, col = 'darkblue') +
+        geom_line(aes(color = states)) +
+         xlab("Penalty (e^value)") + 
+        xlim(-30, 20) +
+        # theme_bw(base_size = 13, base_family = "Helvetica") + 
+        theme(text = element_text(size=14),
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
               panel.grid.major = element_blank(), 
               panel.grid.minor = element_blank(),
               # panel.background = element_blank(),

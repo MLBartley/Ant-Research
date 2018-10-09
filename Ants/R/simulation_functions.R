@@ -245,11 +245,19 @@ sim_pencov_troph <- function(states, time_max, delta_t, start_state = 1,
   if( states == 2){
 
 
+<<<<<<< HEAD
     ptm_12_param <- switch_rates_LH * exp(-switch_rates_LH * delta_t) #/
       #(switch_rates_LH / (exp(switch_rates_LH) - 1))
     ptm_11_param <- 1 - ptm_12_param
     ptm_21_param <- switch_rates_HL * exp(-switch_rates_HL * delta_t) #/
      # (switch_rates_HL / (exp(switch_rates_HL) - 1))
+=======
+    ptm_12_param <- switch_rates_LH * exp(-switch_rates_LH * delta_t) /
+      (switch_rates_LH / (exp(switch_rates_LH) - 1))
+    ptm_11_param <- 1 - ptm_12_param
+    ptm_21_param <- switch_rates_HL * exp(-switch_rates_HL * delta_t) /
+      (switch_rates_HL / (exp(switch_rates_HL) - 1))
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
     ptm_22_param <- 1 - ptm_21_param
 
   }else{

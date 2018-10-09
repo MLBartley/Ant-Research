@@ -5,8 +5,13 @@
 \title{Discrete Time MCMC Estimation for Trophallaxis data}
 \usage{
 DT_mcmc_troph(starts_data, ant_file, chamber, title, a, b, c, d, theta,
+<<<<<<< HEAD
   states = 2, n_mcmc, delta_t, hours, param_start, data_out, modelsrun_out,
   fig_save = TRUE, fig_path, fig_name, plot_title)
+=======
+  states = 2, n_mcmc, delta_t, hours, param_start, fig_save = TRUE,
+  fig_path, fig_name, plot_title)
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 }
 \arguments{
 \item{starts_data}{Data file of number of trophallaxis

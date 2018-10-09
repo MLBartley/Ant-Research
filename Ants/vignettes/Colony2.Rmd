@@ -10,16 +10,22 @@ The purpose of this notebook is to document the analysis and visualisation of Co
 library(magrittr)
 library(mvtnorm)
 library(ggplot2)
+<<<<<<< HEAD
 library(gtools)
+=======
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 library(dplyr)
 library(doMC)
 
 options(error = recover)
+<<<<<<< HEAD
 
 source("../R/summary_visual_functions.R")
 source("../R/data_prep_functions.R")
 source("../R/DT_model_functions.R")
 source("../R/diagnoses_functions.R")
+=======
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 ```
 
 
@@ -69,14 +75,21 @@ An important basis for this model is the 'pulses' of interactions seen over time
 ```{r data visualization, include=FALSE}
 
 
+<<<<<<< HEAD
 # sumvis_high <- sumvis_troph(data = col2_high4, entrance = F, hours = 4, density = "high")
+=======
+sumvis_high <- sumvis_troph(data = col2_high4, entrance = F, hours = 4, density = "high")
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 
 
 sumvis_low <- sumvis_troph(data = col2_low4, entrance = F, hours = 4, density = "low")
 
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 ```
 
 We can see from these graphs for the high density colony data that on average for a four hour span of time ants engage in `r round(mean(sumvis_high$all.ID), 1)` interactions per ant for `r sumvis_high$allants` ants. In total, `r sum(sumvis_high$all.ID)/2 ` interactions occured within the single chamber. 
@@ -88,14 +101,22 @@ For the low density colony data, there was an average of `r round(mean(sumvis_lo
 
 ```{r prep interaction data, include=FALSE}
 
+<<<<<<< HEAD
 # col2_high4_5 <- prep_troph_data(col2_high4, hours = 4, delta_t = 5)
+=======
+col2_high4_5 <- prep_troph_data(col2_high4, hours = 4, delta_t = 5)
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 col2_low4_5 <- prep_troph_data(col2_low4, hours = 4, delta_t =  5)
 ```
 
 
 ```{r prep covariate data, include = FALSE}
 
+<<<<<<< HEAD
 # cov_col2_low4 <- prep_inout_data(covariate, delta_t = 1, hours = 4)
+=======
+cov_col2_low4 <- prep_inout_data(covariate, delta_t = 1, hours = 4)
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 
 ```
 
@@ -112,6 +133,7 @@ path <- out.dir
 path_table <- "../output/tables/" 
 states <- 2
 # states <- 3
+<<<<<<< HEAD
 n_mcmc <- 40000
 hours <- 4
 X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
@@ -119,6 +141,14 @@ X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
 X_3 <- sample(x = 1:3, size = hours * 60 * 60, replace = T)
 lambda <- c(.007, .05)
  # registerDoMC(cores = 1) 
+=======
+n_mcmc <- 10000
+hours <- 4
+X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
+X_3 <- sample(x = 1:3, size = hours * 60 * 60, replace = T)
+lambda <- c(.005, .015)
+registerDoMC(cores = 5) 
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 ```
 
 We will run all models as 2-state HMM models, as determined by previous work. 
@@ -128,7 +158,11 @@ We will run all models as 2-state HMM models, as determined by previous work.
 # theta <- matrix(data = c(5000, 1, 1, 5000), nrow = 2, ncol = 2, byrow = T) 
 P <- matrix(c(.997, .003, .003, .997), nrow = 2, byrow = T)
 param_start <- list(X = X, lambda = lambda, P = P)
+<<<<<<< HEAD
 delta_t <- 1
+=======
+
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 #high density - one chamber
 
 
@@ -136,6 +170,7 @@ delta_t <- 1
 
 #low density - queen's chamber -- USED FOR PAPER
 
+<<<<<<< HEAD
 i <- seq(120000, 120000, by =  2000)
 
   # RUN ONLY ONCE - DON'T RESAVE OVER DATA
@@ -156,11 +191,29 @@ i <- seq(120000, 120000, by =  2000)
                                                          (i), "-", n_mcmc, ".csv", sep = ""),                                            modelsrun_out = paste("../output/modelsrun_sim2.csv", sep="")) 
 
      #low density - entrance chamber
+=======
+range_simple <- seq(20000, 35000, by =  1000)
+
+simple_col2lo4qbin1 <- foreach(i = range_simple ,
+                                .errorhandling = "remove") %dopar% 
+                        DT_mcmc_troph(starts_data = col2_low4_5$queen_starts_persec, 
+                                     ant_file = col2_low4_5$data, chamber = "queen", 
+                                     title = "Test", 
+                                     a = 1, b = 1, c = 1, d = 1, 
+                                     theta = matrix(c(i, 1, 1, i), 2, 2), states = states, 
+                                     n_mcmc = n_mcmc, delta_t = 1, hours = hours,
+                                     param_start = param_start, fig_save = TRUE, 
+                                     fig_path = path, fig_name = "simp_col2lo4qbin1", 
+                                     plot_title = "test") 
+
+#low density - entrance chamber
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 
 
 ```
 
 ```{r compare simple, eval=FALSE, include=FALSE}
+<<<<<<< HEAD
 
 MSPE_results_simp2 <- read.csv("../output/modelsrun_sim2.csv")
 
@@ -232,6 +285,14 @@ sim_results[[r]] <- penalty_diagnosis(t(temp_results)[-1, ],
  
  
 rm(temp_results)
+=======
+sumtable_model(results = simple_col2lo4qbin1, compare = range_simple, 
+               file_path = path_table, 
+               file_name = "test", model = "simple")
+
+
+
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 ```
 
 #Penalized Model
@@ -251,6 +312,7 @@ delta_t <- 1
 #low densith - queen's chamber USED FOR PAPER
 
 ##THIS ONE FOR JSM
+<<<<<<< HEAD
 range <- exp(seq(-40, -22, by =  2))
 range <- exp(-23)
 
@@ -258,14 +320,37 @@ penalize_col2lo4qbin1 <- foreach(i = range,
                                   .errorhandling = "remove") %dopar% 
   DT_pen_mcmc(penalty = i, starts_data = col2_low4_5$queen_starts_persec, 
               states = states, ant_file = col2_low4_5$data, chamber = "queen",
+=======
+range <- exp(seq(16, 40, by =  1))
+range <- exp(-23)
+
+## RUN ONLY ONCE - DON'T RESAVE OVER DATA
+# write.csv(t(c(1, 2, 3, 4)),
+#           col.names = c("Penalty", "MSPE", "Accept", "Number of Iterations"),
+#           file = "../output/modelsrun_pen2.csv")
+
+
+penalize_col2lo4qbin1 <- foreach(i = range,
+                                  .errorhandling = "remove") %dopar% 
+  DT_pen_mcmc(penalty = i, starts_data = col2_low4_5$queen_starts_persec, 
+              states = 2, ant_file = col2_low4_5$data, chamber = "queen",
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
               hours = 4,
               a = 1, b = 1, c = 1, d = 1,
               tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
               delta_t = delta_t, start = start, 
+<<<<<<< HEAD
               data_out = paste("../data/", "pen_MCMC", "-", 
                                log(i), "-", n_mcmc, ".csv", sep = ""), 
               osa_out = paste("../data/", "pen_OSA", "-", 
                                log(i), "-", n_mcmc, ".csv", sep = ""))
+=======
+              data_out = paste("../data/", "pen_MCMC_2.0", "-", 
+                               log(i), "-", n_mcmc, ".csv", sep = ""), 
+              osa_out = paste("../data/", "pen_OSA_2.0", "-", 
+                               log(i), "-", n_mcmc, ".csv", sep = ""), 
+              modelsrun_out = paste("../output/modelsrun_pen2.csv", sep=""))
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 
 
 
@@ -277,6 +362,7 @@ penalize_col2lo4qbin1 <- foreach(i = range,
 
 #previous results - don't want to save over!
 
+<<<<<<< HEAD
    old_MSPE_results <- as.data.frame(MSPE_results)
 
 Time = hours *60 *60
@@ -329,6 +415,63 @@ minMSPE <- MSPE_results[which.min(MSPE_results$MSPE), ]
 
 #out of curiosity
 maxMSPE <- MSPE_results[which.max(MSPE_results$MSPE), ]
+=======
+   # old_MSPE_results_2.0 <- as.data.frame(MSPE_results_2.0)
+# 
+# Time = hours *60 *60
+# 
+# MSPE_results_2.0 <- matrix(NA, ncol = 2, nrow = length(range))
+#   colnames(MSPE_results_2.0) = c("penalty", "MSPE")
+#   
+#   
+# 
+# for (r in 1:length(range)) {
+# 
+#   # osa_param <-  readr::read_csv(paste("../data/pen_OSA-",
+#   #                                 log(range[r]), "-", n_mcmc,  
+#   #                                 ".csv", sep = ""))
+#   # 
+#   # 
+#   # data <- col2_low4_5$queen_starts_persec
+#   # 
+#   # data_mat <- matrix(rep(data, nrow(osa_param)), byrow = T)
+#   # 
+#   # sum.it <- sum((osa_param[, -1] - data_mat)^2)
+#   # # square <- subtract^2
+#   # # sum.it <- sum(square)
+#   # 
+#   # 
+#   # MSPE.1SA <- 1/n_mcmc * 1/Time * sum.it
+# 
+# 
+# MSPE_results_2.0[r, 1] <- log(range[r])
+# # MSPE_results_2.0[r, 2] <- MSPE.1SA
+# MSPE_results_2.0[r, 2] <- penalize_col2lo4qbin1[[r]]$MSPE
+# }
+#   
+#   #remove useless stuff
+#   # rm(data_mat)
+#   # rm(final)
+#   # rm(osa_param)
+# 
+#   
+# #combine with old data
+#   # MSPE_results_2.0 <- rbind(old_MSPE_results_2.0[, 1:2], MSPE_results_2.0)
+
+MSPE_results_2.0 <- readr::read_csv("../output/modelsrun_pen2.csv")
+
+MSPE_results_2.0 <- as.data.frame(MSPE_results_2.0[-c(1, 2), -1])
+colnames(MSPE_results_2.0) <- c("penalty", "MSPE", "accept", "num_iter")
+  
+compare_plot <- ggplot(data = MSPE_results_2.0, aes(x = penalty, y = MSPE)) +
+                  geom_point(aes(x = penalty)) 
+
+
+minMSPE_2.0 <- MSPE_results_2.0[which.min(MSPE_results_2.0$MSPE), ]
+
+#out of curiosity
+maxMSPE_2.0 <- MSPE_results_2.0[which.max(MSPE_results_2.0$MSPE), ]
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 
 
 print(compare_plot)
@@ -347,10 +490,17 @@ plot_pen2 <- compare_plot +
               axis.line = element_line(colour = "black")) 
 
 print(plot_pen2)
+<<<<<<< HEAD
 ggsave("../output/MSPE_pen2.pdf")
 
 #save MSPE_results
 save(MSPE_results, file = "../output/MSPE_pen2_table.Rda")
+=======
+ggsave("../output/MSPE_pen2_2.0.pdf")
+
+#save MSPE_results
+save(MSPE_results, file = "../output/MSPE_pen2_table_2.0.Rda")
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 
 ```
 
@@ -359,17 +509,29 @@ save(MSPE_results, file = "../output/MSPE_pen2_table.Rda")
 pen_results <- list()
 
 range <- exp(minMSPE[1]) #if only want one penalty that has been optimized
+<<<<<<< HEAD
 range <- exp(c( -6))
  r <- 1
 
 range <- c(exp(minMSPE[1]), exp(maxMSPE[1]))
+=======
+range <- exp(-10)
+ r <- 1
+
+range <- c(exp(minMSPE_2.0[1]), exp(maxMSPE_2.0[1]))
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 range <- as.data.frame(range)
 
  for (r in 1:length(range)) {
   
 
+<<<<<<< HEAD
 temp_results <-  readr::read_csv(paste("../data-new/pen_MCMC_3.0-",
                                 log(range[r]), "-", 20000,  
+=======
+temp_results <-  readr::read_csv(paste("../data/pen_MCMC_2.0-", #change to add _2.0 when applicable 
+                                log(range[r]), "-", n_mcmc,  
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
                                 ".csv", sep = ""))
 
 pen_results[[r]] <- penalty_diagnosis(t(temp_results)[-1, ], 
@@ -377,11 +539,16 @@ pen_results[[r]] <- penalty_diagnosis(t(temp_results)[-1, ],
                                       ant_file = col2_low4_5$data, 
                                       chamber = "queen", 
                                       Time = hours * 60 * 60, fig_path = path,
+<<<<<<< HEAD
                                 fig_name = "Pen2_MSPE", penalty = log(range[r]))
+=======
+                                fig_name = "MSPE_2.0", penalty = log(range[r]))
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
  
 }
 
 
+<<<<<<< HEAD
 ##how much of time is spent in High state?
 
 length(which(round(pen_results[[1]][-(1:9), 1]) ==2))/(4 * 60 * 60)
@@ -405,6 +572,8 @@ length(which(round(pen_results[[1]][-(1:9), 1]) ==2))/(4 * 60 * 60)
  ######################################################################
 
 
+=======
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 rm(temp_results)
 
 ```
@@ -426,10 +595,18 @@ delta_t <- 1
 ##THIS ONE FOR JSM
 range_3 <- exp(seq(-30, -1, by =  1))
  i <- exp(-4)
+<<<<<<< HEAD
  
 # write.csv(t(c(1, 2, 3, 4)),
 #           # col.names = c("Penalty", "MSPE", "Accept", "Number of Iterations"),
 #           file = "../output/modelsrun_PCpen3.csv")
+=======
+
+## RUN ONLY ONCE - DON'T RESAVE OVER DATA
+write.csv(t(c(1, 2, 3, 4)),
+          # col.names = c("Penalty", "MSPE", "Accept", "Number of Iterations"),
+          file = "../output/modelsrun_pen3.csv")
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 
 penalize3_col2lo4qbin1 <- foreach(i = range_3,
                                   .errorhandling = "remove") %dopar% 
@@ -439,12 +616,20 @@ penalize3_col2lo4qbin1 <- foreach(i = range_3,
               a = 1, b = 1, c = 1, d = 1, e = 1, f = 1, 
               tau = tau, tau.pen = 0, n_mcmc = n_mcmc, 
               delta_t = delta_t, start = start_3, 
+<<<<<<< HEAD
               data_out = paste("../data/", "pen3_MCMC", "-", 
                                log(i), "-", n_mcmc, ".csv", sep = ""), 
               osa_out = paste("../data/", "pen3_OSA", "-", 
                                log(i), "-", n_mcmc, ".csv", sep = ""), 
                modelsrun_out = paste("../output/modelsrun_PCpen3.csv", sep=""), 
                           fig_path = path, fig_name = "PC_pen3_MCMC")
+=======
+              data_out = paste("../data/", "pen3_MCMC_2.0", "-", 
+                               log(i), "-", n_mcmc, ".csv", sep = ""), 
+              osa_out = paste("../data/", "pen3_OSA_2.0", "-", 
+                               log(i), "-", n_mcmc, ".csv", sep = ""), 
+               modelsrun_out = paste("../output/modelsrun_pen3.csv", sep=""))
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 
 
 
@@ -456,6 +641,7 @@ penalize3_col2lo4qbin1 <- foreach(i = range_3,
 
 #previous results - don't want to save over!
 
+<<<<<<< HEAD
     old_MSPE_results_THREE <- as.data.frame(MSPE_results_THREE)
 
 Time = hours *60 *60
@@ -508,6 +694,63 @@ minMSPE_3 <- MSPE_results_THREE[which.min(MSPE_results_THREE$MSPE), ]
 
 #out of curiosity
 maxMSPE_3 <- MSPE_results_THREE[which.max(MSPE_results_THREE$MSPE), ]
+=======
+#     old_MSPE_results_THREE <- as.data.frame(MSPE_results_THREE)
+# 
+# Time = hours *60 *60
+# 
+# MSPE_results_THREE <- matrix(NA, ncol = 2, nrow = length(range_3))
+#   colnames(MSPE_results_THREE) = c("penalty", "MSPE")
+# 
+# for (r in 1:length(range_3)) {
+# 
+#   osa_param <-  readr::read_csv(paste("../data/pen3_OSA-",
+#                                   log(range_3[r]), "-", n_mcmc,  
+#                                   ".csv", sep = ""))
+#   
+#   
+#   data <- col2_low4_5$queen_starts_persec
+#   
+#   data_mat <- matrix(rep(data, nrow(osa_param)), byrow = T)
+#   
+#   sum.it <- sum((osa_param[, -1] - data_mat)^2)
+#   # square <- subtract^2
+#   # sum.it <- sum(square)
+#   
+# 
+#   MSPE.1SA <- 1/n_mcmc * 1/Time * sum.it
+# 
+# 
+# MSPE_results_THREE[r, 1] <- log(range_3[r])
+# MSPE_results_THREE[r, 2] <- MSPE.1SA
+# # MSPE_results[r, 3] <- penalize_col2lo4qbin1[[r]]$accept
+# }
+#   
+# 
+#   
+#   #remove useless stuff
+#   rm(data_mat)
+#   # rm(final)
+#   rm(osa_param)
+# 
+#   
+# #combine with old data
+#   MSPE_results_THREE <- rbind(old_MSPE_results_THREE[, 1:2], MSPE_results_THREE)
+  
+MSPE_results_THREE_2.0 <- readr::read_csv("../output/modelsrun_pen3.csv")
+
+MSPE_results_THREE_2.0 <- as.data.frame(MSPE_results_THREE_2.0[ which(MSPE_results_THREE_2.0$V4 >= 10000), -1] )
+colnames(MSPE_results_THREE_2.0) <- c("penalty", "MSPE", "accept", "num_iter")
+
+compare_plot_3 <- ggplot(data = MSPE_results_THREE_2.0, aes(x = penalty, y = MSPE)) +
+                  geom_point(aes(x = penalty)) 
+
+
+minMSPE_3 <- MSPE_results_THREE_2.0[which.min(MSPE_results_THREE_2.0$MSPE), ]
+
+#out of curiosity
+maxMSPE_3 <- MSPE_results_THREE_2.0[which.max(MSPE_results_THREE_2.0$MSPE), ]
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 
 
 print(compare_plot_3)
@@ -536,10 +779,16 @@ save(MSPE_results_THREE, file = "../output/MSPE_pen3_table.Rda")
 ```{r penalized THREE diagnoses, eval=FALSE, include=FALSE}
 
 pen3_results <- list()
+<<<<<<< HEAD
 delta_t <- 1
 
 range_3 <- exp(minMSPE_3[1]) #if only want one penalty that has been optimized
 range_3 <- exp(-3)
+=======
+
+range_3 <- exp(minMSPE_3[1]) #if only want one penalty that has been optimized
+range_3 <- exp(-13)
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
  r <- 1
 
 range_3 <- c(exp(minMSPE_3[1]), exp(maxMSPE_3[1]))
@@ -549,7 +798,11 @@ range_3 <- as.data.frame(range_3)
   
 
 temp_results <-  readr::read_csv(paste("../data/pen3_MCMC_2.0-",
+<<<<<<< HEAD
                                 log(range_3[r]), "-", 40000,  
+=======
+                                log(range_3[r]), "-", n_mcmc,  
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
                                 ".csv", sep = ""))
 
 pen3_results[[r]] <- penalty_diagnosis(t(temp_results[, -1 ]), 
@@ -557,6 +810,7 @@ pen3_results[[r]] <- penalty_diagnosis(t(temp_results[, -1 ]),
                                       ant_file = col2_low4_5$data, 
                                       chamber = "queen", 
                                       Time = hours * 60 * 60, fig_path = path,
+<<<<<<< HEAD
                                 fig_name = "MSPE3", penalty = log(range_3[r]))
  
 }
@@ -588,6 +842,13 @@ length(which(round(pen3_results[[1]][-(1:19), 1]) ==3))/(4 * 60 * 60)
 round(est3, 4)
 
  
+=======
+                                fig_name = "MSPE3_2.0", penalty = log(range_3[r]))
+ 
+}
+
+
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 rm(temp_results)
 
 ```
@@ -596,7 +857,10 @@ rm(temp_results)
 #Penalty Covariate Model
 
 ```{r pencov ant data 2state}
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
  tau <- matrix( c(.001, 0, 0, 0, 0,
                   0, .001, 0, 0, 0,
                   0, 0, .01, 0, 0,
@@ -606,9 +870,14 @@ betas <- c(.0004, .4, .0004, 0, .25)
 start <- list(X = X, lambda = lambda, betas = betas)
 delta_t <- 1
 
+<<<<<<< HEAD
 range_pencov <- exp(seq(-5, -1, by =  1))
 
 i <- range_pencov[3]
+=======
+range_pencov <- exp(seq(-26, -22, by =  1))
+
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 # write.csv(t(c(1, 2, 3, 4)),
 #           col.names = c("Penalty", "MSPE", "Accept", "Number of Iterations"),
 #           file = "../output/modelsrun_testpencov.csv")
@@ -628,7 +897,11 @@ pencov_col2lo4qbin1 <- foreach(i = range_pencov,
                                log(i), "-", n_mcmc, ".csv", sep = ""), 
               modelsrun_out = paste("../output/modelsrun_testpencov.csv", sep=""), 
               fig_path = path, fig_name = "pencov_MCMC",
+<<<<<<< HEAD
               covariate = (covariate.prepped$cov ))
+=======
+              covariate = (cov_col2_low4$cov ))
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
                            # - mean(cov_col2_low4$cov))/10)
 
 
@@ -685,7 +958,10 @@ MSPE_results_cov <- readr::read_csv(paste("../output/modelsrun_testpencov.csv"))
   
 MSPE_results_cov <- as.data.frame(MSPE_results_cov[which(MSPE_results_cov$V4 >= n_mcmc), -1])
 colnames(MSPE_results_cov) <- c("penalty", "MSPE", "accept", "numiter")
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
   
 compare_plot_cov <- ggplot(data = MSPE_results_cov, aes(x = penalty, y = MSPE)) +
                   geom_point(aes(x = penalty)) 
@@ -720,6 +996,7 @@ save(MSPE_results_cov, file = "../output/MSPE_pencov_table.Rda")
 ```
 
 ```{r penalized covariate diagnoses, eval=FALSE, include=FALSE}
+<<<<<<< HEAD
 delta_t <- 1
 pencov_results <- list()
 # 
@@ -728,12 +1005,25 @@ r <- 1
 # 
 # range_pencov <- c(exp(minMSPE_cov[1]), exp(maxMSPE_cov[1]))
 range_pencov <- c(exp(-3))
+=======
+
+pencov_results <- list()
+# 
+# range_pencov <- exp(minMSPE_cov[1]) #if only want one penalty that has been optimized
+# r <- 1
+# 
+# range_pencov <- c(exp(minMSPE_cov[1]), exp(maxMSPE_cov[1]))
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 range_pencov <- as.data.frame(range_pencov)
 
  for (r in 1:length(range_pencov)) {
   
 
+<<<<<<< HEAD
 temp_results <-  readr::read_csv(paste("../data-new/pencov_MCMC-",
+=======
+temp_results <-  readr::read_csv(paste("../data/pencov_MCMC-",
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
                                 log(range_pencov[r]), "-", n_mcmc,  
                                 ".csv", sep = ""))
 
@@ -743,11 +1033,16 @@ pencov_results[[r]] <- penalty_diagnosis(t(temp_results[, -1 ]),
                                       chamber = "queen", 
                                       Time = hours * 60 * 60, fig_path = path,
                                 fig_name = "MSPEcov", penalty = log(range_pencov[r]), 
+<<<<<<< HEAD
                                 covariate = covariate.prepped$cov)
+=======
+                                covariate = cov_col2_low4$cov)
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
  
 }
 
 
+<<<<<<< HEAD
 # 95%  BAYESIAN CI ###################################################
   #just need to load in data - no other package functions required
     #lambdaL
@@ -780,6 +1075,8 @@ pencov_results[[r]] <- penalty_diagnosis(t(temp_results[, -1 ]),
 
  ######################################################################
 
+=======
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 rm(temp_results)
 
 ```

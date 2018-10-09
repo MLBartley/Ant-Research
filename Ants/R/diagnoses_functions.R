@@ -182,8 +182,12 @@ if (n == 2) {
    rr$values <- round(rr$values, digits = 0)
    embedded.chain <- rr$values
    cs <- c(0, cumsum(rr$lengths)) * delta_t - delta_t
+<<<<<<< HEAD
    cols <- c("#bc535644", "#538bbc44")
    if (n!= 2) {cols <- c("#bc535644", "#bcb85344", "#5356bc44")}
+=======
+   cols <- c("#bc535644", "#538bbc44", "#56bc5344")
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
    for (j in 1:length(embedded.chain)) {
      rect(cs[j], 0, cs[j + 1], int.num, col = cols[embedded.chain[j]],
        density = NA)
@@ -193,7 +197,11 @@ if (n == 2) {
      xlim = c(0, maxtime))
 
   if (is.null(covariate) == F) {
+<<<<<<< HEAD
       points(which(covariate == 0), rep(0, length(which(covariate == 0))), pch = 8, col = "black")
+=======
+    points(which(covariate == 0), rep(0, length(which(covariate == 0))), pch = 8, col = "#53bc84")
+>>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
   }
     dev.off()
 
