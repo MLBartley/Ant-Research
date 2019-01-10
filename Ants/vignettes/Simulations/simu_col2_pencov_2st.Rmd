@@ -11,54 +11,19 @@ library(mvtnorm)
 load("../data-raw/Colony2_covariate_low_density_4hr.Rda")
 
 covariate.prepped <- prep_inout_data(covariate, delta_t = 1, hours = 4)
-betas <- c(.0007, .5, .0005, 0 , 1/4)
+betas <- c(.0005, .4, .0005, 0 , 1/4)
 
 simu_cov2 <- sim_pencov_troph(states = 2, time_max = 4*60*60, 
               delta_t = 1, start_state = 1, 
-              int_rate = c(.005, .05), num_locations = 1, 
+              int_rate = c(.005, .04), num_locations = 1, 
               covariate = covariate.prepped$cov, switch_betas = betas)
 
 path <- "../output/"
 
 ```
 
-```{r}
-col2_low4 <- read.csv("../data-raw/Colony2_trophallaxis_low_density_4hr.csv")
-
-col2_low4 <- col2_low4[, 1:length(col_names)]
-col2_low4 <- col2_low4 %>% 
-            tidyr::drop_na()
-colnames(col2_low4) <- col_names
-
-col2_low4_5 <- prep_troph_data(col2_low4, hours = 4, delta_t =  5)
-
-
-Time4 <- 4 * 60 * 60
-
-location <- col2_low4_5$data$Location
-start <- col2_low4_5$data$start_time
-   # chamber <- chamber
-
-
-start = start[which(location == 1)]
-  
-
-   start <- sort(start)
-   int.num <- length(start)
-   covariate <- covariate.prepped$cov
-  
-pdf( file = "../output/Pen2CovPlot.pdf")
- 
-plot(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative Interaction Count",
-     xlim = c(0, Time4))
-    points(which(covariate == 0), rep(0, length(which(covariate == 0))), pch = 8, col = "#53bc84")
-
-dev.off()
-```
-
-
 ```{r two state}
-n_mcmc <- 10000
+n_mcmc <- 1000
  tau <- matrix( c(.001, 0, 0, 0, 0,
                   0, .001, 0, 0, 0,
                   0, 0, .01, 0, 0,
@@ -66,7 +31,7 @@ n_mcmc <- 10000
                   0, 0, 0, 0, .001), nrow = 5, ncol = 5)
 # gamma <- c(.005, .005)
 X <- simu_cov2$state
- lambda <- c(.005, .05)
+ lambda <- c(.005, .04)
 start <- list(X = X, lambda = lambda, betas = betas * 1)
 i <- exp(-10)
 
@@ -121,7 +86,7 @@ run_model_pen2 <- DT_pen_mcmc(penalty = i, starts_data = simu_cov2$inter_persec,
 
 
 
-temp_results <- readr::read_csv("../data/sim_pencov_MCMC--10-10000.csv")
+temp_results <- readr::read_csv("../data/sim_pencov_MCMC--10-2000.csv")
 
 path <- "../output/"
 

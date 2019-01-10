@@ -1,0 +1,46 @@
+---
+title: "NIMBLE_penalized_text_20181011"
+author: "Meridith L Bartley"
+date: "10/11/2018"
+output: pdf_document
+---
+
+```{r chunksetup, include=FALSE} 
+# include any code here you don't want to show up in the document,
+# e.g. package and dataset loading
+library(methods)  # otherwise new() not being found 
+library(nimble)
+```
+
+
+
+```{r ants-code}
+
+antsCode <- nimbleCode({
+  lambda_l ~ dgamma(a, b)
+  lambda_diff ~ dgamma(c, d)
+
+  lambda_h <- lambda_l + lambda_diff
+
+ for (i in 1:nStates) {
+   
+   gamma[i] ~ T(dnorm(0, sd = tau), 0, 9999)
+ }
+  
+  P <- 
+
+  state[1] ~ dbern(.5)
+
+  for (t in 2:nSecs) {
+    state[t] ~ dbern(prob = P[(state[t - 1] +1), 1])
+  }
+
+  for (t in 1:nSecs){
+        y[t] ~ dpois(lambda_l + lambda_diff * (state[t]))
+  }
+
+}
+) # end model
+
+```
+
