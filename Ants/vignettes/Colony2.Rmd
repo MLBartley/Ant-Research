@@ -10,22 +10,17 @@ The purpose of this notebook is to document the analysis and visualisation of Co
 library(magrittr)
 library(mvtnorm)
 library(ggplot2)
-<<<<<<< HEAD
 library(gtools)
-=======
->>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 library(dplyr)
 library(doMC)
 
 options(error = recover)
-<<<<<<< HEAD
 
 source("../R/summary_visual_functions.R")
 source("../R/data_prep_functions.R")
 source("../R/DT_model_functions.R")
 source("../R/diagnoses_functions.R")
-=======
->>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
+
 ```
 
 
@@ -105,18 +100,14 @@ For the low density colony data, there was an average of `r round(mean(sumvis_lo
 # col2_high4_5 <- prep_troph_data(col2_high4, hours = 4, delta_t = 5)
 =======
 col2_high4_5 <- prep_troph_data(col2_high4, hours = 4, delta_t = 5)
->>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 col2_low4_5 <- prep_troph_data(col2_low4, hours = 4, delta_t =  5)
 ```
 
 
 ```{r prep covariate data, include = FALSE}
 
-<<<<<<< HEAD
-# cov_col2_low4 <- prep_inout_data(covariate, delta_t = 1, hours = 4)
-=======
+
 cov_col2_low4 <- prep_inout_data(covariate, delta_t = 1, hours = 4)
->>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 
 ```
 

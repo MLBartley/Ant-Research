@@ -1,0 +1,280 @@
+---
+title: "NIMBLE_penalized_text_20181011"
+author: "Meridith L Bartley"
+date: "10/11/2018"
+output: pdf_document
+---
+
+```{r chunksetup, include=FALSE} 
+# include any code here you don't want to show up in the document,
+# e.g. package and dataset loading
+library(methods)  # otherwise new() not being found 
+# install_github("nimble-dev/nimble", ref = "avoid-protect-stack-overflow", subdir = "packages/nimble")
+library(nimble)
+library(tidyr)
+```
+
+```{r create data}
+dat <- col2_low4_5$queen_starts_persec#made in hsmm_test - need to save but meh
+head(dat)
+summary(dat)
+plot(dat, type = "h")
+
+seconds <- length(dat)
+```
+
+```{r get covariates}
+
+# load("~./data-raw/Colony2_covariate_low_density_4hr.Rda")
+
+load(here::here("data-raw", "Colony2_covariate_low_density_4hr.Rda"))
+cov_col2_low4 <- prep_inout_data(covariate, delta_t = 1, hours = 4)
+
+```
+
+
+```{r ants-code}
+
+antsCode <- nimbleCode({
+  #rates of interactions for low and high (low + diff) colonly-level states 
+  lambda_l ~ dgamma(a, b)
+  lambda_diff ~ dgamma(c, d)
+
+  lambda_h <- lambda_l + lambda_diff
+
+  #P is a function of beta, a rate variable for each state
+ e.beta[1:num.states] ~ dmnorm(mvnorm.mean[1:num.states],
+                                  tau[1:num.states, 1:num.states])
+  
+  #probablility that the colony switches between states
+  for(i in 1:num.states){
+    P[i,i] <- 1 / (1 + sum(e.beta[1:num.states]))
+    
+    for(j in indx[[i]]){
+      P[i, j] <- e.beta[j] / (1 + sum(e.beta[1:num.states]))
+    }
+  }
+  
+
+  state[1] ~ dbern(.5)
+
+  for (t in 2:nSecs) {
+    state[t] ~ dbern(prob = P[(state[t - 1] +1), 1])
+  }
+
+  for (t in 1:nSecs){
+        y[t] ~ dpois(lambda_l + lambda_diff * (state[t]))
+  }
+
+}
+) # end model
+
+```
+
+
+```{r model with covariates}
+antsCode_cov <- nimbleCode({
+  #rates of interactions for low and high (low + diff) colonly-level states 
+  lambda_l ~ dgamma(a, b)
+  lambda_diff ~ dgamma(c, d)
+
+  lambda_h <- lambda_l + lambda_diff
+
+  #P is a function of beta, a rate variable for each state
+ e.beta[1:num.states] ~ dmnorm(mvnorm.mean[1:num.states],
+                                  tau[1:num.states, 1:num.states])
+  
+ alpha ~ dnorm(0, sigma.2) 
+ 
+ 
+  #probablility that the colony switches between states
+ for (t in 1:nSecs){
+   for(i in 1:num.states){
+    P[i,i, t] <- 1 / (1 + sum(exp(log(e.beta[1:num.states]) * cov.t[t] * alpha)))
+    
+    for(j in indx[[i]]){
+      P[i, j, t] <- (e.beta[j] * exp(log(e.beta[j]) * cov.t[t] * alpha)) / 
+        (1 + sum(exp(log(e.beta[1:num.states]) * cov.t[t] * alpha)))
+    }
+  }
+ }
+  
+  
+
+  state[1] ~ dbern(.5)
+
+  for (t in 2:nSecs) {
+    state[t] ~ dbern(prob = P[(state[t - 1] +1), 1, t])
+  }
+
+  for (t in 1:nSecs){
+        y[t] ~ dpois(lambda_l + lambda_diff * (state[t]))
+  }
+
+}
+) # end model
+
+```
+
+
+```{r}
+# constants: num.states, a, b, c, d, tau, n.Secs
+# needs starting values: states, y, P?, lambdas, 
+## define constants, data, and initial values
+num.states = 2
+cov.seconds = seconds #covariates YES
+cov.t = cov_col2_low4$cov
+alpha = -0.0001
+
+indx <- list()
+for (i in 1:num.states){
+  indx[[i]] <- which(1:num.states != i)
+}
+
+
+data <- list(y = dat)
+x.init <- sample(x = c(0, 1), size = seconds, replace = T)
+e.beta.init <- exp(c(-4.59, -4.59))
+
+P <- nimArray(NA, 
+                 dim = c(num.states, num.states, cov.seconds), 
+                                          #cov.sec = 1 if no cov, else = seconds 
+                 init = TRUE)
+tau <- nimMatrix(NA, num.states, num.states, init = TRUE)
+
+for( t in 1:cov.seconds){
+ for(i in 1:num.states){
+    P[i,i,t ] <- 1 / 
+      (1 + sum(exp(log(e.beta.init[1:num.states]) *cov.t[t] * alpha)))
+    tau[i, i] <- exp(10)
+    
+    for(j in which(1:num.states != i)){
+      P[i, j, t] <- exp(log(e.beta.init[j]) * cov.t[t] * alpha) / 
+        (1 + sum(exp(log(e.beta.init[1:num.states]) * cov.t[t] * alpha)))
+      tau[i, j] <- 0
+    }
+  }
+}
+
+p.init <- P
+
+constants <- list(a = 1, b = 1, c = 1, d = 1, 
+                  mvnorm.mean = rep(0, num.states),
+                  tau = tau,
+                  num.states = num.states, 
+                  nSecs = seconds, 
+                  indx = indx)
+
+inits <- list( lambda_l = 0.007, lambda_diff = 0.05, lambda_h = .007 + .05,
+              e.beta = e.beta.init,  state = x.init, P = p.init)
+
+constants.cov <- list(sigma.2 = 100, cov.t = cov.t)
+inits.cov <- list(alpha = alpha)
+
+```
+
+```{r model}
+## create model object
+# Rmodel <- nimbleModel(code = antsCode, 
+#                       constants = constants, 
+#                       data = data,
+#                       inits = inits, 
+#                       dimensions = list(P = c(num.states, num.states), 
+#                                         x.init = seconds,
+#                                         e.beta = num.states)
+#                       )
+
+Rmodel.cov <- nimbleModel(code = antsCode_cov,
+                      constants = c(constants, constants.cov),
+                      data = data,
+                      inits = c(inits, inits.cov),
+                      dimensions = list(P = c(num.states, num.states, seconds),
+                                        x.init = seconds,
+                                        e.beta = num.states)
+                      )
+
+```
+
+```{r compiled and run}
+
+## specify MCMC algorithm
+spec <- configureMCMC(Rmodel.cov, control = list(reflective = TRUE))
+spec$printSamplers("lambda_l")
+spec$printSamplers("lambda_diff")
+spec$printSamplers("e.beta")
+spec$printSamplers("alpha")
+# head(spec$printSamplers("state"))
+
+## build MCMC algorithm
+Rmcmc <- buildMCMC(spec)
+
+
+## compile model and MCMC
+Cmodel <- compileNimble(Rmodel.cov)
+Cmcmc <- compileNimble(Rmcmc, project = Rmodel.cov)
+
+## run MCMC
+set.seed(0)
+# Cmcmc$run(10000)
+
+## extract samples
+# samples <- as.matrix(Cmcmc$mvSamples)
+# means <- apply(samples, 2, mean)
+
+```
+
+```{r uncompiled?}
+
+mcmc.out <- nimbleMCMC(code = antsCode, constants = constants,
+                       data = data, inits = inits,
+                       monitors=c("lambda_l", "lambda_diff",
+                                  "e.beta",  "state"),
+                       nchains = 1, niter = 20000,
+                       summary = TRUE, WAIC = TRUE)
+
+mcmc.out$summary
+mcmc.out$WAI
+
+
+```
+
+
+```{r visuals}
+
+df <- data.frame(mcmc.out$samples)
+df_l <- df %>% select(lambda_l, lambda_diff, e.beta.1., e.beta.2.) %>% gather(key="parameter", value="value")
+
+ps <- df_l %>% ggplot(aes(x=seq_along(value), y = value)) + geom_line()
+ps + facet_wrap(~parameter, scales = "free")
+
+p <- ggplot(df_l,aes(value)) + geom_histogram(aes( y= ..density..),bins = 60) 
+p + facet_wrap(~parameter, scales = "free")
+
+```
+
+```{r run covariates model}
+mcmc.out.cov <- nimbleMCMC(code = antsCode_cov, 
+                       constants = c(constants, constants.cov),
+                       data = data, inits = c(inits, inits.cov),
+                       monitors=c("lambda_l", "lambda_diff",
+                                  "e.beta", "alpha", "state"),
+                       nchains = 1, niter = 50000,
+                       summary = TRUE, WAIC = TRUE)
+
+mcmc.out.cov$summary
+mcmc.out.cov$WAI
+```
+
+
+```{r cov visuals}
+
+df <- data.frame(mcmc.out.cov$samples)
+df_l <- df %>% select(lambda_l, lambda_diff, e.beta.1., e.beta.2., alpha) %>% gather(key="parameter", value="value")
+
+ps <- df_l %>% ggplot(aes(x=seq_along(value), y = value)) + geom_line()
+ps + facet_wrap(~parameter, scales = "free")
+
+p <- ggplot(df_l,aes(value)) + geom_histogram(aes( y= ..density..),bins = 60) 
+p + facet_wrap(~parameter, scales = "free")
+
+```

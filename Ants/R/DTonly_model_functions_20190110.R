@@ -2,7 +2,7 @@
 ##
 ## Discrete Time ONLY Model Functions for Ant Trophallaxis
 ##
-## Date Created: Januay 10, 2019 by Meridith Bartley
+## Date Created: January 10, 2019 by Meridith Bartley
 ################################################################################
 
 ## Outline
