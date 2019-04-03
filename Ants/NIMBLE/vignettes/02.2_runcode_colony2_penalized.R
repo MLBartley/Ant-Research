@@ -49,10 +49,18 @@ antsCode <- nimbleCode({
 
   for (t in 1:nSecs){
     y[t] ~ dpois(lambda_l + lambda_diff * (state[t]))
-  }
+  # }
 
+  ##need to calculate OSA MSPE within nimble - this way we don't need to monitor states
+# for (t in 1:nSecs){
+  y_hat[t] <- (lambda_l * P[(state[t] + 1), 1] +
+                 lambda_h * P[(state[t] + 1), 2])
 }
-) # end model
+
+
+
+mspe <- 1/nSecs * sum(((y_hat[1:nSecs]) - y[1:nSecs])^2)
+}) # end model
 
 
 
@@ -107,7 +115,7 @@ constants <- list(a = 1, b = 1, c = 1, d = 1,
                   indx = indx)
 
 inits <- list( lambda_l = 0.007, lambda_diff = 0.05, lambda_h = .007 + .05,
-               e.beta = e.beta.init,  state = x.init, P = p.init)
+               e.beta = e.beta.init,  state = x.init, P = p.init, y_hat = dat, mspe = 0)
 
 # constants.cov <- list(sigma.2 = 100, cov.t = cov.t)
 # inits.cov <- list(alpha = alpha)
@@ -171,11 +179,14 @@ mcmc.out <- foreach(i = range,
                                                     e.beta = num.states))
 
                       spec <- configureMCMC(temp, control = list(reflective = TRUE))
+                      spec$resetMonitors()
+                      spec$addMonitors(c('lambda_l', 'lambda_diff', 'e.beta', 'mspe')) #NOT monitoring X (states)
+
                       ## build MCMC algorithm
                       Rmcmc <- buildMCMC(spec)
                       ## compile model and MCMC
                       Cmodel <- compileNimble(temp)
-                      Cmcmc <- compileNimble(Rmcmc, project = temp)
+                      Cmcmc <- compileNimble(Rmcmc, project = temp, resetFunctions = T)
 
                       Cmcmc$run(n_mcmc)
 
