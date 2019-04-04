@@ -4,7 +4,7 @@
 library(doMC)
 library(methods)  # otherwise new() not being found
 library(dplyr)
-   devtools::install_github("nimble-dev/nimble", ref = "avoid-protect-stack-overflow", subdir = "packages/nimble")
+   # devtools::install_github("nimble-dev/nimble", ref = "avoid-protect-stack-overflow", subdir = "packages/nimble")
 library(nimble)
 library(tidyr)
 library(doParallel)
@@ -55,11 +55,13 @@ antsCode <- nimbleCode({
 # for (t in 1:nSecs){
   y_hat[t] <- (lambda_l * P[(state[t] + 1), 1] +
                  lambda_h * P[(state[t] + 1), 2])
+  mspe_diff[t] <- ((y_hat[t]) - y[t])^2
 }
 
+  mspe <- 1/nSecs * sum(mspe_diff[1:nSecs])
 
 
-mspe[1:nSecs] <- 1/nSecs * sum(((y_hat[1:nSecs]) - y[1:nSecs])^2)
+
 }) # end model
 
 
@@ -200,7 +202,7 @@ mcmc.out <- foreach(i = range,
                       Cmcmc$run(n_mcmc)
                       Cmcmc
 
-                      samples <- (Cmcmc$mvSamples)
+                      samples <- as.matrix(Cmcmc$mvSamples)
                       saveRDS(samples, file =  paste("./NIMBLE/data-mcmc/", "pen_MCMC", "-",
                                                   log(i), "-", n_mcmc, ".Rds", sep = ""))
 
@@ -258,7 +260,7 @@ mcmcOut <- as.matrix(Cmcmc$mvSamples)
 mcmcOut <- coda::as.mcmc(mcmcOut)
 
 pdf(here::here("NIMBLE", "visuals", "tempvis.pdf"))
-coda::traceplot(mcmcOut[,"e.beta[1]"],
+coda::traceplot(mcmcOut[,"e.beta[2]"],
           main = "Trace plot for Beta")
 dev.off()
 
