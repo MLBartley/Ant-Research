@@ -5,7 +5,7 @@ library(doMC)
 library(methods)  # otherwise new() not being found
 library(dplyr)
    # devtools::install_github("nimble-dev/nimble", ref = "avoid-protect-stack-overflow", subdir = "packages/nimble")
-library(nimble)
+# library(nimble)
 library(tidyr)
 library(doParallel)
  library(ggplot2)
@@ -125,55 +125,14 @@ inits <- list( lambda_l = 0.007, lambda_diff = 0.05, lambda_h = .007 + .05,
 
 
 range = exp(seq(-20, 20, by =  10))
-doMC::registerDoMC(cores = 5)
+doParallel::registerDoParallel(cores = 5)
 
+n_mcmc <- 1000
 
-n_mcmc <- 500
+Cmcmc <- list()
 
-mcmc.out <- foreach(i = range,
-                    .errorhandling = "remove") %dopar% {
-
-                      # antsCode <- nimbleCode({
-                      #   #rates of interactions for low and high (low + diff) colonly-level states
-                      #   lambda_l ~ dgamma(a, b)
-                      #   lambda_diff ~ dgamma(c, d)
-                      #
-                      #   lambda_h <- lambda_l + lambda_diff
-                      #
-                      #   #P is a function of beta, a rate variable for each state
-                      #   e.beta[1:num.states] ~ dmnorm(mvnorm.mean[1:num.states],
-                      #                                 cov = tau[1:num.states, 1:num.states])
-                      #
-                      #   #probablility that the colony switches between states
-                      #   for(i in 1:num.states){
-                      #     P[i,i] <- 1 / (1 + sum(e.beta[1:num.states]))
-                      #
-                      #     for(j in indx[[i]]){
-                      #       P[i, j] <- e.beta[j] / (1 + sum(e.beta[1:num.states]))
-                      #     }
-                      #   }
-                      #
-                      #
-                      #   state[1] ~ dbern(.5)
-                      #
-                      #   for (t in 2:nSecs) {
-                      #     state[t] ~ dbern(prob = P[(state[t - 1] +1), 1])
-                      #   }
-                      #
-                      #   for (t in 1:nSecs){
-                      #     y[t] ~ dpois(lambda_l + lambda_diff * (state[t]))
-                      #     # }
-                      #
-                      #     ##need to calculate OSA MSPE within nimble - this way we don't need to monitor states
-                      #     # for (t in 1:nSecs){
-                      #     y_hat[t] <- (lambda_l * P[(state[t] + 1), 1] +
-                      #                    lambda_h * P[(state[t] + 1), 2])
-                      #   }
-                      #
-                      #
-                      #
-                      #   mspe[1:nSecs] <- 1/nSecs * sum(((y_hat[1:nSecs]) - y[1:nSecs])^2)
-                      # })
+mcmc.out <- foreach(i = 1:length(range)) %dopar% {
+ penalty <- range[i]
 
                     temp <-  nimbleModel(code = antsCode,
                                   constants = list(a = 1, b = 1, c = 1, d = 1,
@@ -181,7 +140,7 @@ mcmc.out <- foreach(i = range,
                                                    num.states = num.states,
                                                    nSecs = seconds,
                                                    indx = indx,
-                                                   tau = matrix(c(i, 0, 0, i), 2, 2)),
+                                                   tau = matrix(c(penalty, 0, 0, penalty), 2, 2)),
                                   data = data,
                                   inits = inits,
                                   dimensions = list(P = c(num.states, num.states),
@@ -190,21 +149,20 @@ mcmc.out <- foreach(i = range,
 
                       spec <- configureMCMC(temp, control = list(reflective = TRUE))
                       spec$resetMonitors()
-                      spec$addMonitors(c('lambda_l', 'lambda_diff', 'e.beta')) #NOT monitoring X (states)
-                      spec$addMonitors2("mspe")
+                      spec$addMonitors(c('lambda_l', 'lambda_diff', 'e.beta', 'mspe')) #NOT monitoring X (states)
 
                       ## build MCMC algorithm
                       Rmcmc <- buildMCMC(spec)
                       ## compile model and MCMC
                       Cmodel <- compileNimble(temp)
-                      Cmcmc <- compileNimble(Rmcmc, project = temp, resetFunctions = T)
+                      Cmcmc[[i]] <- compileNimble(Rmcmc, project = temp, resetFunctions = T)
 
-                      Cmcmc$run(n_mcmc)
-                      Cmcmc
+                      Cmcmc[[i]]$run(n_mcmc)
+                      Cmcmc[[i]]
 
-                      samples <- as.matrix(Cmcmc$mvSamples)
-                      saveRDS(samples, file =  paste("./NIMBLE/data-mcmc/", "pen_MCMC", "-",
-                                                  log(i), "-", n_mcmc, ".Rds", sep = ""))
+                      samples <- as.matrix(Cmcmc[[i]]$mvSamples)
+                      write.csv(samples, file =  paste("./NIMBLE/data-mcmc/", "pen_MCMC", "-",
+                                                  log(penalty), "-", n_mcmc, ".csv", sep = ""))
 
                     }
 
