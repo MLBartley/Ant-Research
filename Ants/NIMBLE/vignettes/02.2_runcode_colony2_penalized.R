@@ -127,14 +127,20 @@ inits <- list( lambda_l = 0.007, lambda_diff = 0.05, lambda_h = .007 + .05,
 range = exp(seq(-20, 20, by =  10))
 doParallel::registerDoParallel(cores = 5)
 
-n_mcmc <- 1000
+n_mcmc <- 100
 
+model <- list()
+spec <- list()
+Rmcmc <- list()
+Cmodel <- list()
 Cmcmc <- list()
 
 mcmc.out <- foreach(i = 1:length(range)) %dopar% {
+  # mcmc.out <- for(i in 1:length(range)) {
+
  penalty <- range[i]
 
-                    temp <-  nimbleModel(code = antsCode,
+                    model[[i]] <-  nimbleModel(code = antsCode,
                                   constants = list(a = 1, b = 1, c = 1, d = 1,
                                                    mvnorm.mean = rep(0, num.states),
                                                    num.states = num.states,
@@ -147,15 +153,15 @@ mcmc.out <- foreach(i = 1:length(range)) %dopar% {
                                                     x.init = seconds,
                                                     e.beta = num.states))
 
-                      spec <- configureMCMC(temp, control = list(reflective = TRUE))
-                      spec$resetMonitors()
-                      spec$addMonitors(c('lambda_l', 'lambda_diff', 'e.beta', 'mspe')) #NOT monitoring X (states)
+                      spec[[i]] <- configureMCMC(model[[i]], control = list(reflective = TRUE))
+                      spec[[i]]$resetMonitors()
+                      spec[[i]]$addMonitors(c('lambda_l', 'lambda_diff', 'e.beta', 'mspe')) #NOT monitoring X (states)
 
                       ## build MCMC algorithm
-                      Rmcmc <- buildMCMC(spec)
+                      Rmcmc[[i]] <- buildMCMC(spec[[i]])
                       ## compile model and MCMC
-                      Cmodel <- compileNimble(temp)
-                      Cmcmc[[i]] <- compileNimble(Rmcmc, project = temp, resetFunctions = T)
+                      Cmodel[[i]] <- compileNimble(model[[i]])
+                      Cmcmc[[i]] <- compileNimble(Rmcmc[[i]], project = model[[i]], resetFunctions = T)
 
                       Cmcmc[[i]]$run(n_mcmc)
                       Cmcmc[[i]]
@@ -167,8 +173,28 @@ mcmc.out <- foreach(i = 1:length(range)) %dopar% {
                     }
 
 
+# savelist <- list( model <- model,
+#                   spec <- spec,
+#                   Rmcmc <- Rmcmc,
+#                   Cmodel <- Cmodel,
+#                   Cmcmc <- Cmcmc,
+#                   range <- range)
+# save(savelist, file = "NIMBLE/data-prepped/nimblemodels_-20_20_by5.Rdata")
+
+
+
 mcmc.out$summary
 mcmc.out$WAI
+
+mcmcout <- foreach(i = 1:length(range)) %dopar% {
+              Cmcmc[[i]]$run(n_mcmc)
+              # Cmcmc[[i]]
+
+              samples <- as.matrix(Cmcmc[[i]]$mvSamples)
+              write.csv(samples, file =  paste("./NIMBLE/data-mcmc/", "pen_MCMC", "-",
+                                          log(range[i]), "-", n_mcmc, ".csv", sep = ""))
+}
+
 
 
 # df <- data.frame(tempout$samples)
