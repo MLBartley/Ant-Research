@@ -124,21 +124,21 @@ inits <- list( lambda_l = 0.007, lambda_diff = 0.05, lambda_h = .007 + .05,
 
 
 
-range = exp(seq(-20, 20, by =  10))
+range = exp(seq(-20, 20, by =  5))
 doParallel::registerDoParallel(cores = 5)
 
 n_mcmc <- 5000
 
-model <- list()
-spec <- list()
-Rmcmc <- list()
-Cmodel <- list()
-Cmcmc <- list()
+# model <- list()
+# spec <- list()
+# Rmcmc <- list()
+# Cmodel <- list()
+# Cmcmc <- list()
 
 # mcmc.out <- foreach(i = 1:length(range)) %dopar% {
 
-  mcmc.out <- for(i in 1:1) {
-  # mcmc.out <- for(i in 1:length(range)) {
+  # mcmc.out <- for(i in 1:1) {
+  mcmc.out <- for(i in 1:length(range)) {
 
  penalty <- range[i]
 
@@ -153,7 +153,8 @@ Cmcmc <- list()
                                   inits = inits,
                                   dimensions = list(P = c(num.states, num.states),
                                                     x.init = seconds,
-                                                    e.beta = num.states))
+                                                    e.beta = num.states,
+                                                    tau = c(num.states, num.states)))
 
                       spec <- configureMCMC(model, control = list(reflective = TRUE))
                       spec$resetMonitors()
@@ -162,8 +163,8 @@ Cmcmc <- list()
                       ## build MCMC algorithm
                       Rmcmc <- buildMCMC(spec)
                       ## compile model and MCMC
-                      Cmodel <- compileNimble(model)
-                      Cmcmc<- compileNimble(Rmcmc, project = model, resetFunctions = T)
+                      Cmodel <- compileNimble(model, resetFunctions = T, showCompilerOutput = T)
+                      Cmcmc<- compileNimble(Rmcmc, project = model)
 
                       Cmcmc$run(n_mcmc)
 

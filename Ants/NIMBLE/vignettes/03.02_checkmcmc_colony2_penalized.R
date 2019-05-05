@@ -22,7 +22,7 @@ mysamples = lapply(paste(path, temp, sep = ""), read.csv)
 coda_samples <- list()
 
 for(i in 1:length(mysamples)){
-  coda_samples[[i]] <- mcmc(mysamples[[i]])
+  coda_samples[[i]] <- coda::mcmc(mysamples[[i]])
   pdf(file = here::here("NIMBLE", "visuals", paste("codaplot_", temp[[i]], ".pdf", sep = '')))
   plot(coda_samples[[i]])
   dev.off()
