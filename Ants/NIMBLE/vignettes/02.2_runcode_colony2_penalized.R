@@ -7,7 +7,7 @@ library(dplyr)
    # devtools::install_github("nimble-dev/nimble", ref = "avoid-protect-stack-overflow", subdir = "packages/nimble")
 # library(nimble)
 library(tidyr)
-library(doParallel)
+# library(doParallel)
  library(ggplot2)
 
 # source/load the data
@@ -124,10 +124,10 @@ inits <- list( lambda_l = 0.007, lambda_diff = 0.05, lambda_h = .007 + .05,
 
 
 
-range = exp(seq(-20, 20, by =  5))
+range = exp(seq(-20, 20, by =  2))
 doParallel::registerDoParallel(cores = 5)
 
-n_mcmc <- 5000
+n_mcmc <- 10000
 
 # model <- list()
 # spec <- list()
