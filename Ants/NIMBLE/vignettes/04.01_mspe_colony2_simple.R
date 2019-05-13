@@ -25,8 +25,8 @@ for(i in 1:length(mysamples)) {
   temp.mspe <- mean(mysamples[[i]][, 8])
 
 
-  penalty <- abs(parse_number(temp[i]))
-  iterations <- abs(parse_number(substring(temp[i], 18)))
+  penalty <- readr::parse_number(substring(temp[i], 13))
+  iterations <- abs(readr::parse_number(stringr::str_sub(temp[i], start= -9)))
 
 
   MSPE_results <- rbind(MSPE_results, c(penalty, temp.mspe, iterations))

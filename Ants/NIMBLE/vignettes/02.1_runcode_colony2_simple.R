@@ -92,7 +92,7 @@ inits <- list( lambda_l = 0.007, lambda_diff = 0.05, lambda_h = .007 + .05,
                state = x.init, P = p.init, y_hat = dat, mspe = 0)
 
 #penalty range
-range <- seq(2000, 10000, by =  2000)
+range <- seq(1000, 25000, by =  1000)
 
 ## create model object
 set.seed(0)
