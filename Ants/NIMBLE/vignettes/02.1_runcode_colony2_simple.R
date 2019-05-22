@@ -14,29 +14,10 @@ library(tidyverse)
 source("./R/data_prep_functions.R")
 source("./R/summary_visual_functions.R")
 
-
-#data directory
-dat.dir <- "../data-raw/"
-#output directory
-out.dir <- "../output/"
-
-#column names - helps when only pulling in those columns, no extra
-
-col_names <- c("Location", "Ant_ID", "Ant_ID_partner", "start_time", "end_time")
-
-col2_low4 <- read.csv("./data-raw/Colony2_trophallaxis_low_density_4hr.csv")
-
-#removes any extra columns, rows, and adds column names - depends on col_names being correct length
-col2_low4 <- col2_low4[, 1:length(col_names)]
-col2_low4 <- col2_low4 %>%
-  tidyr::drop_na()
-colnames(col2_low4) <- col_names
+source("./NIMBLE/vignettes/01_prepdata_colony2.R")
 
 
-col2_low4_5 <- prep_troph_data(col2_low4, hours = 4, delta_t =  5)
-
-
-dat <- col2_low4_5$queen_starts_persec
+dat <- out$col2_low4_5$queen_starts_persec #created in 01_prepdata
 head(dat)
 summary(dat)
 plot(dat, type = "h")
@@ -92,7 +73,7 @@ inits <- list( lambda_l = 0.007, lambda_diff = 0.05, lambda_h = .007 + .05,
                state = x.init, P = p.init, y_hat = dat, mspe = 0)
 
 #penalty range
-range <- seq(1000, 25000, by =  1000)
+range <- seq(17500, 22000, by =  500)
 
 ## create model object
 set.seed(0)
@@ -142,7 +123,7 @@ write.csv(samples, file =  paste("./NIMBLE/data-mcmc/", "simple_MCMC", "-",
 
 
 
-# means <- apply(samples, 2, mean)
+  # means <- apply(samples, 2, mean)
 #
 # ## plot samples
 # df <- data.frame(samples)
