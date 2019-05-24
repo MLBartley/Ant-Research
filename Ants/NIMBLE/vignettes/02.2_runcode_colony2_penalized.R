@@ -5,7 +5,7 @@ library(doMC)
 library(methods)  # otherwise new() not being found
 library(dplyr)
    # devtools::install_github("nimble-dev/nimble", ref = "avoid-protect-stack-overflow", subdir = "packages/nimble")
-# library(nimble)
+library(nimble, lib.loc = "/usr/lib/R/site-library")
 library(tidyr)
 # library(doParallel)
  library(ggplot2)
@@ -125,10 +125,10 @@ inits <- list( lambda_l = 0.007, lambda_diff = 0.05, lambda_h = .007 + .05,
 
 
 
-range = exp(seq(-20, 20, by =  2))
+range = exp(seq(-7, 20, by =  1))
 doParallel::registerDoParallel(cores = 5)
 
-n_mcmc <- 10000
+n_mcmc <- 50000
 
 # model <- list()
 # spec <- list()
