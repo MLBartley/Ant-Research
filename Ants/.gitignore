@@ -5,3 +5,8 @@ inst/doc
 
 data/
 output/
+NIMBLE/visuals/
+NIMBLE/data-prepped/
+NIMBLE/data-mcmc/
+manuscript/
+Literature/
