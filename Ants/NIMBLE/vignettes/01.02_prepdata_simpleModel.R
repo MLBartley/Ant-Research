@@ -27,7 +27,9 @@ modelCode <- nimbleCode({
   state[1] ~ dbern(.5)
 
   for (t in 2:nSecs) {
-    state[t] ~ dbern(prob = P[(state[t - 1] +1), 1])
+    state[t] ~ dbern(prob = P[(state[t - 1] +1), 2])
+    # changed from [P_prev state, 1] to [P_ps , 2]....unsure if same mistake
+    # was in previous simple model code
   }
 
   for (t in 1:nSecs){

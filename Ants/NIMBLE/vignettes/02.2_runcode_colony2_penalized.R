@@ -44,7 +44,8 @@ antsCode <- nimbleCode({
   state[1] ~ dbern(.5)
 
   for (t in 2:nSecs) {
-    state[t] ~ dbern(prob = P[(state[t - 1] +1), 1])
+    state[t] ~ dbern(prob = P[(state[t - 1] +1), 2])
+    #changed to get P[X_{t-1}, 2]
   }
 
   for (t in 1:nSecs){

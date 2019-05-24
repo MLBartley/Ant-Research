@@ -29,7 +29,7 @@ antsCode_cov <- nimbleCode({
   state[1] ~ dbern(.5)
 
   for (t in 2:nSecs) {
-    state[t] ~ dbern(prob = P[(state[t - 1] +1), 1, t])
+    state[t] ~ dbern(prob = P[(state[t - 1] +1), 2, t])
   }
 
   for (t in 1:nSecs){

@@ -37,7 +37,7 @@ plot_pen <- compare_pen +
         # panel.background = element_blank(),
         axis.line = element_line(colour = "black"))
 
-plot_pen
+plot_pen + ylim(c(0.0179, .0182))
 
 
 load("./NIMBLE/data-prepped/MSPE_penalized.Rdata")
