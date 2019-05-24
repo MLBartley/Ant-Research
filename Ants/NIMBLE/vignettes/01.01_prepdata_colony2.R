@@ -43,6 +43,6 @@ cov_col2_low4 <- prep_inout_data(covariate, delta_t = 1, hours = 4)
 out <- list(col2_high4_5 = col2_high4_5,
             col2_low4_5 = col2_low4_5,
             cov_col2_low4 = cov_col2_low4)
-save(out, file = "../data-prepped/col2preppeddata.Rdata")
+save(out, file = "./NIMBLE/data-prepped/col2preppeddata.Rdata")
 
 
