@@ -5,3 +5,10 @@ inst/doc
 
 data/
 output/
+packrat/lib*/
+NIMBLE/visuals/
+NIMBLE/data-prepped/
+NIMBLE/data-mcmc/
+manuscript/
+Literature/
+
