@@ -19,11 +19,11 @@ source("./NIMBLE/vignettes/01.02_prepdata_simpleModel.R")
 
 
 #penalty range
-range <- seq(35000, 120000, by =  5000)
+range <- seq(1000,15000, by =  2500) #next 16000 to 30000, then 33500 to 48500
 
 ## create model object
 set.seed(0)
-n_mcmc <- 10000
+n_mcmc <- 80000
 
 mcmc.out <- for(i in 1:length(range)) {
 

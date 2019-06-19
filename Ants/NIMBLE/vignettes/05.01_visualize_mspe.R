@@ -65,4 +65,5 @@ plot_pen <- compare_pen +
         # panel.background = element_blank(),
         axis.line = element_line(colour = "black"))
 
-plot_pen
+plot_pen + ylim(c(0.017, .019))
+

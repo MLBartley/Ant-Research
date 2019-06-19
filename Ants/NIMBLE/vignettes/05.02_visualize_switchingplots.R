@@ -6,6 +6,7 @@
 ## Updated 1:
 ###############################################################################
 library(magrittr)
+library(dplyr)
 library(coda)
 
 load("./NIMBLE/data-prepped/MSPE_simple.Rdata")
@@ -17,15 +18,13 @@ MSPE_results_summary <- MSPE_results %>%
 
 
 best <- which(MSPE_results_summary[,2] == min(MSPE_results_summary[,2]))
-n_mcmc <- 20001
+n_mcmc <- 50001
 
 penalty <- MSPE_results_summary[best,1]
 
 source("./NIMBLE/vignettes/01.02_prepdata_simpleModel.R")
 
 ####RErun MCMC
-
-
 
 Rmodel <- nimbleModel(code = modelCode,
                       constants <- list(delta_t = 1,
@@ -64,13 +63,13 @@ samples <- as.matrix(Cmcmc$mvSamples)
 write.csv(samples, file =  paste("./NIMBLE/data-mcmc/", "simple_MCMC", "-",
                                  penalty, "-", n_mcmc, ".csv", sep = ""))
 
-# samples <- read.csv(file =  paste("./NIMBLE/data-mcmc/", "simple_MCMC", "-",
+ # samples <- read.csv(file =  paste("./NIMBLE/data-mcmc/", "simple_MCMC", "-",
                                  # penalty, "-", n_mcmc, ".csv", sep = ""))
 
 
 
 coda_samples <- mcmc(samples[, 1:20])
-plot(coda_samples)
+  plot(coda_samples)
 
 ##load in ant data
 
