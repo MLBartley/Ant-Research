@@ -1,6 +1,6 @@
 
 ###############################################################################
-## This script aims to initialize all model details
+## This script aims to initialize all simple model details
 ##
 ## Created: May 18, 2019
 ## Updated 1:

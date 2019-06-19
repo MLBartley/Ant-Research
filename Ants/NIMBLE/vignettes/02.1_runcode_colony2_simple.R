@@ -66,28 +66,3 @@ write.csv(samples, file =  paste("./NIMBLE/data-mcmc/", "simple_MCMC", "-",
                                  penalty, "-", n_mcmc, ".csv", sep = ""))
 
 }
-
-
-
-  # means <- apply(samples, 2, mean)
-#
-# ## plot samples
-# df <- data.frame(samples)
-# df_l <- df[, 1:6] %>% gather(key="parameter", value="value")
-#
-# ps <- df_l %>% ggplot(aes(x=seq_along(value), y = value)) + geom_line()
-# ps + facet_wrap(~parameter, scales = "free")
-#
-# p <- ggplot(df_l,aes(value)) + geom_histogram(aes( y= ..density..),bins = 60)
-# p + facet_wrap(~parameter, scales = "free")
-
-# states.est <- round(means[-(1:6)], digits = 0)
-#
-# plot(means[-(1:6)], type = "l")
-# plot(states.est, type = "l")
-#
-# sumvis_low <- sumvis_troph(data = col2_low4, entrance = F, hours = 4, density = "low")
-# #Note: cumul.lowqueen is ggplot saved to environment
-#
-# cumul.lowqueen + geom_point(color = (states.est[cumul.lowqueen$data$start_time] + 1))
-
