@@ -105,7 +105,8 @@ constants <- list(a = 1, b = 1, c = 1, d = 1,
                   # tau = tau,
                   num.states = num.states,
                   nSecs = seconds,
-                  indx = indx)
+                  indx = indx,
+                  tau = matrix(c(penalty, 0, 0, penalty), 2))
 
 inits <- list( lambda_l = 0.007, lambda_diff = 0.05, lambda_h = .007 + .05,
                e.beta = e.beta.init,  state = x.init, P = p.init, y_hat = dat, mspe = 0)

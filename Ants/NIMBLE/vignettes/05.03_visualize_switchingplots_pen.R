@@ -2,13 +2,15 @@
 ## This script aims to chose the best MSPE value, rerun MCMC to obtain latent
 ## state samples and to create the switching plots
 ##
-## Created: April 15, 2019
+## Created: May 27, 2019
 ## Updated 1:
 ###############################################################################
 library(magrittr)
-library(coda)
+library(coda, lib.loc = "/usr/lib/R/site-library") #need for EH machine
+# library(coda)
+library(dplyr)
 
-load("./NIMBLE/data-prepped/MSPE_simple.Rdata")
+load("./NIMBLE/data-prepped/MSPE_penalized.Rdata")
 
 
 
@@ -18,25 +20,26 @@ MSPE_results_summary <- MSPE_results %>%
 
 
 best <- which(MSPE_results_summary[,2] == min(MSPE_results_summary[,2]))
-n_mcmc <- 40001
+n_mcmc <- 60001
 
-penalty <- MSPE_results_summary[best,1]
+penalty <- exp(MSPE_results_summary[best,1])
 
-source("./NIMBLE/vignettes/01.02_prepdata_simpleModel.R")
+nStates <- 2
+
+source("./NIMBLE/vignettes/01.03_prepdata_penModel.R")
 
 ####RErun MCMC
 
 
 
-Rmodel <- nimbleModel(code = modelCode,
-                      constants <- list(delta_t = 1,
-                                        nSecs = seconds,
-                                        nStates = nStates,
-                                        a = 1, b = 1, c = 1, d = 1,
-                                        theta = matrix(c(penalty, 1, 1, penalty), 2, 2)),
+Rmodel <- nimbleModel(code = antsCode,
+                      constants <- constants,
                       data = dat,
                       inits = inits,
-                      dimensions = list(theta = c(nStates, nStates)))
+                      dimensions = list(P = c(num.states, num.states),
+                                        x.init = seconds,
+                                        e.beta = num.states,
+                                        tau = c(num.states, num.states)))
 
 ## specify MCMC algorithm
 spec <- configureMCMC(Rmodel, control = list(reflective = TRUE))
@@ -61,12 +64,12 @@ Cmcmc <- compileNimble(Rmcmc, project = Rmodel)
 Cmcmc$run(n_mcmc)
 
 ## extract samples
-samples <- as.matrix(Cmcmc$mvSamples)
-write.csv(samples, file =  paste("./NIMBLE/data-mcmc/", "simple_MCMC", "-",
+samples <- as.matrix(Cmcmc$mvSamples[, -(1:1000)])
+write.csv(samples, file =  paste("./NIMBLE/data-mcmc/", "pen_MCMC", "-",
                                  penalty, "-", n_mcmc, ".csv", sep = ""))
 
 # samples <- read.csv(file =  paste("./NIMBLE/data-mcmc/", "simple_MCMC", "-",
-                                 # penalty, "-", n_mcmc, ".csv", sep = ""))
+# penalty, "-", n_mcmc, ".csv", sep = ""))
 
 
 

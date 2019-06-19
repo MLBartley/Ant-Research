@@ -12,10 +12,11 @@ library(tidyr)
 
 source("./NIMBLE/vignettes/01.03_prepdata_penModel.R")
 
-range = exp(seq(-25, 20, by =  5))
+range = exp(seq(-9, 10, by =  1))
+
 doParallel::registerDoParallel(cores = 5)
 
-n_mcmc <- 20000
+n_mcmc <- 50000
 
 
 mcmc.out <- foreach(i = 1:length(range)) %dopar% {
@@ -26,12 +27,7 @@ mcmc.out <- foreach(i = 1:length(range)) %dopar% {
  penalty <- range[i]
 
                     model <-  nimbleModel(code = antsCode,
-                                  constants = list(a = 1, b = 1, c = 1, d = 1,
-                                                   mvnorm.mean = rep(0, num.states),
-                                                   num.states = num.states,
-                                                   nSecs = seconds,
-                                                   indx = indx,
-                                                   tau = matrix(c(penalty, 0, 0, penalty), 2, 2)),
+                                  constants =constants,
                                   data = data,
                                   inits = inits,
                                   dimensions = list(P = c(num.states, num.states),
