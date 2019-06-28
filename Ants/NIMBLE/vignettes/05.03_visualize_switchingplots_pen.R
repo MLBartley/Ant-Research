@@ -20,7 +20,7 @@ MSPE_results_summary <- MSPE_results %>%
 
 
 best <- which(MSPE_results_summary[,2] == min(MSPE_results_summary[,2]))
-n_mcmc <- 60001
+n_mcmc <- 40001
 
 penalty <- exp(MSPE_results_summary[best,1])
 
@@ -33,7 +33,12 @@ source("./NIMBLE/vignettes/01.03_prepdata_penModel.R")
 
 
 Rmodel <- nimbleModel(code = antsCode,
-                      constants <- constants,
+                      constants <- list(a = 1, b = 1, c = 1, d = 1,
+                                        mvnorm.mean = rep(0, num.states),
+                                        num.states = num.states,
+                                        nSecs = seconds,
+                                        indx = indx,
+                                        tau = matrix(c(penalty, 0, 0, penalty), 2)),
                       data = dat,
                       inits = inits,
                       dimensions = list(P = c(num.states, num.states),
@@ -64,9 +69,9 @@ Cmcmc <- compileNimble(Rmcmc, project = Rmodel)
 Cmcmc$run(n_mcmc)
 
 ## extract samples
-samples <- as.matrix(Cmcmc$mvSamples[, -(1:1000)])
+samples <- as.matrix(Cmcmc$mvSamples)
 write.csv(samples, file =  paste("./NIMBLE/data-mcmc/", "pen_MCMC", "-",
-                                 penalty, "-", n_mcmc, ".csv", sep = ""))
+                                 log(penalty), "-", n_mcmc, ".csv", sep = ""))
 
 # samples <- read.csv(file =  paste("./NIMBLE/data-mcmc/", "simple_MCMC", "-",
 # penalty, "-", n_mcmc, ".csv", sep = ""))

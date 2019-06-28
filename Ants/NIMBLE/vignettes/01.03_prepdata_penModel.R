@@ -2,7 +2,8 @@
 ## This script aims to initialize all simple model details
 ##
 ## Created: May 24, 2019
-## Updated 1:
+## Updated 1: fixed code so that dbern has right parameter value (#changed to get P[X_{t-1}, 2])
+## Updated 2: fixed code so that the P denominator is sum{-i}(1 + e.beta) -- otherwise doesn't add to 1
 ###############################################################################
 library(nimble)
 
@@ -25,10 +26,12 @@ antsCode <- nimbleCode({
 
   #probablility that the colony switches between states
   for(i in 1:num.states){
-    P[i,i] <- 1 / (1 + sum(e.beta[1:num.states]))
+
+    P[i,i] <- 1 / (1 + sum(e.beta[1:num.states]) - e.beta[i])
 
     for(j in indx[[i]]){
-      P[i, j] <- e.beta[j] / (1 + sum(e.beta[1:num.states]))
+
+      P[i, j] <- e.beta[j] / (1 + sum(e.beta[1:num.states]) - e.beta[i])
     }
   }
 
@@ -87,12 +90,12 @@ P <- nimArray(NA,
 # for( t in 1:cov.seconds){
 for(i in 1:num.states){
   P[i,i] <- 1 /
-    (1 + sum(e.beta.init[1:num.states]))
+    (1 + sum(e.beta.init[i != 1:num.states]))
   # tau[i, i] <- exp(10)
 
   for(j in which(1:num.states != i)){
     P[i, j] <- e.beta.init[j] /
-      (1 + sum(e.beta.init[1:num.states]))
+      (1 + sum(e.beta.init[i != 1:num.states]))
     # tau[i, j] <- 0
   }
 }
@@ -100,13 +103,14 @@ for(i in 1:num.states){
 
 p.init <- P
 
-constants <- list(a = 1, b = 1, c = 1, d = 1,
-                  mvnorm.mean = rep(0, num.states),
-                  # tau = tau,
-                  num.states = num.states,
-                  nSecs = seconds,
-                  indx = indx,
-                  tau = matrix(c(penalty, 0, 0, penalty), 2))
+# constants <- list(a = 1, b = 1, c = 1, d = 1,
+                  # mvnorm.mean = rep(0, num.states),
+                  # # tau = tau,
+                  # num.states = num.states,
+                  # nSecs = seconds,
+                  # indx = indx,
+                  # tau = matrix(c(penalty, 0, 0, penalty), 2)
+                  # )
 
 inits <- list( lambda_l = 0.007, lambda_diff = 0.05, lambda_h = .007 + .05,
                e.beta = e.beta.init,  state = x.init, P = p.init, y_hat = dat, mspe = 0)
