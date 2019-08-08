@@ -1,15 +1,15 @@
-
-library(coda)
-library(data.table)
-library(ggplot2)
-library(grid)
-library(gridExtra)
-library(igraph)
-library(magrittr)
-library(MCMCpack)
-library(MCMCvis)
-library(nimble)
-library(tidyverse)
+#
+# library(coda)
+# library(data.table)
+# library(ggplot2)
+# library(grid)
+# library(gridExtra)
+# library(igraph)
+# library(magrittr)
+# library(MCMCpack)
+# library(MCMCvis)
+# library(nimble)
+# library(tidyverse)
 
 source("./R/data_prep_functions.R")
 source("./R/summary_visual_functions.R")
@@ -19,13 +19,20 @@ source("./NIMBLE/vignettes/01.02_prepdata_simpleModel.R")
 
 
 #penalty range
-range <- seq(1000,15000, by =  2500) #next 16000 to 30000, then 33500 to 48500
+range <- seq(1,100, by =  5) #next 16000 to 30000, then 33500 to 48500
+range <- 300 #single value for testing
+
 
 ## create model object
 set.seed(0)
-n_mcmc <- 80000
+n_mcmc <- 10000
 
-mcmc.out <- for(i in 1:length(range)) {
+doParallel::registerDoParallel(cores = 5)
+
+
+mcmc.out <- foreach(i = 1:length(range)) %dopar% {
+
+# mcmc.out <- for(i in 1:length(range)) {
 
   penalty <- range[i]
 

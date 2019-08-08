@@ -7,7 +7,7 @@ library(dplyr)
    # devtools::install_github("nimble-dev/nimble", ref = "avoid-protect-stack-overflow", subdir = "packages/nimble")
 library(nimble, lib.loc = "/usr/lib/R/site-library")
 library(tidyr)
-# library(doParallel)
+ library(doParallel)
  library(ggplot2)
 
 source("./NIMBLE/vignettes/01.03_prepdata_penModel.R")

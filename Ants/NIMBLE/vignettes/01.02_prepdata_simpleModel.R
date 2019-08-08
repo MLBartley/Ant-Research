@@ -15,8 +15,10 @@ seconds <- length(dat)
 
 # Define model
 modelCode <- nimbleCode({
-  lambda_l ~ dgamma(a, b)
-  lambda_diff ~ dgamma(c, d)
+
+  #priors for lambda values
+  lambda_l ~ dgamma(shape = a, rate = b)
+  lambda_diff ~ dgamma(shape = c, rate = d)
 
   lambda_h <- lambda_l + lambda_diff
 
@@ -33,8 +35,12 @@ modelCode <- nimbleCode({
   }
 
   for (t in 1:nSecs){
-    y[t] ~ dpois(lambda_l + lambda_diff * (state[t]))
+    # y[t] ~ dpois(lambda_l + (lambda_diff * (state[t]))) #same as y_l ~pois (lambda_l) and y_h ~ pois(lambda_h * I(state = H))
 
+    y[t] <- y_l[t] + y_diff[t]
+
+    y_l[t] ~ dpois(lambda_l)
+    y_diff[t] ~ dpois(lambda_diff * state[t])
 
     ##need to calculate OSA MSPE within nimble - this way we don't need to monitor states
     # for (t in 1:nSecs){
@@ -53,7 +59,9 @@ modelCode <- nimbleCode({
 nStates <- 2
 theta.init <- matrix(c(100, 1, 1, 100), 2, 2)
 
-constants <- list(delta_t = 1, nSecs = seconds, nStates = nStates,
+constants <- list(delta_t = 1,
+                  nSecs = seconds,
+                  nStates = nStates,
                   a = 1, b = 1, c = 1, d = 1, theta = theta.init)
 data <- list(y = dat)
 x.init <- sample(x = c(0, 1), size = seconds, replace = T)

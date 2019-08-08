@@ -22,6 +22,7 @@ best <- which(MSPE_results_summary[,2] == min(MSPE_results_summary[,2]))
 n_mcmc <- 50001
 
 penalty <- MSPE_results_summary[best,1]
+penalty <- 81
 
 source("./NIMBLE/vignettes/01.02_prepdata_simpleModel.R")
 
@@ -64,12 +65,13 @@ samples <- as.matrix(Cmcmc$mvSamples)
 write.csv(samples, file =  paste("./NIMBLE/data-mcmc/", "simple_MCMC", "-",
                                  penalty, "-", n_mcmc, ".csv", sep = ""))
 
- # samples <- read.csv(file =  paste("./NIMBLE/data-mcmc/", "simple_MCMC", "-",
-                                 # penalty, "-", n_mcmc, ".csv", sep = ""))
+
+samples <- read.csv(file =  paste("./NIMBLE/data-mcmc/", "simple_MCMC", "-",
+ penalty, "-", n_mcmc, ".csv", sep = ""))
 
 
 
-coda_samples <- mcmc(samples[, 1:20])
+coda_samples <- mcmc(samples[, 1:10])
   plot(coda_samples)
 
 ##load in ant data
@@ -88,7 +90,7 @@ maxtime <- hours * 60 * 60
 
 
 #state estimates
-state_samples <- samples[, -c(1:7)]
+state_samples <- samples[, -c(1:8)]
 
 states_est <-apply(state_samples, 2, mean)
 
@@ -112,4 +114,6 @@ points(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative Interaction Count"
 ##peeky peek
 
 plot(states_est, type = "l")
+plot(round(states_est), type = "l")
 
+plot(samples[, 50], type = "l")
