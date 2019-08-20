@@ -34,13 +34,25 @@ modelCode <- nimbleCode({
     # was in previous simple model code
   }
 
+  ## OBSERVED FEEDING INTERACTION DATA
+  prob[1] <- lambda_l
+  prob[2] <- lambda_diff
+
   for (t in 1:nSecs){
-    # y[t] ~ dpois(lambda_l + (lambda_diff * (state[t]))) #same as y_l ~pois (lambda_l) and y_h ~ pois(lambda_h * I(state = H))
 
-    y[t] <- y_l[t] + y_diff[t]
+    # y_l[t] ~ dZIP(lambda_l, zeroProb = p)
+    # y_l[t] ~ dpois(lambda_l)
+    # y_diff[t] ~ dpois(lambda_diff)
+    #
+    #  y[t] <- y_l[t] + y_diff[t] * state[t]
 
-    y_l[t] ~ dpois(lambda_l)
-    y_diff[t] ~ dpois(lambda_diff * state[t])
+    y[t] ~ dpois(lambda_l + (lambda_diff * (state[t]))) #same as y_l ~pois (lambda_l) and y_h ~ pois(lambda_h * I(state = H))
+
+    split[t, 1:2] ~ dmultinom(size = y[t],
+                              prob = prob[1:2])
+
+    y_l[t] <- (state[t] == 0) * y[t] + (state[t] != 0) * split[t, 1] * (y[t] != 0)
+    y_diff[t] <- (state[t] != 0) * split[t, 2] * (y[t] != 0)
 
     ##need to calculate OSA MSPE within nimble - this way we don't need to monitor states
     # for (t in 1:nSecs){

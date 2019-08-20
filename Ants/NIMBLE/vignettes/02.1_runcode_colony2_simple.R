@@ -25,7 +25,7 @@ range <- 300 #single value for testing
 
 ## create model object
 set.seed(0)
-n_mcmc <- 10000
+n_mcmc <- 1000000
 
 doParallel::registerDoParallel(cores = 5)
 
@@ -40,20 +40,40 @@ Rmodel <- nimbleModel(code = modelCode,
                       constants <- list(delta_t = 1,
                                         nSecs = seconds,
                                         nStates = nStates,
-                                        a = 1, b = 1, c = 1, d = 1,
+                                        a = .005, b = .7, c = .05, d = .7,
                                         theta = matrix(c(penalty, 1, 1, penalty), 2, 2)),
                       data = data,
                       inits = inits,
                       dimensions = list(theta = c(nStates, nStates)))
 
-## specify MCMC algorithm
-spec <- configureMCMC(Rmodel, control = list(reflective = TRUE))
-# spec$printSamplers("lambda_l")
-# spec$printSamplers("lambda_diff")
-# spec$printSamplers("P")
+#check data is set
+Rmodel$y[1:10]
+Rmodel$setData(list(y = data$y))
 
+
+## specify MCMC algorithm
+## specify MCMC algorithm
+spec <- configureMCMC(Rmodel)
+spec$printSamplers("lambda_l")
+spec$printSamplers("lambda_diff")
+spec$printSamplers("P")
+
+spec$removeSamplers(c("y_l"))
+spec$addSampler(target = c("y_l"),
+                type = "RW_block",
+                control = list(adaptInterval = 100))
+
+spec$removeSamplers(c("y_diff"))
+spec$addSampler(target = c("y_diff"),
+                type = "RW_block",
+                control = list(adaptInterval = 100))
+
+spec$monitors
 spec$resetMonitors()
-spec$addMonitors(c('lambda_l', 'lambda_diff', 'P', 'mspe')) #NOT monitoring X (states)
+
+spec$addMonitors(c('lambda_l', "lambda_diff",
+                   "P"))
+spec$addMonitors2(c('mspe'))
 
 
 ## build MCMC algorithm
