@@ -5,8 +5,12 @@ inst/doc
 
 data/
 output/
-  NIMBLE/visuals/
+  Ants/NIMBLE/visuals/
   NIMBLE/data-prepped/
-  NIMBLE/data-mcmc/
+  Ants/NIMBLE/data-mcmc
   manuscript/
   Literature/
+
+*.csv
+*.pdf
+*.Rdata
