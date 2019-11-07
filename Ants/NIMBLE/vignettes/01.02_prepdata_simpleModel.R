@@ -69,7 +69,7 @@ modelCode <- nimbleCode({
 
 ## define constants, data, and initial values
 nStates <- 2
-theta.init <- matrix(c(100, 1, 1, 100), 2, 2)
+theta.init <- matrix(c(1, 1, 1, 1), 2, 2)
 
 constants <- list(delta_t = 1,
                   nSecs = seconds,

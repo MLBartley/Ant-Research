@@ -10,6 +10,7 @@
 # library(MCMCvis)
 # library(nimble)
 # library(tidyverse)
+library(doParallel)
 
 source("./R/data_prep_functions.R")
 source("./R/summary_visual_functions.R")
@@ -19,13 +20,11 @@ source("./NIMBLE/vignettes/01.02_prepdata_simpleModel.R")
 
 
 #penalty range
-range <- seq(1,100, by =  5) #next 16000 to 30000, then 33500 to 48500
-range <- 300 #single value for testing
+range <- seq(100, 200, by =  4)
 
 
 ## create model object
-set.seed(0)
-n_mcmc <- 1000000
+n_mcmc <- 10010
 
 doParallel::registerDoParallel(cores = 5)
 
@@ -46,8 +45,12 @@ Rmodel <- nimbleModel(code = modelCode,
                       inits = inits,
                       dimensions = list(theta = c(nStates, nStates)))
 
+## check what needs to be initialized (if anything)
+Rmodel$initializeInfo()
+
 #check data is set
 Rmodel$y[1:10]
+Rmodel$isData('y')
 Rmodel$setData(list(y = data$y))
 
 
@@ -58,22 +61,22 @@ spec$printSamplers("lambda_l")
 spec$printSamplers("lambda_diff")
 spec$printSamplers("P")
 
-spec$removeSamplers(c("y_l"))
-spec$addSampler(target = c("y_l"),
-                type = "RW_block",
-                control = list(adaptInterval = 100))
-
-spec$removeSamplers(c("y_diff"))
-spec$addSampler(target = c("y_diff"),
-                type = "RW_block",
-                control = list(adaptInterval = 100))
+# spec$removeSamplers(c("y_l"))
+# spec$addSampler(target = c("y_l"),
+#                 type = "RW_block",
+#                 control = list(adaptInterval = 100))
+#
+# spec$removeSamplers(c("y_diff"))
+# spec$addSampler(target = c("y_diff"),
+#                 type = "RW_block",
+#                 control = list(adaptInterval = 100))
 
 spec$monitors
-spec$resetMonitors()
-
-spec$addMonitors(c('lambda_l', "lambda_diff",
-                   "P"))
-spec$addMonitors2(c('mspe'))
+ spec$resetMonitors()
+#
+ spec$addMonitors(c('lambda_l', "lambda_diff",
+                   "P", "mspe"))
+# spec$addMonitors2(c("y_l", "y_diff", 'mspe'))
 
 
 ## build MCMC algorithm
