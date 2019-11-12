@@ -15,12 +15,13 @@ seconds <- length(dat)
 
 # Define model
 modelCode <- nimbleCode({
-  lambda_l ~ dgamma(a, b)
-  lambda_diff ~ dgamma(c, d)
-
-  lambda_h <- lambda_l + lambda_diff
+  # lambda_l ~ dgamma(a, b)
+  # lambda_diff ~ dgamma(c, d)
+  #
+  # lambda_h <- lambda_l + lambda_diff
 
   for (i in 1:nStates){
+    lambda[1] ~ dgamma(1, 1)
     P[i, ] ~ ddirch(alpha = theta[i, ] )
   }
 
@@ -32,31 +33,14 @@ modelCode <- nimbleCode({
     # was in previous simple model code
   }
 
-
-  ## OBSERVED FEEDING INTERACTION DATA
-  prob[1] <- lambda_l
-  prob[2] <- lambda_diff
-
   for (t in 1:nSecs){
+    y[t] ~ dpois(lambda[state[t] + 1])
 
-    # y_l[t] ~ dZIP(lambda_l, zeroProb = p)
-    # y_l[t] ~ dpois(lambda_l)
-    # y_diff[t] ~ dpois(lambda_diff)
-    #
-    #  y[t] <- y_l[t] + y_diff[t] * state[t]
-
-    y[t] ~ dpois(lambda_l + (lambda_diff * (state[t]))) #same as y_l ~pois (lambda_l) and y_h ~ pois(lambda_h * I(state = H))
-
-    split[t, 1:2] ~ dmultinom(size = y[t],
-                              prob = prob[1:2])
-
-    y_l[t] <- (state[t] == 0) * y[t] + (state[t] != 0) * split[t, 1] * (y[t] != 0)
-    y_diff[t] <- (state[t] != 0) * split[t, 2] * (y[t] != 0)
 
     ##need to calculate OSA MSPE within nimble - this way we don't need to monitor states
     # for (t in 1:nSecs){
-    y_hat[t] <- (lambda_l * P[(state[t] + 1), 1] +
-                   lambda_h * P[(state[t] + 1), 2])
+    y_hat[t] <- (lambda[1] * P[(state[t] + 1), 1] +
+                   lambda[2] * P[(state[t] + 1), 2])
     mspe_diff[t] <- ((y_hat[t]) - y[t])^2
   }
 
@@ -78,5 +62,6 @@ p.init <- matrix(c(gtools::rdirichlet(1, alpha = theta.init[1, ]),
                                      gtools::rdirichlet(1, alpha = theta.init[2, ] )),
                    2, 2)
 
-inits <- list( lambda_l = 0.007, lambda_diff = 0.05, lambda_h = .007 + .05,
-               state = x.init, P = p.init, y_hat = dat, mspe = 0)
+# inits <- list( lambda_l = 0.007, lambda_diff = 0.05, lambda_h = .007 + .05,
+inits <- list(lambda = c(.007, .057),
+              state = x.init, P = p.init, y_hat = dat, mspe = 0)

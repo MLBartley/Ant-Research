@@ -20,6 +20,7 @@ source("./NIMBLE/vignettes/01.02_prepdata_simpleModel.R")
 
 #penalty range
 range <- seq(1000,15000, by =  2500) #next 16000 to 30000, then 33500 to 48500
+range <- 300
 
 ## create model object
 set.seed(0)
@@ -33,11 +34,12 @@ Rmodel <- nimbleModel(code = modelCode,
                       constants <- list(delta_t = 1,
                                         nSecs = seconds,
                                         nStates = nStates,
-                                        a = 1, b = 1, c = 1, d = 1,
+                                        a = .005, b = .7, c = .05, d = .7,
                                         theta = matrix(c(penalty, 1, 1, penalty), 2, 2)),
                       data = data,
                       inits = inits,
                       dimensions = list(theta = c(nStates, nStates)))
+
 
 ## specify MCMC algorithm
 spec <- configureMCMC(Rmodel, control = list(reflective = TRUE))
@@ -45,8 +47,8 @@ spec <- configureMCMC(Rmodel, control = list(reflective = TRUE))
 # spec$printSamplers("lambda_diff")
 # spec$printSamplers("P")
 
-spec$resetMonitors()
-spec$addMonitors(c('lambda_l', 'lambda_diff', 'P', 'mspe')) #NOT monitoring X (states)
+spec$monitors
+spec$addMonitors2(c('y_l', 'y_diff', "mspe"))
 
 
 ## build MCMC algorithm
