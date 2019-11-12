@@ -15,8 +15,10 @@ seconds <- length(dat)
 
 # Define model
 modelCode <- nimbleCode({
-  lambda_l ~ dgamma(a, b)
-  lambda_diff ~ dgamma(c, d)
+
+  #priors for lambda values
+  lambda_l ~ dgamma(shape = a, rate = b)
+  lambda_diff ~ dgamma(shape = c, rate = d)
 
   lambda_h <- lambda_l + lambda_diff
 
@@ -31,7 +33,6 @@ modelCode <- nimbleCode({
     # changed from [P_prev state, 1] to [P_ps , 2]....unsure if same mistake
     # was in previous simple model code
   }
-
 
   ## OBSERVED FEEDING INTERACTION DATA
   prob[1] <- lambda_l
@@ -68,10 +69,14 @@ modelCode <- nimbleCode({
 
 ## define constants, data, and initial values
 nStates <- 2
-theta.init <- matrix(c(100, 1, 1, 100), 2, 2)
+theta.init <- matrix(c(1, 1, 1, 1), 2, 2)
 
-# constants <- list(delta_t = 1, nSecs = seconds, nStates = nStates,
-                  # a = 1, b = 1, c = 1, d = 1, theta = theta.init)
+
+constants <- list(delta_t = 1,
+                  nSecs = seconds,
+                  nStates = nStates,
+                  a = 1, b = 1, c = 1, d = 1, theta = theta.init)
+
 data <- list(y = dat)
 x.init <- sample(x = c(0, 1), size = seconds, replace = T)
 p.init <- matrix(c(gtools::rdirichlet(1, alpha = theta.init[1, ]),

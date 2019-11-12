@@ -1,16 +1,10 @@
-###############################################################################
-## This script aims to chose the best MSPE value, rerun MCMC to obtain latent
-## state samples and to create the switching plots
-##
-## Created: April 15, 2019
-## Updated 1:
-###############################################################################
 library(magrittr)
 library(dplyr)
 library(coda)
 
-load("./NIMBLE/data-prepped/MSPE_simple.Rdata")
+set.seed(0)
 
+load("./NIMBLE/data-prepped/MSPE_simple.Rdata")
 
 
 MSPE_results_summary <- MSPE_results %>%
@@ -19,35 +13,26 @@ MSPE_results_summary <- MSPE_results %>%
 
 
 best <- which(MSPE_results_summary[,2] == min(MSPE_results_summary[,2]))
-
-n_mcmc <- 20003
+n_mcmc <- 10001
 
 penalty <- MSPE_results_summary[best,1]
- penalty <- 265 #slight raise in mspe after here (next try above line)
- penalty <- 1 #no penalty
-
+# penalty <- 81
 
 source("./NIMBLE/vignettes/01.02_prepdata_simpleModel.R")
 
- ##fiddling around
- # penalty <- 1 #ie no penalty
- inits$lambda_diff <- .1
-
- inits$lambda_l <- .01
-
- ####RErun MCMC
+####RErun MCMC
 
 Rmodel <- nimbleModel(code = modelCode,
                       constants <- list(delta_t = 1,
                                         nSecs = seconds,
                                         nStates = nStates,
-                                        # a = .005, b = .7, c = .05, d = .7,
-                                        a = 1, b = 1, c = 1, d = 1,
+                                        a = .005, b = .7, c = .05, d = .7,
                                         theta = matrix(c(penalty, 1, 1, penalty), 2, 2)),
                       data = dat,
                       inits = inits,
                       dimensions = list(theta = c(nStates, nStates)))
 
+# Rmodel$isData('y')
 Rmodel$setData(list(y = data$y))
 
 
@@ -58,13 +43,9 @@ spec$resetMonitors()
 spec$addMonitors(c('lambda_l',
                    'lambda_diff',
                    'P',
-                   'state',
+                   # 'state',
                    'mspe'))
 
-# spec$addMonitors(c('lambda',
-#                    'P',
-#                    'state',
-#                    'mspe'))
 
 ## build MCMC algorithm
 Rmcmc <- buildMCMC(spec)
@@ -79,17 +60,64 @@ Cmcmc$run(n_mcmc)
 
 ## extract samples
 samples <- as.matrix(Cmcmc$mvSamples)
-write.csv(samples, file =  paste("./NIMBLE/data-mcmc/", "simple_MCMC", "-",
+write.csv(samples, file =  paste("./NIMBLE/model-checking/", "simple_MCMC", "-",
                                  penalty, "-", n_mcmc, ".csv", sep = ""))
 
 
-samples <- read.csv(file =  paste("./NIMBLE/data-mcmc/", "simple_MCMC", "-",
- penalty, "-", n_mcmc, ".csv", sep = ""))
+
+coda_samples <- mcmc(samples)
+plot(coda_samples)
+
+
+####RErun MCMC
+
+Rmodel <- nimbleModel(code = modelCode,
+                      constants <- list(delta_t = 1,
+                                        nSecs = seconds,
+                                        nStates = nStates,
+                                        a = .005, b = .7, c = .05, d = .7,
+                                        theta = matrix(c(penalty, 1, 1, penalty), 2, 2)),
+                      data = dat,
+                      inits = inits,
+                      dimensions = list(theta = c(nStates, nStates)))
+
+Rmodel$setData(list(y = data$y))
+
+## specify MCMC algorithm
+spec <- configureMCMC(Rmodel)
+
+spec$resetMonitors()
+spec$addMonitors(c('lambda_l',
+                   'lambda_diff',
+                   'P',
+                   'state',
+                   'mspe'))
+
+
+## build MCMC algorithm
+Rmcmc <- buildMCMC(spec)
+
+## compile model and MCMC
+Cmodel <- compileNimble(Rmodel)
+Cmcmc <- compileNimble(Rmcmc, project = Rmodel)
+
+## run MCMC
+
+Cmcmc$run(n_mcmc)
+
+## extract samples
+samples2 <- as.matrix(Cmcmc$mvSamples)
+write.csv(samples2, file =  paste("./NIMBLE/model-checking/", "simple_MCMC2", "-",
+                                 penalty, "-", n_mcmc, ".csv", sep = ""))
+
+
+# samples <- read.csv(file =  paste("./NIMBLE/model-checking/", "simple_MCMC2", "-",
+                                  # penalty, "-", n_mcmc, ".csv", sep = ""))
 
 
 
-coda_samples <- mcmc(samples[, 1:10])
-  plot(coda_samples)
+coda_samples <- mcmc(samples2[, 1:10])
+plot(coda_samples)
 
 ##load in ant data
 
@@ -107,7 +135,7 @@ maxtime <- hours * 60 * 60
 
 
 #state estimates
-state_samples <- samples[, -c(1:8)]
+state_samples <- samples2[, -c(1:8)]
 
 states_est <-apply(state_samples, 2, mean)
 
@@ -128,9 +156,13 @@ for (j in 1:length(embedded.chain)) {
 points(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative Interaction Count",
        xlim = c(0, maxtime))
 
- ##peeky peek
+##peeky peek
 
 plot(states_est, type = "l")
 plot(round(states_est), type = "l")
 
 plot(samples[, 50], type = "l")
+
+
+mean(samples[, 'mspe'])
+mean(samples2[, 'mspe'])
