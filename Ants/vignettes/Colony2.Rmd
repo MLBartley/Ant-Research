@@ -70,21 +70,14 @@ An important basis for this model is the 'pulses' of interactions seen over time
 ```{r data visualization, include=FALSE}
 
 
-<<<<<<< HEAD
-# sumvis_high <- sumvis_troph(data = col2_high4, entrance = F, hours = 4, density = "high")
-=======
+
 sumvis_high <- sumvis_troph(data = col2_high4, entrance = F, hours = 4, density = "high")
->>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 
 
 sumvis_low <- sumvis_troph(data = col2_low4, entrance = F, hours = 4, density = "low")
 
 
-<<<<<<< HEAD
 
-
-=======
->>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 ```
 
 We can see from these graphs for the high density colony data that on average for a four hour span of time ants engage in `r round(mean(sumvis_high$all.ID), 1)` interactions per ant for `r sumvis_high$allants` ants. In total, `r sum(sumvis_high$all.ID)/2 ` interactions occured within the single chamber. 
@@ -96,9 +89,7 @@ For the low density colony data, there was an average of `r round(mean(sumvis_lo
 
 ```{r prep interaction data, include=FALSE}
 
-<<<<<<< HEAD
-# col2_high4_5 <- prep_troph_data(col2_high4, hours = 4, delta_t = 5)
-=======
+
 col2_high4_5 <- prep_troph_data(col2_high4, hours = 4, delta_t = 5)
 col2_low4_5 <- prep_troph_data(col2_low4, hours = 4, delta_t =  5)
 ```
@@ -123,23 +114,11 @@ In order to showcase the improvements our Penalized Hidden Markov Model for colo
 path <- out.dir
 path_table <- "../output/tables/" 
 states <- 2
-# states <- 3
-<<<<<<< HEAD
-n_mcmc <- 40000
+n_mcmc <- 50000
 hours <- 4
 X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
-# X <- pen_results[[3]][-(1:9), 1]
-X_3 <- sample(x = 1:3, size = hours * 60 * 60, replace = T)
 lambda <- c(.007, .05)
  # registerDoMC(cores = 1) 
-=======
-n_mcmc <- 10000
-hours <- 4
-X <- sample(x = c(1, 2), size = hours*60*60, replace = T)
-X_3 <- sample(x = 1:3, size = hours * 60 * 60, replace = T)
-lambda <- c(.005, .015)
-registerDoMC(cores = 5) 
->>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 ```
 
 We will run all models as 2-state HMM models, as determined by previous work. 
@@ -149,11 +128,8 @@ We will run all models as 2-state HMM models, as determined by previous work.
 # theta <- matrix(data = c(5000, 1, 1, 5000), nrow = 2, ncol = 2, byrow = T) 
 P <- matrix(c(.997, .003, .003, .997), nrow = 2, byrow = T)
 param_start <- list(X = X, lambda = lambda, P = P)
-<<<<<<< HEAD
 delta_t <- 1
-=======
 
->>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 #high density - one chamber
 
 
@@ -161,50 +137,30 @@ delta_t <- 1
 
 #low density - queen's chamber -- USED FOR PAPER
 
-<<<<<<< HEAD
-i <- seq(120000, 120000, by =  2000)
+i <- seq(1, 1, by =  2000)
 
   # RUN ONLY ONCE - DON'T RESAVE OVER DATA
   # write.csv(t(c(1, 2, 3, 4)),
   #           # col.names = c("Penalty", "MSPE", "Accept", "Number of Iterations"),
   #           file = "../output/modelsrun_sim2.csv")
   
-  simple_col2lo4qbin1_120k <- #foreach(i = range_simple ,
+  simple_col2lo4qbin1_Dec2019 <- #foreach(i = range_simple ,
                                   #.errorhandling = "remove") %dopar% 
                           DT_mcmc_troph(starts_data = col2_low4_5$queen_starts_persec, 
                                        ant_file = col2_low4_5$data, chamber = "queen", 
-                                       title = "Test", 
-                                       a = 1, b = 1, c = 1, d = 1, 
+                                       title = "Checking_RapidSwitching_NoPenalty", 
+                                       a = .05, b = .7, c = .05, d = .7,
                                        theta = matrix(c(i, 1, 1, i), 2, 2), states = states, 
                                        n_mcmc = n_mcmc, delta_t = 1, hours = hours,
                                        param_start = param_start, fig_save = TRUE, 
                                         data_out = paste("../data-new/", "sim_MCMC", "-", 
-                                                         (i), "-", n_mcmc, ".csv", sep = ""),                                            modelsrun_out = paste("../output/modelsrun_sim2.csv", sep="")) 
+                                                         (i), "-", n_mcmc, ".csv", sep = ""),                                            modelsrun_out = paste("../output/modelsrun_Dec2019test.csv", sep="")) 
 
-     #low density - entrance chamber
-=======
-range_simple <- seq(20000, 35000, by =  1000)
-
-simple_col2lo4qbin1 <- foreach(i = range_simple ,
-                                .errorhandling = "remove") %dopar% 
-                        DT_mcmc_troph(starts_data = col2_low4_5$queen_starts_persec, 
-                                     ant_file = col2_low4_5$data, chamber = "queen", 
-                                     title = "Test", 
-                                     a = 1, b = 1, c = 1, d = 1, 
-                                     theta = matrix(c(i, 1, 1, i), 2, 2), states = states, 
-                                     n_mcmc = n_mcmc, delta_t = 1, hours = hours,
-                                     param_start = param_start, fig_save = TRUE, 
-                                     fig_path = path, fig_name = "simp_col2lo4qbin1", 
-                                     plot_title = "test") 
-
-#low density - entrance chamber
->>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
 
 
 ```
 
 ```{r compare simple, eval=FALSE, include=FALSE}
-<<<<<<< HEAD
 
 MSPE_results_simp2 <- read.csv("../output/modelsrun_sim2.csv")
 
