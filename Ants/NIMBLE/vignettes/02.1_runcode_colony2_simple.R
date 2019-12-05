@@ -20,8 +20,8 @@ source("./NIMBLE/vignettes/01.02_prepdata_simpleModel.R")
 
 
 #penalty range
-range <- seq(100, 200, by =  4)
-
+range <- seq(1000,15000, by =  2500) #next 16000 to 30000, then 33500 to 48500
+range <- 300
 
 ## create model object
 n_mcmc <- 10010
@@ -44,6 +44,9 @@ Rmodel <- nimbleModel(code = modelCode,
                       data = data,
                       inits = inits,
                       dimensions = list(theta = c(nStates, nStates)))
+
+
+
 
 ## check what needs to be initialized (if anything)
 Rmodel$initializeInfo()

@@ -19,6 +19,7 @@ MSPE_results_summary <- MSPE_results %>%
 
 
 best <- which(MSPE_results_summary[,2] == min(MSPE_results_summary[,2]))
+
 n_mcmc <- 20003
 
 penalty <- MSPE_results_summary[best,1]
@@ -60,6 +61,10 @@ spec$addMonitors(c('lambda_l',
                    'state',
                    'mspe'))
 
+# spec$addMonitors(c('lambda',
+#                    'P',
+#                    'state',
+#                    'mspe'))
 
 ## build MCMC algorithm
 Rmcmc <- buildMCMC(spec)

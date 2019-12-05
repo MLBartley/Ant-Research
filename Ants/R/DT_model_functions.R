@@ -103,7 +103,6 @@ DT_mcmc_troph <- function(starts_data, ant_file, chamber, title, a, b, c, d, the
   osa_param <- matrix(NA, Time, 1001, T)
   osa_final <- 0
 
-
   ## Initialize parameters - MOVE START VALUES TO OUTSIDE FUNCTION?
 
   states_param[, 1] <- states_start
@@ -127,8 +126,10 @@ DT_mcmc_troph <- function(starts_data, ant_file, chamber, title, a, b, c, d, the
       starts_low[t, 1] <- data[t]
       starts_high[t, 1] <- 0
     } else {
-      split <- rmultinom(1, size = data[t], prob = c(st_rates_param[1,
-                                                                    1], st_rates_param[2, 1]))
+
+
+      split <- rmultinom(1, size = data[t], prob = c(st_rates_param[1,1],
+                                                     st_rates_param[2, 1]))
 
       starts_low[t, 1] <- split[1]
       starts_high[t, 1] <- split[2]
@@ -191,8 +192,10 @@ DT_mcmc_troph <- function(starts_data, ant_file, chamber, title, a, b, c, d, the
     for (t in 2:(Time - 1)) {
 
 
+
       gam[t, 1] <- st_rates_low^data[t] * exp(-st_rates_low) *
         ptm_matrix[states_param[t -1, l.1000 - 1], 1] * ptm_matrix[1, states_param[t + 1, l.1000 - 1]]
+
 
       gam[t, 2] <- st_rates_high^data[t] * exp(-st_rates_high) *
         ptm_matrix[states_param[t - 1, l.1000 - 1], 2] * ptm_matrix[2, states_param[t +
@@ -224,9 +227,9 @@ DT_mcmc_troph <- function(starts_data, ant_file, chamber, title, a, b, c, d, the
     osa_param[Time, l.1000] <- st_rates_low * ptm_matrix[states_param[Time, l.1000],
                                                          1] + st_rates_high * ptm_matrix[states_param[Time, l.1000], 2]
 
-
     # Split data (N_t) into N_Ht, N_Lt
     for (t in 1:Time) {
+
       if (states_param[t, l.1000] == 1) {
         starts_low[t, l.1000] <- data[t]
         starts_high[t, l.1000] <- 0
@@ -494,9 +497,20 @@ if(l %% 1000 == 0){      #save off chunk of 1000 chains
 #
 #
 #     st_ptm_param[, l] <- as.vector(t(ptm_matrix))
-#   }
+# #   }
+# #
+#
+#   MSPE = 1/n_mcmc * 1/Time * osa_final
+#
+#   out <- c(theta[1, 1], MSPE, n_mcmc)
 #
 #
+#   write.table(t(out), file = modelsrun_out,
+#               append = T, col.names = F, sep = ',')
+#
+#
+# }
+
 #   ## Rescale Lambda parameters into per minute segments (instead of
 #   ## delta_t time segments)
 #
@@ -657,9 +671,7 @@ if(l %% 1000 == 0){      #save off chunk of 1000 chains
 #     st_ptm_est = st_ptm_est, P.run = st_ptm_param, MSPE = MSPE.1SA)
 #
 # }
-#
-#
-# >>>>>>> 8cc3341e4c9336c9a157eb5736a8c32b9c22651a
+
 
 #' Penalized Discrete Time MCMC Estimation for Trophallaxis data
 #'
@@ -852,6 +864,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber,
     sum_swrate_M <- switch_rate_param[3, 1] + switch_rate_param[4, 1]
     sum_swrate_H <- switch_rate_param[6, 1] + switch_rate_param[2, 1]
 
+
     ptm_matrix[1, 2] <- switch_rate_param[5, 1] * exp(-sum_swrate_L * delta_t) /
       (sum_swrate_L / (exp(sum_swrate_L) - 1)) #LM
 
@@ -875,6 +888,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber,
       (sum_swrate_H/ (exp(sum_swrate_H) - 1)) #HM
 
     ptm_matrix[3, 3] <- 1 - ptm_matrix[3, 1] - ptm_matrix[3, 2] #HH
+
 
   }
 
@@ -1615,6 +1629,7 @@ DT_pen_mcmc <- function(penalty, starts_data, states, ant_file, chamber,
 
 
   list(accept = sum(acpt)/length(acpt), MSPE = 1/n_mcmc * 1/Time * osa_final)
+
 
   accept = sum(acpt)/length(acpt)
   MSPE = 1/n_mcmc * 1/Time * osa_final

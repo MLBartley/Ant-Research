@@ -6,8 +6,8 @@
 ## Updated 1:
 ###############################################################################
 library(magrittr)
-library(coda, lib.loc = "/usr/lib/R/site-library") #need for EH machine
-# library(coda)
+# library(coda, lib.loc = "/usr/lib/R/site-library") #need for EH machine
+library(coda)
 library(dplyr)
 
 load("./NIMBLE/data-prepped/MSPE_penalized.Rdata")
@@ -20,7 +20,7 @@ MSPE_results_summary <- MSPE_results %>%
 
 
 best <- which(MSPE_results_summary[,2] == min(MSPE_results_summary[,2]))
-n_mcmc <- 40001
+n_mcmc <- 60001
 
 penalty <- exp(MSPE_results_summary[best,1])
 
@@ -52,6 +52,7 @@ spec <- configureMCMC(Rmodel, control = list(reflective = TRUE))
 spec$resetMonitors()
 spec$addMonitors(c('lambda_l',
                    'lambda_diff',
+                   'e.beta',
                    'P',
                    'state',
                    'mspe'))
@@ -73,12 +74,12 @@ samples <- as.matrix(Cmcmc$mvSamples)
 write.csv(samples, file =  paste("./NIMBLE/data-mcmc/", "pen_MCMC", "-",
                                  log(penalty), "-", n_mcmc, ".csv", sep = ""))
 
-# samples <- read.csv(file =  paste("./NIMBLE/data-mcmc/", "simple_MCMC", "-",
-# penalty, "-", n_mcmc, ".csv", sep = ""))
+samples <- read.csv(file =  paste("./NIMBLE/data-mcmc/", "pen_MCMC", "-",
+log(penalty), "-", n_mcmc, ".csv", sep = ""))
 
 
 
-coda_samples <- mcmc(samples[, 1:20])
+coda_samples <- mcmc(samples[, 2:20])
 plot(coda_samples)
 
 ##load in ant data
@@ -97,7 +98,7 @@ maxtime <- hours * 60 * 60
 
 
 #state estimates
-state_samples <- samples[, -c(1:7)]
+state_samples <- samples[, -c(1:10)]
 
 states_est <-apply(state_samples, 2, mean)
 
@@ -121,4 +122,6 @@ points(start, 1:int.num, xlab = "Seconds", ylab = "Cumulative Interaction Count"
 ##peeky peek
 
 plot(states_est, type = "l")
+
+plot(state_samples[, 50], type = "l")
 
